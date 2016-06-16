@@ -1,0 +1,43 @@
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Company</th>
+                            <th>Visited</th>
+                            <th>Vehicle Reg</th>
+                            <th>image</th>
+                            <th>Signed Out</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {{#each data}}
+                            <tr>
+                                <td>{{id}}</td>
+                                <td>{{contactname}}</td>
+                                <td>{{accountname}}</td>
+                                <td>{{employeename}}</td>
+                                <td>{{vehiclereg}}</td>
+                                <td><img src="/images/{{imagepath}}" style="width: 125px;length:100px;"/></td>
+                                <td>{{settime}}</td>
+                            </tr>
+                        {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <script src="/js/jquery-1.12.3.min.js" ></script>
+
+        <script>
+            $(function() {
+                $('#datatable').DataTable({
+                   // "order": [[ 5, "desc" ]]
+                });
+            })
+        </script>

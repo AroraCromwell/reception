@@ -1,0 +1,22 @@
+{
+  "appDynamics": {
+    "debug": {{ appDynamics_debug }},
+    "active": {{ appDynamics_active }},
+    "controllerHostName": "{{ appDynamics_controllerHostName }}",
+    "controllerPort": {{ appDynamics_controllerPort }},
+    "controllerSslEnabled": {{ appDynamics_controllerSslEnabled }},
+    "accountName": "{{ appDynamics_accountName }}",
+    "applicationName": "{{ appDynamics_applicationName }}",
+    "accountAccessKey": "{{ appDynamics_accountAccessKey }}",
+    "tierName": "{{ appDynamics_merlinHandlerTierName }}",
+    "nodeName": "{{ appDynamics_nodeName }}"
+  },
+  "db": {
+    "postgres": {
+      "string": "{{ merlinHandler_postgresString }}"
+    }
+  },
+  "server": {
+    "port": {{ merlinHandler_serverPort }}
+  }
+}

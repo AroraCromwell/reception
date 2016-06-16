@@ -1,0 +1,20 @@
+{
+  "appDynamics": {
+    "active": false
+  },
+  "db": {
+    "postgres": {
+      "string": "postgres://postgres:@localhost:5432/test"
+    }
+  },
+  "server": {
+    "port": 5000
+  },
+  "printer": {
+    "set": "Brother_HL_3150CDW_series"
+  },
+  "runTime": "* 19,20 * * *",
+  "terms": {
+    "version": "1"
+  }
+}
