@@ -296,19 +296,16 @@ export class VisitorStore {
         let insertQuery = `
                     INSERT INTO
                     reception_handler.app_status (
-                        status,
-                        settime
+                        location
                     )
                     VALUES (
-                        $1,
-                        $2
+                        $1
                     )
                     RETURNING id
                 `;
 
         let args = [
-            data.appStatus,
-            myDate + ' ' + myTime
+            'brc'
         ];
         return this._resource.query(insertQuery, args)
             .then(response => {

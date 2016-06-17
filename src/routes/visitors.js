@@ -49,7 +49,7 @@ export class Visitors {
                     this._visitorService.allSignIns()
 
                         .then(result => {
-                            let row = result.rows;
+                                let row = result.rows;
                             res.render('all_visitors', {data: row});
                             // res.send({success : 1, message : "completed", row, retry: 0});
 
@@ -70,12 +70,12 @@ export class Visitors {
         return [
             (req, res) => {
 
+
+                console.log("iNode servcie check data" + req.body);
                 this._visitorService.processRequest(req.body)
 
                     .then(result => {
-
-                        res.send({success : 1, message : "completed", data : {}, retry: 0});
-
+                        res.send({success : 1, message : "completed", id : result, retry: 0});
                     })
                     .catch(err => {
                         this._logger.error(err);

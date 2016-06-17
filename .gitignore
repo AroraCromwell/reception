@@ -47,3 +47,5 @@ node_modules
 /dist/
 .vagrant
 /src/config.json
+/pdf/
+/images/

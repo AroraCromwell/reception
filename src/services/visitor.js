@@ -30,13 +30,6 @@ export class VisitorService {
                         let visitorId = result.id;
                         var html = this._templateManager.render('crom_visitor', result);
 
-                        // fs = require('fs');
-                        // fs.writeFile('./helloworld.html', html, function (err) {
-                        //     if (err)
-                        //         return console.log(err);
-                        //     console.log('Hello World > helloworld.txt');
-                        // });
-
                         var options = { format: 'A5', orientation: 'landscape', base: "file:///Users/aroras/Desktop/reception-handler/images/",type: "png,jpeg"};
 
                         pdf.create(html, options).toFile('./pdf/' + visitorId + '.pdf', function(err, pdfRes) {
@@ -50,6 +43,8 @@ export class VisitorService {
                                 //process.exit();
                             });
                         })
+
+                        return visitorId;
                     })
                     .catch(err => {
                         this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
