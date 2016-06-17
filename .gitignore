@@ -43,4 +43,5 @@ node_modules
 *.lock
 /dist/
 .vagrant
-/src/config.json
+src/config.json
+build/config.json
