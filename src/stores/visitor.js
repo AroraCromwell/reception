@@ -24,7 +24,7 @@ export class VisitorStore {
             var unix = Math.round(+new Date()/1000);
             var imageName = customer.paramAccountName +'_'+ unix;
             var options = {filename: './images/' + imageName};
-            //var options = {filename: './src/public/images/' + imageName};
+            //var options = {filename: './src/reception_handler/images/' + imageName};
             var imageData = new Buffer(customer.paramImagePath, 'base64');
 
             base64.base64decoder(imageData, options, function (err, saved) {
@@ -35,7 +35,7 @@ export class VisitorStore {
 
         let insertQuery = `
                     INSERT INTO
-                    public.cromwell_recp (
+                    reception_handler.cromwell_recp (
                         type,
                         accountid,
                         accountname,
@@ -89,7 +89,7 @@ export class VisitorStore {
             })
             .then(res => {
 
-                let selectQuery = "SELECT * FROM public.cromwell_recp WHERE id = $1 LIMIT 1";
+                let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE id = $1 LIMIT 1";
                 let args = [
                     res.rows[0]["id"]
                 ];
@@ -103,7 +103,7 @@ export class VisitorStore {
 
     getCustomer(id) {
 
-        let selectQuery = "SELECT * FROM public.cromwell_recp WHERE id = $1 LIMIT 1";
+        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE id = $1 LIMIT 1";
         let args = [
             id
         ];
@@ -122,7 +122,7 @@ export class VisitorStore {
 
         let updateQuery = `
                     UPDATE
-                    public.cromwell_recp SET 
+                    reception_handler.cromwell_recp SET 
                         signout = $1
                        WHERE logid = $2 
                 `;
@@ -161,7 +161,7 @@ export class VisitorStore {
         var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate()].join('-');
         var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
-        let updateQuery = " UPDATE public.cromwell_recp SET signout= $1 WHERE signout IS NULL";
+        let updateQuery = " UPDATE reception_handler.cromwell_recp SET signout= $1 WHERE signout IS NULL";
         let args = [
             myDate + ' ' + myTime
         ];
@@ -179,7 +179,7 @@ export class VisitorStore {
         var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() ].join('-');
         //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
-        let selectQuery = " SELECT * FROM  public.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
+        let selectQuery = " SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
         let args = [
             myDate + ' 00:00:00'
         ];
@@ -198,7 +198,7 @@ export class VisitorStore {
         //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
 
-        let selectQuery = "SELECT * FROM public.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
+        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
         let args = [
             myDate + " 00:00:00"
         ];
@@ -214,13 +214,13 @@ export class VisitorStore {
         var args = "";
 
         if(id != null){
-             selectQuery = "SELECT * FROM public.terms WHERE status = $1 and id = $2";
+             selectQuery = "SELECT * FROM reception_handler.terms WHERE status = $1 and id = $2";
              args = [
                 1,
                 id
             ];
         }else{
-             selectQuery = "SELECT * FROM public.terms WHERE status = $1";
+             selectQuery = "SELECT * FROM reception_handler.terms WHERE status = $1";
              args = [
                 1
             ];
@@ -239,7 +239,7 @@ export class VisitorStore {
 
     postTermsRequest(data) {
 
-        let insertQuery = 'INSERT INTO public.terms (terms_file) VALUES ( $1 ) RETURNING id';
+        let insertQuery = 'INSERT INTO reception_handler.terms (terms_file) VALUES ( $1 ) RETURNING id';
         let args = [
             data.terms_data
         ];
@@ -251,7 +251,7 @@ export class VisitorStore {
     }
 
     allTermsRequest() {
-        let selectQuery = 'SELECT * FROM public.terms';
+        let selectQuery = 'SELECT * FROM reception_handler.terms';
         let args = [
         ];
 
@@ -263,7 +263,7 @@ export class VisitorStore {
 
     updateTermsRequest(id) {
 
-        let updateQuery = 'UPDATE public.terms SET status = CASE WHEN (id = $1) THEN $2 ELSE $3 END';
+        let updateQuery = 'UPDATE reception_handler.terms SET status = CASE WHEN (id = $1) THEN $2 ELSE $3 END';
 
         let args = [
             id,
@@ -295,7 +295,7 @@ export class VisitorStore {
 
         let insertQuery = `
                     INSERT INTO
-                    public.app_status (
+                    reception_handler.app_status (
                         status,
                         settime
                     )
