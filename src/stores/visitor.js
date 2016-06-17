@@ -7,8 +7,8 @@
 /* Third-party modules */
 import {_} from "lodash";
 var fs = require("fs");
-var config = '../config.json';
-var file = require(config);
+var fileName = '../config.json';
+var file = require(fileName);
 
 var base64 = require('node-base64-image');
 
@@ -23,7 +23,7 @@ export class VisitorStore {
        // if(customer.paramImagePath != ''){
             var unix = Math.round(+new Date()/1000);
             var imageName = customer.paramAccountName +'_'+ unix;
-            var options = {filename: config.imagePath + imageName};
+            var options = {filename: './images/' + imageName};
             //var options = {filename: './src/reception_handler/images/' + imageName};
             var imageData = new Buffer(customer.paramImagePath, 'base64');
 
@@ -279,7 +279,7 @@ export class VisitorStore {
                 fs.writeFile('./src/config.json', JSON.stringify(file, null, 2), function (err) {
                     if (err) return console.log(err);
                     console.log(JSON.stringify(file));
-                    console.log('writing to ' + config);
+                    console.log('writing to ' + fileName);
                 });
 
                 return response;
