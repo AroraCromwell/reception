@@ -27,6 +27,8 @@ build/Release
 # Commenting this out is preferred by some people, see
 # https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
 node_modules
+src/config.json
+build/config.json
 
 # Users Environment Variables
 .lock-wscript
@@ -43,5 +45,4 @@ node_modules
 *.lock
 /dist/
 .vagrant
-src/config.json
-build/config.json
+
