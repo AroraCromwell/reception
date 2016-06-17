@@ -191,7 +191,6 @@ export class VisitorStore {
     }
 
     getAllSignIns(){
-
         var chk = new Date();
         var month = chk.getMonth()+1;
 
@@ -199,7 +198,7 @@ export class VisitorStore {
         //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
 
-        let selectQuery = "SELECT * FROM public.cromwell_recp WHERE   settime > $1 and signout IS NULL  ORDER BY id ASC";
+        let selectQuery = "SELECT * FROM public.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
         let args = [
             myDate + " 00:00:00"
         ];

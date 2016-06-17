@@ -4,7 +4,7 @@
   "description": "A template application",
   "main": "build/app.js",
   "scripts": {
-    "build": "rm -Rf ./build && babel ./src -d ./build && cp src/config.json build/ && cp -r src/templates build/",
+    "build": "rm -Rf ./build && babel ./src -d ./build && cp src/config.json build/ && cp -r src/templates build/ && cp -r src/public/css  build/public/css && cp -r src/public/fonts  build/public/fonts && cp -r src/public/images  build/public/images",
     "buildAll": "rm -Rf ./tmp && babel ./src -d ./tmp/src -s && babel ./test -d ./tmp/test -s",
     "coverage": "npm run buildAll && rm -Rf ./coverage && istanbul cover _mocha ./tmp/test/unit/ -- --recursive ./tmp/test/unit && remap-istanbul -i ./coverage/coverage.json -o ./coverage/lcov-report -t html&& remap-istanbul -i ./coverage/coverage.json -o ./coverage/coverage.json  && istanbul check-coverage ./coverage/coverage.json --statements=80 --functions=80 --branches=80 --lines=80",
     "debug": "supervisor -- -r dotenv/config -r babel-register ./src/app.js | ./node_modules/.bin/bunyan",
