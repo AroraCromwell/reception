@@ -1,6 +1,6 @@
-# Cromwell Message Sender
+# Cromwell Reception Handler 2
 
-Polls the database periodically to send messages to a message queue
+Rest based node application for cromwell reception  android application.
 
 ## Config
 
