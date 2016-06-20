@@ -1,0 +1,21 @@
+{
+  "appDynamics": {
+    "active": false
+  },
+  "db": {
+    "postgres": {
+      "string": "postgres://reception_handler:25AB59j4u@pgsql2:5491/hermes"
+    }
+  },
+  "server": {
+    "port": 4000
+},
+  "printer": {
+    "set": "Brother_HL_3150CDW_series"
+  },
+  "runTime": "* 19,20 * * *",
+  "terms": {
+    "version": "1"
+  },
+  "imagePath":"/Users/aroras/Desktop/reception-handler/images/"
+}

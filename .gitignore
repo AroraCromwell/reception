@@ -46,6 +46,5 @@ node_modules
 *.lock
 /dist/
 .vagrant
-/src/config.json
 /pdf/
 /images/
