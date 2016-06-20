@@ -1,7 +1,4 @@
 {
-  "appDynamics": {
-    "active": false
-  },
   "db": {
     "postgres": {
       "string": "postgres://reception_handler:25AB59j4u@pgsql2:5491/hermes"
