@@ -1,4 +1,4 @@
-# Cromwell Reception Handler 2
+# Cromwell Reception Handler
 
 Rest based node application for cromwell reception  android application.
 
