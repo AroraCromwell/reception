@@ -30,7 +30,7 @@ export class VisitorService {
                         let visitorId = result.id;
                         var html = this._templateManager.render('crom_visitor', result);
 
-                        var options = { format: 'A5', orientation: 'landscape', base: "file://"+config.imagePath,type: "png,jpeg"};
+                        var options = { format: 'A5', orientation: 'landscape', base: "file:///Users/aroras/Desktop/reception-handler/images/",type: "png,jpeg"};
 
                         pdf.create(html, options).toFile('./pdf/' + visitorId + '.pdf', function(err, pdfRes) {
                             if (err) return console.log(err);

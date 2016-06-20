@@ -76,6 +76,8 @@ db.createConnection()
         let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger);
         let visitors = new Visitors(visitorService, logger, localStorage);
 
+
+        
         /* Start Listening */
         eventListener.listen();
         app.use( bodyParser.json({limit: '50mb'}) );       // to support JSON-encoded bodies
@@ -110,6 +112,8 @@ db.createConnection()
                 });
 
         });
+        
+        
         /* Start up the server */
         app.listen(config.server.port, () => {
             logger.info("System Listen on port " + config.server.port);
