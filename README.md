@@ -2,6 +2,12 @@
 
 Rest based node application for cromwell reception  android application.
 
+This service is running as Rest service for cromwell reception android OS based application and is storing data using
+postgressql.
+
+It is running cronjob at 19:00,20:00 pm everyday to signout all the users by default , clearing the pdf data and clearing
+the app_status table data also, because its futial data.
+
 ## Config
 
 The config is managed by environment variables to enable simple deployments (read about

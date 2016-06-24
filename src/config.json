@@ -5,12 +5,12 @@
     }
   },
   "server": {
-    "port": 4000
+    "port": 7000
 },
   "printer": {
-    "set": "Brother_HL_3150CDW_series"
+    "set": "BrotherPrint_SMB"
   },
-  "runTime": "* 19,20 * * *",
+  "runTime": "1 * * * *",
   "terms": {
     "version": "1"
   },
