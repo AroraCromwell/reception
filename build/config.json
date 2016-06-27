@@ -1,0 +1,18 @@
+{
+  "db": {
+    "postgres": {
+      "string": "postgres://reception_handler:25AB59j4u@pgsql2:5491/hermes"
+    }
+  },
+  "server": {
+    "port": 7000
+},
+  "printer": {
+    "set": "BrotherPrint_SMB"
+  },
+  "runTime": "1 * * * *",
+  "terms": {
+    "version": "1"
+  },
+  "imagePath":"/Users/aroras/Desktop/reception-handler/images/"
+}

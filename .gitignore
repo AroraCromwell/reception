@@ -40,7 +40,6 @@ node_modules
 /nbsettings/
 /.settings/
 /tmp/
-/build/
 /.sass-cache/
 /_site/
 *.lock
