@@ -10,6 +10,7 @@ the app_status table data also, because its futial data.
 
 ## Config
 
+
 The config is managed by environment variables to enable simple deployments (read about
 [Twelve Factor Apps](http://12factor.net) for reasons why this is a good thing).
 
