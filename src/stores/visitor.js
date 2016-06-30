@@ -312,4 +312,26 @@ export class VisitorStore {
                 return response;
             })
     }
+
+    processGraphData() {
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 15;';
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    currentStatus() {
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 15;';
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
 }

@@ -13,7 +13,7 @@
 
 /* Files */
 
-
+import {_} from "lodash";
 export class Visitors {
 
     constructor (visitorService, logger, localStorage ) {
@@ -310,6 +310,83 @@ export class Visitors {
                     });
             }
         ];
+    }
+
+    graph(){
+
+        return [
+            (req, res) => {
+                this._visitorService.processGraphData()
+
+                    .then(result => {
+                        var setData = [];
+                        _.forEach(result.rows, (value, key) => {
+
+                            let setkey = this.timeConverter(value.date_part);
+                            let setVal = 1 ;
+
+                            if(key > 0 ){
+
+                                //console.log("key inside"+ key + "  Value = " + value.date_part);
+
+                                //console.log("check value " + (result.rows[key-1].date_part));
+
+                                 if((result.rows[key-1].date_part) - 70 > value.date_part) {
+                                    setVal = 0 ;
+                                }
+
+                            }
+
+                            setData.push({setkey, setVal});
+                        });
+
+                       // console.log(setData);
+                       // process.exit();
+                        res.render('graph_data', {"data": setData});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+                    });
+            }
+        ]
+    }
+
+
+    currentStatus(){
+        return [
+            (req, res) => {
+                this._visitorService.currentStatus()
+                    .then(result => {
+                        res.send({success : 1, message : "completed", data : {result} });
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
+            }
+        ]
+    }
+
+    timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var hour = a.getHours();
+        if(hour < 10) {
+            hour = '0' + hour;
+        }
+        
+        var min = a.getMinutes();
+        if(min < 10) {
+            min = '0' + min;
+        }
+        
+        var sec = a.getSeconds();
+        if(sec < 10) {
+            sec = '0' + sec;
+        }
+        
+        var time =  hour + '.' + min ;
+        return time;
     }
 
 }

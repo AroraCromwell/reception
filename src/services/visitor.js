@@ -4,6 +4,7 @@ var fs = require("fs");
 var pdf = require("html-pdf");
 var exec = require('child_process').exec;
 import config from "../config.json";
+import {_} from "lodash";
 
 export class VisitorService {
 
@@ -204,5 +205,78 @@ export class VisitorService {
                 this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
                 throw new Error(err);
             });
+    }
+
+    processGraphData() {
+
+        this._logger.info("getting graph data!");
+
+        return this._visitorStore.processGraphData()
+            .then((data) => {
+                return data;
+            })
+            .catch(err => {
+                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    currentStatus() {
+        this._logger.info("Current Device Status!");
+
+        return this._visitorStore.currentStatus()
+            .then((data) => {
+                
+                var setData = [];
+                var currtimeStamp  =  Math.floor(new Date() / 1000);
+
+                _.forEach(data.rows, (value, key) => {
+                    let setKey = "";
+                    let setVal = 1 ;
+                    if(key > 0 ){
+                        setKey = this.timeConverter(value.date_part);
+                        if((data.rows[key-1].date_part) - 70 > value.date_part) {
+                            setVal = 0 ;
+                        }
+                    }
+                    else {
+                        setKey = this.timeConverter(currtimeStamp);
+                        if(currtimeStamp - 70 > value.date_part) {
+                            setVal = 0 ;
+                        }
+                    }
+
+
+                    setData.push({setKey, setVal});
+                });
+
+                return setData;
+            })
+            .catch(err => {
+                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+
+    timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var hour = a.getHours();
+        if(hour < 10) {
+            hour = '0' + hour;
+        }
+
+        var min = a.getMinutes();
+        if(min < 10) {
+            min = '0' + min;
+        }
+
+        var sec = a.getSeconds();
+        if(sec < 10) {
+            sec = '0' + sec;
+        }
+
+        var time =  hour + '.' + min ;
+        return time;
     }
 }

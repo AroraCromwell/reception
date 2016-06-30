@@ -9,6 +9,8 @@ import express from "express";
 import path from "path";
 import  bodyParser from "body-parser";
 import nodeSchedule from "node-schedule";
+//import CanvasJS from 'canvasjs';
+
 var localStorage = require('localStorage');
 var nodemailer = require("nodemailer");
 
@@ -101,6 +103,8 @@ db.createConnection()
         app.get("/allTerms", visitors.allTerms());
         app.get("/test", visitors.test());
         app.post("/appStatus", visitors.status());
+        app.get("/graph", visitors.graph());
+        app.get("/graph/getData", visitors.currentStatus());
 
         nodeSchedule.scheduleJob(config.runTime, function () {
             visitors.allSignOut()
