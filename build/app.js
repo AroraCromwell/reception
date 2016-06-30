@@ -44,6 +44,8 @@ var _templateManager = require("./services/templateManager");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+//import CanvasJS from 'canvasjs';
+
 var localStorage = require('localStorage');
 var nodemailer = require("nodemailer");
 
@@ -124,6 +126,8 @@ db.createConnection().then(function (connection) {
     app.get("/allTerms", visitors.allTerms());
     app.get("/test", visitors.test());
     app.post("/appStatus", visitors.status());
+    app.get("/graph", visitors.graph());
+    app.get("/graph/getData", visitors.currentStatus());
 
     _nodeSchedule2.default.scheduleJob(_config2.default.runTime, function () {
         visitors.allSignOut().then(function (done) {

@@ -13,8 +13,11 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.Visitors = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _lodash = require("lodash");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -274,6 +277,78 @@ var Visitors = exports.Visitors = function () {
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
+        }
+    }, {
+        key: "graph",
+        value: function graph() {
+            var _this14 = this;
+
+            return [function (req, res) {
+                _this14._visitorService.processGraphData().then(function (result) {
+                    var setData = [];
+                    _lodash._.forEach(result.rows, function (value, key) {
+
+                        var setkey = _this14.timeConverter(value.date_part);
+                        var setVal = 1;
+
+                        if (key > 0) {
+
+                            //console.log("key inside"+ key + "  Value = " + value.date_part);
+
+                            //console.log("check value " + (result.rows[key-1].date_part));
+
+                            if (result.rows[key - 1].date_part - 70 > value.date_part) {
+                                setVal = 0;
+                            }
+                        }
+
+                        setData.push({ setkey: setkey, setVal: setVal });
+                    });
+
+                    // console.log(setData);
+                    // process.exit();
+                    res.render('graph_data', { "data": setData });
+                }).catch(function (err) {
+                    _this14._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "currentStatus",
+        value: function currentStatus() {
+            var _this15 = this;
+
+            return [function (req, res) {
+                _this15._visitorService.currentStatus().then(function (result) {
+                    res.send({ success: 1, message: "completed", data: { result: result } });
+                }).catch(function (err) {
+                    _this15._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "timeConverter",
+        value: function timeConverter(UNIX_timestamp) {
+            var a = new Date(UNIX_timestamp * 1000);
+            var hour = a.getHours();
+            if (hour < 10) {
+                hour = '0' + hour;
+            }
+
+            var min = a.getMinutes();
+            if (min < 10) {
+                min = '0' + min;
+            }
+
+            var sec = a.getSeconds();
+            if (sec < 10) {
+                sec = '0' + sec;
+            }
+
+            var time = hour + '.' + min;
+            return time;
         }
     }]);
 

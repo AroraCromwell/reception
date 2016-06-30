@@ -235,6 +235,26 @@ var VisitorStore = exports.VisitorStore = function () {
                 return response;
             });
         }
+    }, {
+        key: "processGraphData",
+        value: function processGraphData() {
+            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 15;';
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "currentStatus",
+        value: function currentStatus() {
+            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 15;';
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
     }]);
 
     return VisitorStore;

@@ -10,6 +10,67 @@
     }
 </style>
 
+<script type="text/javascript">
+    window.onload = function () {
+
+        var dps = [];
+
+        {{#each data}}
+
+            dps.push({x: {{setkey}}, y: {{setVal}} });
+
+        {{/each}}
+
+
+        var chart = new CanvasJS.Chart("chartContainer",{
+            title :{
+                text: "Live Status"
+            },
+            axisX: {
+                title: "Time",
+                maximum:24
+            },
+            axisY: {
+                title: "Status",
+
+            },
+            data: [{
+                type: "line",
+                dataPoints : dps
+            }]
+        });
+
+        chart.render();
+        var updateInterval = 10000;
+
+        var updateChart = function () {
+
+            $.ajax({
+                url: '/graph/getData',
+                type: 'GET',
+                success: function (response) {
+                    $.map(response.data.result, function (statusData) {
+                        dps.push({x:  parseFloat(statusData.setKey) , y:  parseInt(statusData.setVal)});
+                    })
+                }
+            });
+
+            if (dps.length >  10 )
+            {
+                dps.shift();
+            }
+
+            chart.render();
+
+            // update chart after specified time.
+
+        };
+
+        setInterval(function(){updateChart()}, updateInterval);
+    }
+</script>
+<script type="text/javascript" src="/js/canvasjs.min.js"></script>
+
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
@@ -20,7 +81,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Cromwell Reception</a>
+            <a class="navbar-brand" href="/allVisitors">Cromwell Reception</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-left">
@@ -33,7 +94,6 @@
                         <ul class="dropdown-menu">
                             <li><a href="/allTerms">All Terms</a></li>
                             <li><a href="/templateTerms">Add New Term</a></li>
-                            <li><a href="#">JavaScript</a></li>
                         </ul>
                 </li>
             </ul>

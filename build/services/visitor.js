@@ -12,6 +12,8 @@ var _config = require("../config.json");
 
 var _config2 = _interopRequireDefault(_config);
 
+var _lodash = require("lodash");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -222,6 +224,78 @@ var VisitorService = exports.VisitorService = function () {
                 _this11._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
                 throw new Error(err);
             });
+        }
+    }, {
+        key: "processGraphData",
+        value: function processGraphData() {
+            var _this12 = this;
+
+            this._logger.info("getting graph data!");
+
+            return this._visitorStore.processGraphData().then(function (data) {
+                return data;
+            }).catch(function (err) {
+                _this12._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
+        key: "currentStatus",
+        value: function currentStatus() {
+            var _this13 = this;
+
+            this._logger.info("Current Device Status!");
+
+            return this._visitorStore.currentStatus().then(function (data) {
+
+                var setData = [];
+                var currtimeStamp = Math.floor(new Date() / 1000);
+
+                _lodash._.forEach(data.rows, function (value, key) {
+                    var setKey = "";
+                    var setVal = 1;
+                    if (key > 0) {
+                        setKey = _this13.timeConverter(value.date_part);
+                        if (data.rows[key - 1].date_part - 70 > value.date_part) {
+                            setVal = 0;
+                        }
+                    } else {
+                        setKey = _this13.timeConverter(currtimeStamp);
+                        if (currtimeStamp - 70 > value.date_part) {
+                            setVal = 0;
+                        }
+                    }
+
+                    setData.push({ setKey: setKey, setVal: setVal });
+                });
+
+                return setData;
+            }).catch(function (err) {
+                _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
+        key: "timeConverter",
+        value: function timeConverter(UNIX_timestamp) {
+            var a = new Date(UNIX_timestamp * 1000);
+            var hour = a.getHours();
+            if (hour < 10) {
+                hour = '0' + hour;
+            }
+
+            var min = a.getMinutes();
+            if (min < 10) {
+                min = '0' + min;
+            }
+
+            var sec = a.getSeconds();
+            if (sec < 10) {
+                sec = '0' + sec;
+            }
+
+            var time = hour + '.' + min;
+            return time;
         }
     }]);
 
