@@ -53,7 +53,7 @@ db.createConnection()
         connection.on('notification', function(data) {
             // setup e-mail data with unicode symbols
             var mailOptions = {
-                from: "shibi arora<shibbi.arora@gmail.com>", // sender address
+                from: "shibi arora<aroras@cromwell.co.uk>", // sender address
                 to: "shibi.arora@gmail.com", // list of receivers
                 subject: "Error: Cromwell Reception", // Subject line
                 text: data.payload, // plaintext body
