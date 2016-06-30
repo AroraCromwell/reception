@@ -38,7 +38,7 @@ export class VisitorService {
 
                             //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
 
-                            var cmd = '"C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe" /t "C:\reception-handler\src\public\images\sd.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                            var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\src\\public\\images\\sd.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
                             exec(cmd, function(error, stdout, stderr) {
                                 // command output is in stdout
