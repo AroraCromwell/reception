@@ -5,7 +5,7 @@
     }
   },
   "server": {
-    "port": 7000
+    "port": 4000
 },
   "printer": {
     "set": "BrotherPrint_SMB"
