@@ -43,6 +43,10 @@ export class VisitorService {
                             exec(cmd, function(error, stdout, stderr) {
                                 // command output is in stdout
                                 console.log(stdout);
+
+                                if (error !== null) {
+                                    console.log('exec error: ' + error);
+                                }
                                 //process.exit();
                             });
                         })
