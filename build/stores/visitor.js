@@ -39,7 +39,7 @@ var VisitorStore = exports.VisitorStore = function () {
             // if(customer.paramImagePath != ''){
             var unix = Math.round(+new Date() / 1000);
             var imageName = customer.paramAccountName + '_' + unix;
-            var options = { filename: './images/' + imageName };
+            var options = { filename: './public/images/' + imageName };
             //var options = {filename: './src/reception_handler/images/' + imageName};
             var imageData = new Buffer(customer.paramImagePath, 'base64');
 
