@@ -315,7 +315,7 @@ export class VisitorStore {
     }
 
     processGraphData() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 15;';
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
         let args = [
         ];
 
@@ -326,7 +326,7 @@ export class VisitorStore {
     }
 
     currentStatus() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 15;';
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
         let args = [
         ];
 
