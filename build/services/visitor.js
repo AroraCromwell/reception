@@ -54,9 +54,9 @@ var VisitorService = exports.VisitorService = function () {
                 pdf.create(html, options).toFile('./pdf/' + visitorId + '.pdf', function (err, pdfRes) {
                     if (err) return console.log(err);
 
-                    // var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
+                    var cmd = "lp -o landscape -o scaling=97  -d" + _config2.default.printer.set + " " + pdfRes.filename;
 
-                    var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\' + visitorId + '.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                    //var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\'+ visitorId +'.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
                     exec(cmd, function (error, stdout, stderr) {
                         // command output is in stdout
