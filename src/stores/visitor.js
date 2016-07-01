@@ -194,9 +194,10 @@ export class VisitorStore {
         var chk = new Date();
         var month = chk.getMonth()+1;
 
-        var myDate = [chk.getDate(), month <10 ? '0' + month : month , chk.getFullYear()].join('-');
+        var myDate = [chk.getDate()<10 ? '0' + chk.getDate() : chk.getDate(), month <10 ? '0' + month : month , chk.getFullYear()].join('-');
         //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
+        console.log(myDate);
 
         let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
         let args = [
