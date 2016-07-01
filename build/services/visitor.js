@@ -49,7 +49,7 @@ var VisitorService = exports.VisitorService = function () {
                 var visitorId = result.id;
                 var html = _this._templateManager.render('crom_visitor', result);
 
-                var options = { format: 'Letter', orientation: 'landscape' };
+                var options = { format: 'A4', orientation: 'landscape' };
 
                 pdf.create(html, options).toFile('./pdf/' + visitorId + '.pdf', function (err, pdfRes) {
                     if (err) return console.log(err);
