@@ -240,7 +240,8 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "processGraphData",
         value: function processGraphData() {
-            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
+            //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
+            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -250,7 +251,8 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "currentStatus",
         value: function currentStatus() {
-            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
+            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
+            //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {

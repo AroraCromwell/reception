@@ -371,20 +371,20 @@ export class Visitors {
     timeConverter(UNIX_timestamp){
         var a = new Date(UNIX_timestamp * 1000);
         var hour = a.getHours();
-        if(hour < 10) {
-            hour = '0' + hour;
-        }
-        
+        // if(hour < 10) {
+        //     hour = '0' + hour;
+        // }
+
         var min = a.getMinutes();
         if(min < 10) {
             min = '0' + min;
         }
-        
+
         var sec = a.getSeconds();
         if(sec < 10) {
             sec = '0' + sec;
         }
-        
+
         var time =  hour + '.' + min ;
         return time;
     }

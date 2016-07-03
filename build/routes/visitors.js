@@ -333,9 +333,9 @@ var Visitors = exports.Visitors = function () {
         value: function timeConverter(UNIX_timestamp) {
             var a = new Date(UNIX_timestamp * 1000);
             var hour = a.getHours();
-            if (hour < 10) {
-                hour = '0' + hour;
-            }
+            // if(hour < 10) {
+            //     hour = '0' + hour;
+            // }
 
             var min = a.getMinutes();
             if (min < 10) {

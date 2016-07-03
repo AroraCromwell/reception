@@ -246,16 +246,23 @@ export class VisitorService {
                         }
                     }
                     else {
-                        setKey = this.timeConverter(currtimeStamp);
+
                         if(currtimeStamp - 70 > value.date_part) {
                             setVal = 0 ;
+
+                            // As service is not up from last 1 minute , it means it is down for now as well,
+                            // so show status down for now as well
+                            setKey = this.timeConverter(currtimeStamp);
+                            setData.push({setKey, setVal});
                         }
+                        setKey = this.timeConverter(value.date_part);
                     }
 
 
                     setData.push({setKey, setVal});
                 });
 
+                console.log(setData);
                 return setData;
             })
             .catch(err => {
