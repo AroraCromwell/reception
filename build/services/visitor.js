@@ -262,12 +262,12 @@ var VisitorService = exports.VisitorService = function () {
                     var setVal = 1;
                     if (key > 0) {
                         setKey = _this13.timeConverter(value.date_part);
-                        if (data.rows[key - 1].date_part - 70 > value.date_part) {
+                        if (data.rows[key - 1].date_part - 310 > value.date_part) {
                             setVal = 0;
                         }
                     } else {
 
-                        if (currtimeStamp - 70 > value.date_part) {
+                        if (currtimeStamp - 310 > value.date_part) {
                             setVal = 0;
 
                             // As service is not up from last 1 minute , it means it is down for now as well,

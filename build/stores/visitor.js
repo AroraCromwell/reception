@@ -114,7 +114,7 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function allSignOut() {
             var chk = new Date();
             var month = chk.getMonth() + 1;
-            var myDate = [chk.getFullYear(), month < 10 ? '0' + month : month, chk.getDate()].join('-');
+            var myDate = [chk.getFullYear(), month < 10 ? '0' + month : month, chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
             var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
             var updateQuery = " UPDATE reception_handler.cromwell_recp SET signout= $1 WHERE signout IS NULL";
@@ -130,9 +130,10 @@ var VisitorStore = exports.VisitorStore = function () {
 
             var chk = new Date();
             var month = chk.getMonth() + 1;
-            var myDate = [chk.getFullYear(), month < 10 ? '0' + month : month, chk.getDate()].join('-');
+            var myDate = [chk.getFullYear(), month < 10 ? '0' + month : month, chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
             //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
+            console.log('thi sis dta here' + myDate + ' 00:00:00');
             var selectQuery = " SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
             var args = [myDate + ' 00:00:00'];
 

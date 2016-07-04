@@ -253,6 +253,9 @@ export class Visitors {
 
                     .then(result => {
 
+                        // console.log(result.rows);
+                        // process.exit();
+
                         res.render("allTerms",{"data": result.rows, helpers:{
                             checkStatus: function (status) {
                                 if(status == 1){
@@ -331,7 +334,7 @@ export class Visitors {
 
                                 //console.log("check value " + (result.rows[key-1].date_part));
 
-                                 if((result.rows[key-1].date_part) - 70 > value.date_part) {
+                                 if((result.rows[key-1].date_part) - 310 > value.date_part) {
                                     setVal = 0 ;
                                 }
 
