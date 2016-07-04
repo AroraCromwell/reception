@@ -46,7 +46,7 @@
 
     var chk = new Date();
     var month = chk.getMonth()+1;
-    var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate()].join('-');
+    var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
     var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
 

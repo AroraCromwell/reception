@@ -53,8 +53,8 @@ db.createConnection()
         connection.on('notification', function(data) {
             // setup e-mail data with unicode symbols
             var mailOptions = {
-                from: "shibi arora<aroras@cromwell.co.uk>", // sender address
-                to: "shibi.arora@gmail.com", // list of receivers
+                from: "shibi arora<shibbi.arora@gmail.com>", // sender address
+                to: "shibbi.arora@gmail.com", // list of receivers
                 subject: "Error: Cromwell Reception", // Subject line
                 text: data.payload, // plaintext body
             };
@@ -79,7 +79,7 @@ db.createConnection()
         let visitors = new Visitors(visitorService, logger, localStorage);
 
 
-        
+
         /* Start Listening */
         eventListener.listen();
         app.use( bodyParser.json({limit: '50mb'}) );       // to support JSON-encoded bodies
@@ -116,8 +116,8 @@ db.createConnection()
                 });
 
         });
-        
-        
+
+
         /* Start up the server */
         app.listen(config.server.port, () => {
             logger.info("System Listen on port " + config.server.port);

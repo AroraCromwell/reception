@@ -158,7 +158,7 @@ export class VisitorStore {
     allSignOut() {
         var chk = new Date();
         var month = chk.getMonth()+1;
-        var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate()].join('-');
+        var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
         var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
         let updateQuery = " UPDATE reception_handler.cromwell_recp SET signout= $1 WHERE signout IS NULL";
@@ -176,9 +176,10 @@ export class VisitorStore {
 
         var chk = new Date();
         var month = chk.getMonth()+1;
-        var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() ].join('-');
+        var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate() ].join('-');
         //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
+        console.log('thi sis dta here' + myDate + ' 00:00:00');
         let selectQuery = " SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
         let args = [
             myDate + ' 00:00:00'
@@ -315,7 +316,8 @@ export class VisitorStore {
     }
 
     processGraphData() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
+        //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
         let args = [
         ];
 
@@ -326,7 +328,8 @@ export class VisitorStore {
     }
 
     currentStatus() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
+        //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
         let args = [
         ];
 

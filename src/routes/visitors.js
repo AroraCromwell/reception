@@ -253,6 +253,9 @@ export class Visitors {
 
                     .then(result => {
 
+                        // console.log(result.rows);
+                        // process.exit();
+
                         res.render("allTerms",{"data": result.rows, helpers:{
                             checkStatus: function (status) {
                                 if(status == 1){
@@ -331,7 +334,7 @@ export class Visitors {
 
                                 //console.log("check value " + (result.rows[key-1].date_part));
 
-                                 if((result.rows[key-1].date_part) - 70 > value.date_part) {
+                                 if((result.rows[key-1].date_part) - 310 > value.date_part) {
                                     setVal = 0 ;
                                 }
 
@@ -371,20 +374,20 @@ export class Visitors {
     timeConverter(UNIX_timestamp){
         var a = new Date(UNIX_timestamp * 1000);
         var hour = a.getHours();
-        if(hour < 10) {
-            hour = '0' + hour;
-        }
-        
+        // if(hour < 10) {
+        //     hour = '0' + hour;
+        // }
+
         var min = a.getMinutes();
         if(min < 10) {
             min = '0' + min;
         }
-        
+
         var sec = a.getSeconds();
         if(sec < 10) {
             sec = '0' + sec;
         }
-        
+
         var time =  hour + '.' + min ;
         return time;
     }

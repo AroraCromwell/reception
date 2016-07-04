@@ -1,2 +1,63 @@
+<script type="text/javascript">
+    window.onload = function () {
+
+        var dps = [];
+
+        {{#each data}}
+
+            dps.push({x: {{setkey}}, y: {{setVal}} });
+
+        {{/each}}
+
+
+        var chart = new CanvasJS.Chart("chartContainer",{
+            title :{
+                text: "Live Status"
+            },
+            axisX: {
+                title: "Time",
+                maximum:24
+            },
+            axisY: {
+                title: "Status",
+
+            },
+            data: [{
+                type: "line",
+                dataPoints : dps
+            }]
+        });
+
+        chart.render();
+        var updateInterval = 10000;
+
+        var updateChart = function () {
+
+            $.ajax({
+                url: '/graph/getData',
+                type: 'GET',
+                success: function (response) {
+                    $.map(response.data.result, function (statusData) {
+                        console.log(parseFloat(statusData.setKey), parseInt(statusData.setVal));
+                        dps.push({x:  parseFloat(statusData.setKey) , y:  parseInt(statusData.setVal)});
+                    })
+                }
+            });
+
+            if (dps.length >  1 )
+            {
+                dps.shift();
+            }
+
+            chart.render();
+
+            // update chart after specified time.
+
+        };
+
+        setInterval(function(){updateChart()}, updateInterval);
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
 <div id="chartContainer" style="height: 300px; width: 100%;">
 </div>

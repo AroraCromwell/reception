@@ -262,19 +262,26 @@ var VisitorService = exports.VisitorService = function () {
                     var setVal = 1;
                     if (key > 0) {
                         setKey = _this13.timeConverter(value.date_part);
-                        if (data.rows[key - 1].date_part - 70 > value.date_part) {
+                        if (data.rows[key - 1].date_part - 310 > value.date_part) {
                             setVal = 0;
                         }
                     } else {
-                        setKey = _this13.timeConverter(currtimeStamp);
-                        if (currtimeStamp - 70 > value.date_part) {
+
+                        if (currtimeStamp - 310 > value.date_part) {
                             setVal = 0;
+
+                            // As service is not up from last 1 minute , it means it is down for now as well,
+                            // so show status down for now as well
+                            setKey = _this13.timeConverter(currtimeStamp);
+                            setData.push({ setKey: setKey, setVal: setVal });
                         }
+                        setKey = _this13.timeConverter(value.date_part);
                     }
 
                     setData.push({ setKey: setKey, setVal: setVal });
                 });
 
+                console.log(setData);
                 return setData;
             }).catch(function (err) {
                 _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
