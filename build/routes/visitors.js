@@ -73,7 +73,7 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
 
-                console.log("iNode servcie check data" + req.body);
+                console.log("Node service data" + req.body);
                 _this3._visitorService.processRequest(req.body).then(function (result) {
                     res.send({ success: 1, message: "completed", id: result, retry: 0 });
                 }).catch(function (err) {
@@ -288,29 +288,7 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
                 _this14._visitorService.processGraphData().then(function (result) {
-                    var setData = [];
-                    _lodash._.forEach(result.rows, function (value, key) {
-
-                        var setkey = _this14.timeConverter(value.date_part);
-                        var setVal = 1;
-
-                        if (key > 0) {
-
-                            //console.log("key inside"+ key + "  Value = " + value.date_part);
-
-                            //console.log("check value " + (result.rows[key-1].date_part));
-
-                            if (result.rows[key - 1].date_part - 310 > value.date_part) {
-                                setVal = 0;
-                            }
-                        }
-
-                        setData.push({ setkey: setkey, setVal: setVal });
-                    });
-
-                    // console.log(setData);
-                    // process.exit();
-                    res.render('graph_data', { "data": setData });
+                    res.render('graph_data', { "data": result });
                 }).catch(function (err) {
                     _this14._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });

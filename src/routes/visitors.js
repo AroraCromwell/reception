@@ -70,8 +70,7 @@ export class Visitors {
         return [
             (req, res) => {
 
-
-                console.log("iNode servcie check data" + req.body);
+                console.log("Node service data" + req.body);
                 this._visitorService.processRequest(req.body)
 
                     .then(result => {
@@ -322,30 +321,7 @@ export class Visitors {
                 this._visitorService.processGraphData()
 
                     .then(result => {
-                        var setData = [];
-                        _.forEach(result.rows, (value, key) => {
-
-                            let setkey = this.timeConverter(value.date_part);
-                            let setVal = 1 ;
-
-                            if(key > 0 ){
-
-                                //console.log("key inside"+ key + "  Value = " + value.date_part);
-
-                                //console.log("check value " + (result.rows[key-1].date_part));
-
-                                 if((result.rows[key-1].date_part) - 310 > value.date_part) {
-                                    setVal = 0 ;
-                                }
-
-                            }
-
-                            setData.push({setkey, setVal});
-                        });
-
-                       // console.log(setData);
-                       // process.exit();
-                        res.render('graph_data', {"data": setData});
+                        res.render('graph_data', {"data": result});
                     })
                     .catch(err => {
                         this._logger.error(err);

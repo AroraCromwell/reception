@@ -137,33 +137,12 @@ export class VisitorStore {
             });
     }
 
-    checkIfUpdateRequired(merlinCustomerData, customerData, fieldsToCheck) {
-
-        let updateRequired = false;
-        _.forEach(fieldsToCheck, (value, key) => {
-
-            if (!customerData[key]) {
-                customerData[key] = "";
-            }
-
-            if (customerData[key] !== merlinCustomerData[value]) {
-                updateRequired = true;
-            }
-
-        });
-
-        return updateRequired;
-    }
-
     allSignOut() {
-        var chk = new Date();
-        var month = chk.getMonth()+1;
-        var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
-        var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
+        let time = this.getTime();
         let updateQuery = " UPDATE reception_handler.cromwell_recp SET signout= $1 WHERE signout IS NULL";
         let args = [
-            myDate + ' ' + myTime
+            time
         ];
 
         return this._resource.query(updateQuery, args)
@@ -173,16 +152,10 @@ export class VisitorStore {
     }
 
     allSignOutToday() {
-
-        var chk = new Date();
-        var month = chk.getMonth()+1;
-        var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate() ].join('-');
-        //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-
-        console.log('thi sis dta here' + myDate + ' 00:00:00');
+        let time = this.getTime();
         let selectQuery = " SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
         let args = [
-            myDate + ' 00:00:00'
+            time
         ];
 
         return this._resource.query(selectQuery, args)
@@ -192,17 +165,9 @@ export class VisitorStore {
     }
 
     getAllSignIns(){
-        var chk = new Date();
-        var month = chk.getMonth()+1;
-
-        var myDate = [chk.getDate()<10 ? '0' + chk.getDate() : chk.getDate(), month <10 ? '0' + month : month , chk.getFullYear()].join('-');
-        //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-
-        console.log(myDate);
-
         let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
         let args = [
-            myDate + " 00:00:00"
+            this.getTime()
         ];
 
         return this._resource.query(selectQuery, args)
@@ -276,25 +241,19 @@ export class VisitorStore {
         return this._resource.query(updateQuery, args)
             .then(response => {
 
-                file.terms.version = id;
+                //file.terms.version = id;
 
-                fs.writeFile('./src/config.json', JSON.stringify(file, null, 2), function (err) {
-                    if (err) return console.log(err);
-                    console.log(JSON.stringify(file));
-                    console.log('writing to ' + fileName);
-                });
+                // fs.writeFile('./src/config.json', JSON.stringify(file, null, 2), function (err) {
+                //     if (err) return console.log(err);
+                //     console.log(JSON.stringify(file));
+                //     console.log('writing to ' + fileName);
+                // });
 
                 return response;
             })
     }
 
     saveStatus(data) {
-
-        var chk = new Date();
-        var month = chk.getMonth()+1;
-        var myDate = [chk.getDate(), month <10 ? '0' + month : month , chk.getFullYear()].join('-');
-        var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-
         let insertQuery = `
                     INSERT INTO
                     reception_handler.app_status (
@@ -316,7 +275,6 @@ export class VisitorStore {
     }
 
     processGraphData() {
-        //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
         let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
         let args = [
         ];
@@ -329,7 +287,6 @@ export class VisitorStore {
 
     currentStatus() {
         let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
-        //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
         let args = [
         ];
 
@@ -337,5 +294,20 @@ export class VisitorStore {
             .then(response => {
                 return response;
             });
+    }
+
+    getTime(from="midnight"){
+        var data = new Date();
+        var month = data.getMonth()+1;
+        var myDate = [data.getFullYear(), month <10 ? '0' + month : month ,data.getDate() < 10 ? '0' + data.getDate() : data.getDate()].join('-');
+        var myTime = "";
+        if(from == "midnight"){
+            myTime = "00:00:00";
+        }else{
+            myTime = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+        }
+
+        var setTime = myDate + " " + myTime;
+        return setTime;
     }
 }

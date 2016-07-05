@@ -92,33 +92,12 @@ var VisitorStore = exports.VisitorStore = function () {
             });
         }
     }, {
-        key: "checkIfUpdateRequired",
-        value: function checkIfUpdateRequired(merlinCustomerData, customerData, fieldsToCheck) {
-
-            var updateRequired = false;
-            _lodash._.forEach(fieldsToCheck, function (value, key) {
-
-                if (!customerData[key]) {
-                    customerData[key] = "";
-                }
-
-                if (customerData[key] !== merlinCustomerData[value]) {
-                    updateRequired = true;
-                }
-            });
-
-            return updateRequired;
-        }
-    }, {
         key: "allSignOut",
         value: function allSignOut() {
-            var chk = new Date();
-            var month = chk.getMonth() + 1;
-            var myDate = [chk.getFullYear(), month < 10 ? '0' + month : month, chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
-            var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
+            var time = this.getTime();
             var updateQuery = " UPDATE reception_handler.cromwell_recp SET signout= $1 WHERE signout IS NULL";
-            var args = [myDate + ' ' + myTime];
+            var args = [time];
 
             return this._resource.query(updateQuery, args).then(function (response) {
                 return response;
@@ -127,15 +106,9 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "allSignOutToday",
         value: function allSignOutToday() {
-
-            var chk = new Date();
-            var month = chk.getMonth() + 1;
-            var myDate = [chk.getFullYear(), month < 10 ? '0' + month : month, chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
-            //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-
-            console.log('thi sis dta here' + myDate + ' 00:00:00');
+            var time = this.getTime();
             var selectQuery = " SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
-            var args = [myDate + ' 00:00:00'];
+            var args = [time];
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 return response;
@@ -144,16 +117,8 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "getAllSignIns",
         value: function getAllSignIns() {
-            var chk = new Date();
-            var month = chk.getMonth() + 1;
-
-            var myDate = [chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate(), month < 10 ? '0' + month : month, chk.getFullYear()].join('-');
-            //var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-
-            console.log(myDate);
-
             var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
-            var args = [myDate + " 00:00:00"];
+            var args = [this.getTime()];
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 return response;
@@ -211,13 +176,13 @@ var VisitorStore = exports.VisitorStore = function () {
 
             return this._resource.query(updateQuery, args).then(function (response) {
 
-                file.terms.version = id;
+                //file.terms.version = id;
 
-                fs.writeFile('./src/config.json', JSON.stringify(file, null, 2), function (err) {
-                    if (err) return console.log(err);
-                    console.log(JSON.stringify(file));
-                    console.log('writing to ' + fileName);
-                });
+                // fs.writeFile('./src/config.json', JSON.stringify(file, null, 2), function (err) {
+                //     if (err) return console.log(err);
+                //     console.log(JSON.stringify(file));
+                //     console.log('writing to ' + fileName);
+                // });
 
                 return response;
             });
@@ -225,12 +190,6 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "saveStatus",
         value: function saveStatus(data) {
-
-            var chk = new Date();
-            var month = chk.getMonth() + 1;
-            var myDate = [chk.getDate(), month < 10 ? '0' + month : month, chk.getFullYear()].join('-');
-            var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-
             var insertQuery = "\n                    INSERT INTO\n                    reception_handler.app_status (\n                        location\n                    )\n                    VALUES (\n                        $1\n                    )\n                    RETURNING id\n                ";
 
             var args = ['brc'];
@@ -241,7 +200,6 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "processGraphData",
         value: function processGraphData() {
-            //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
             var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
             var args = [];
 
@@ -253,12 +211,29 @@ var VisitorStore = exports.VisitorStore = function () {
         key: "currentStatus",
         value: function currentStatus() {
             var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
-            //let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status ORDER BY id DESC LIMIT 100;';
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 return response;
             });
+        }
+    }, {
+        key: "getTime",
+        value: function getTime() {
+            var from = arguments.length <= 0 || arguments[0] === undefined ? "midnight" : arguments[0];
+
+            var data = new Date();
+            var month = data.getMonth() + 1;
+            var myDate = [data.getFullYear(), month < 10 ? '0' + month : month, data.getDate() < 10 ? '0' + data.getDate() : data.getDate()].join('-');
+            var myTime = "";
+            if (from == "midnight") {
+                myTime = "00:00:00";
+            } else {
+                myTime = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+            }
+
+            var setTime = myDate + " " + myTime;
+            return setTime;
         }
     }]);
 

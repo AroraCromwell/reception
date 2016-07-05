@@ -5,6 +5,7 @@ var pdf = require("html-pdf");
 var exec = require('child_process').exec;
 import config from "../config.json";
 import {_} from "lodash";
+var dateFormat = require('dateformat');
 
 export class VisitorService {
 
@@ -123,6 +124,11 @@ export class VisitorService {
 
         return this._visitorStore.allSignOutToday()
             .then((result) => {
+
+                _.each(result.rows , function (value, key) {
+                     value.signout = dateFormat(value.signout, "dd-mm-yyyy HH:MM:ss");
+                });
+
                 return result;
             })
             .catch(err => {
@@ -218,8 +224,36 @@ export class VisitorService {
         this._logger.info("getting graph data!");
 
         return this._visitorStore.processGraphData()
-            .then((data) => {
-                return data;
+            .then((result) => {
+                var d = new Date();
+                d.setHours(0,0,0,0);
+                var dtimeStamp  =  Math.floor(d / 1000);
+                console.log("check this dtiemstamp "+ +dtimeStamp);
+
+                var setData = [];
+                var midnightStatus = 0;
+                _.forEach(result.rows, (value, key) => {
+
+                    let setkey = this.timeConverter(value.date_part);
+                    let setVal = 1 ;
+                    if(value >= dtimeStamp  && value <= (dtimeStamp + 310)){
+                        midnightStatus = 1;
+                    }
+
+                    if(key > 0 ){
+                        if((result.rows[key-1].date_part) - 310 > value.date_part) {
+                            setVal = 0 ;
+                        }
+                    }
+                    setData.push(JSON.stringify({setkey, setVal}));
+                });
+
+                if(midnightStatus == 0){
+                    let setkey = this.timeConverter(dtimeStamp);
+                    let setVal = 0 ;
+                    setData.push(JSON.stringify({setkey, setVal}));
+                }
+                return setData;
             })
             .catch(err => {
                 this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
@@ -257,12 +291,9 @@ export class VisitorService {
                         }
                         setKey = this.timeConverter(value.date_part);
                     }
-
-
-                    setData.push({setKey, setVal});
+                    setData.push(JSON.stringify({setKey, setVal}));
                 });
 
-                console.log(setData);
                 return setData;
             })
             .catch(err => {
@@ -274,22 +305,7 @@ export class VisitorService {
 
     timeConverter(UNIX_timestamp){
         var a = new Date(UNIX_timestamp * 1000);
-        var hour = a.getHours();
-        if(hour < 10) {
-            hour = '0' + hour;
-        }
-
-        var min = a.getMinutes();
-        if(min < 10) {
-            min = '0' + min;
-        }
-
-        var sec = a.getSeconds();
-        if(sec < 10) {
-            sec = '0' + sec;
-        }
-
-        var time =  hour + '.' + min ;
+        var time = dateFormat(a, "yyyy-mm-dd HH:MM:ss");
         return time;
     }
 }
