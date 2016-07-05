@@ -165,9 +165,15 @@ export class VisitorStore {
     }
 
     getAllSignIns(){
+
+        var data = new Date();
+        var month = data.getMonth()+1;
+        var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
+
+
         let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
         let args = [
-            this.getTime()
+            myDate + " 00:00:00"
         ];
 
         return this._resource.query(selectQuery, args)
