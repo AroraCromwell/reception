@@ -22,6 +22,8 @@ var fs = require("fs");
 var pdf = require("html-pdf");
 var exec = require('child_process').exec;
 
+var dateFormat = require('dateformat');
+
 var VisitorService = exports.VisitorService = function () {
     function VisitorService(visitorStore, templateManager, dataCleaner, logger) {
         _classCallCheck(this, VisitorService);
@@ -141,6 +143,11 @@ var VisitorService = exports.VisitorService = function () {
             this._logger.info("All Signed Out Today!");
 
             return this._visitorStore.allSignOutToday().then(function (result) {
+
+                _lodash._.each(result.rows, function (value, key) {
+                    value.signout = dateFormat(value.signout, "dd-mm-yyyy HH:MM:ss");
+                });
+
                 return result;
             }).catch(function (err) {
                 _this6._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
@@ -238,8 +245,36 @@ var VisitorService = exports.VisitorService = function () {
 
             this._logger.info("getting graph data!");
 
-            return this._visitorStore.processGraphData().then(function (data) {
-                return data;
+            return this._visitorStore.processGraphData().then(function (result) {
+                var d = new Date();
+                d.setHours(0, 0, 0, 0);
+                var dtimeStamp = Math.floor(d / 1000);
+                console.log("check this dtiemstamp " + +dtimeStamp);
+
+                var setData = [];
+                var midnightStatus = 0;
+                _lodash._.forEach(result.rows, function (value, key) {
+
+                    var setkey = _this12.timeConverter(value.date_part);
+                    var setVal = 1;
+                    if (value >= dtimeStamp && value <= dtimeStamp + 310) {
+                        midnightStatus = 1;
+                    }
+
+                    if (key > 0) {
+                        if (result.rows[key - 1].date_part - 310 > value.date_part) {
+                            setVal = 0;
+                        }
+                    }
+                    setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
+                });
+
+                if (midnightStatus == 0) {
+                    var setkey = _this12.timeConverter(dtimeStamp);
+                    var setVal = 0;
+                    setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
+                }
+                return setData;
             }).catch(function (err) {
                 _this12._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
                 throw new Error(err);
@@ -277,11 +312,9 @@ var VisitorService = exports.VisitorService = function () {
                         }
                         setKey = _this13.timeConverter(value.date_part);
                     }
-
-                    setData.push({ setKey: setKey, setVal: setVal });
+                    setData.push(JSON.stringify({ setKey: setKey, setVal: setVal }));
                 });
 
-                console.log(setData);
                 return setData;
             }).catch(function (err) {
                 _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
@@ -292,22 +325,7 @@ var VisitorService = exports.VisitorService = function () {
         key: "timeConverter",
         value: function timeConverter(UNIX_timestamp) {
             var a = new Date(UNIX_timestamp * 1000);
-            var hour = a.getHours();
-            if (hour < 10) {
-                hour = '0' + hour;
-            }
-
-            var min = a.getMinutes();
-            if (min < 10) {
-                min = '0' + min;
-            }
-
-            var sec = a.getSeconds();
-            if (sec < 10) {
-                sec = '0' + sec;
-            }
-
-            var time = hour + '.' + min;
+            var time = dateFormat(a, "yyyy-mm-dd HH:MM:ss");
             return time;
         }
     }]);
