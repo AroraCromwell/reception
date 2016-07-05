@@ -205,7 +205,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "processGraphData",
         value: function processGraphData() {
-            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
+            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id ASC;';
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {

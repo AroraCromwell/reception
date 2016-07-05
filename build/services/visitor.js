@@ -257,13 +257,34 @@ var VisitorService = exports.VisitorService = function () {
 
                     var setkey = _this12.timeConverter(value.date_part);
                     var setVal = 1;
-                    if (value >= dtimeStamp && value <= dtimeStamp + 310) {
-                        midnightStatus = 1;
-                    }
 
                     if (key > 0) {
-                        if (result.rows[key - 1].date_part - 310 > value.date_part) {
-                            setVal = 0;
+                        if (result.rows[key - 1].date_part + 310 < value.date_part) {
+
+                            for (var j = 0; j < 300; j++) {
+                                if (value.date_part > result.rows[key - 1].date_part) {
+                                    var _setkey = _this12.timeConverter(result.rows[key - 1].date_part);
+                                    var _setVal = 0;
+                                    setData.push(JSON.stringify({ setkey: _setkey, setVal: _setVal }));
+                                    result.rows[key - 1].date_part = result.rows[key - 1].date_part + 310;
+                                } else {
+                                    setVal = 0;
+                                    console.log("inside break");
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        for (var j = 0; j < 300; j++) {
+                            if (value.date_part >= dtimeStamp) {
+                                var _setkey2 = _this12.timeConverter(dtimeStamp);
+                                var _setVal2 = 0;
+                                setData.push(JSON.stringify({ setkey: _setkey2, setVal: _setVal2 }));
+                                dtimeStamp = dtimeStamp + 310;
+                            } else {
+                                console.log("inside break");
+                                break;
+                            }
                         }
                     }
                     setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
@@ -312,9 +333,11 @@ var VisitorService = exports.VisitorService = function () {
                         }
                         setKey = _this13.timeConverter(value.date_part);
                     }
+
                     setData.push(JSON.stringify({ setKey: setKey, setVal: setVal }));
                 });
 
+                console.log(setData);
                 return setData;
             }).catch(function (err) {
                 _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));

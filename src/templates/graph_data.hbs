@@ -69,8 +69,10 @@ var points_data = {
 
     for (var i in points_data) {
         var p = {
-            "type": "line",
-            "showInLegend": "true"
+            "type": "stepLine",
+            "showInLegend": "true",
+            markerSize: 8,
+//            toolTipContent: "{x} <strong>{} <strong>"
         };
         p.name = i;
         //alert(p.name);
@@ -88,12 +90,27 @@ var points_data = {
     }
     //alert(points);
     window.onload = function() {
-
-
                 var chart = new CanvasJS.Chart("chartContainer", {
                     title: {
                         text: "Live Status"
                     },
+
+                    toolTip: {
+                        contentFormatter: function (e) {
+                            var content = " ";
+                            var status = "Up";
+                            for (var i = 0; i < e.entries.length; i++) {
+                                if(e.entries[i].dataPoint.y == 0){
+                                    status = "Down"
+                                }
+                                content += e.entries[i].dataPoint.x.getHours() + ":" + e.entries[i].dataPoint.x.getMinutes()+ " " + "<strong>" + status + "</strong>";
+                                content += "<br/>";
+                            }
+                            return content;
+                        }
+                    },
+
+                    animationEnabled: true,
 
                     axisX: {
                         title: "",
@@ -104,7 +121,8 @@ var points_data = {
                         labelAngle: -80
                     },
                     axisY: {
-                        title: "Value"
+                        title: "Value",
+                        includeZero: false
                     },
                     data: points
 

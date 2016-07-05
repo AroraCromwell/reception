@@ -236,13 +236,35 @@ export class VisitorService {
 
                     let setkey = this.timeConverter(value.date_part);
                     let setVal = 1 ;
-                    if(value >= dtimeStamp  && value <= (dtimeStamp + 310)){
-                        midnightStatus = 1;
-                    }
 
                     if(key > 0 ){
-                        if((result.rows[key-1].date_part) - 310 > value.date_part) {
-                            setVal = 0 ;
+                        if((result.rows[key-1].date_part) + 310 < value.date_part) {
+
+                            for (var j = 0; j < 300; j++) {
+                                if(value.date_part > result.rows[key-1].date_part){
+                                    let setkey = this.timeConverter(result.rows[key-1].date_part);
+                                    let setVal = 0 ;
+                                    setData.push(JSON.stringify({setkey, setVal}));
+                                    result.rows[key-1].date_part = result.rows[key-1].date_part + 310;
+                                } else{
+                                    setVal = 0 ;
+                                    console.log("inside break");
+                                    break;
+                                }
+                            }
+
+                        }
+                    }else{
+                        for (var j = 0; j < 300; j++) {
+                            if(value.date_part >= dtimeStamp){
+                                let setkey = this.timeConverter(dtimeStamp);
+                                let setVal = 0 ;
+                                setData.push(JSON.stringify({setkey, setVal}));
+                                dtimeStamp = dtimeStamp + 310;
+                            } else{
+                                console.log("inside break");
+                                break;
+                            }
                         }
                     }
                     setData.push(JSON.stringify({setkey, setVal}));
@@ -270,6 +292,8 @@ export class VisitorService {
                 var setData = [];
                 var currtimeStamp  =  Math.floor(new Date() / 1000);
 
+
+
                 _.forEach(data.rows, (value, key) => {
                     let setKey = "";
                     let setVal = 1 ;
@@ -291,9 +315,12 @@ export class VisitorService {
                         }
                         setKey = this.timeConverter(value.date_part);
                     }
+
+
                     setData.push(JSON.stringify({setKey, setVal}));
                 });
 
+                console.log(setData);
                 return setData;
             })
             .catch(err => {
