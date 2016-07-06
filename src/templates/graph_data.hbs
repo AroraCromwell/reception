@@ -71,18 +71,24 @@ var points_data = {
         var p = {
             "type": "stepLine",
             "showInLegend": "true",
-            markerSize: 8,
-//            toolTipContent: "{x} <strong>{} <strong>"
+            markerSize: 5
         };
         p.name = i;
         //alert(p.name);
         p.dataPoints = [];
+        var mColor= "black";
         for (var j = 0; j < points_data[i].length; j++) {
             //alert(new Date(points_data[i][j].dateTime));
             //alert(points_data[i][j].value);
+            if(points_data[i][j].setVal == 0){
+                mColor = "red"
+            }else{
+                mColor = ""
+            }
             p.dataPoints.push({
                 x: new Date(points_data[i][j].setkey),
-                y: parseFloat(points_data[i][j].setVal)
+                y: parseFloat(points_data[i][j].setVal),
+                markerColor: mColor
             });
         }
         points.push(p);
