@@ -238,6 +238,9 @@ export class VisitorService {
                     let setVal = 1 ;
 
                     if(key > 0 ){
+                        // check if the  last entry was 5 minutes prior, then add those values for
+                        // whatever the time entries are not there till this entry
+
                         if((result.rows[key-1].date_part) + 310 < value.date_part) {
 
                             for (var j = 0; j < 300; j++) {
@@ -252,11 +255,32 @@ export class VisitorService {
                                     break;
                                 }
                             }
+                         }
 
+                        // check if the  very last entry is 5 minutes prior than current timestamp,
+                        // if not then add those values for
+                        // whatever the time entries are not there till current timestamp
+                        var veryLastKey = result.rows.length - 1;
+                        var currtimeStamp  =  Math.floor(new Date() / 1000);
+                        if((result.rows[veryLastKey].date_part) + 310 < currtimeStamp) {
+
+                            for (var j = 0; j < 300; j++) {
+                                if(currtimeStamp > result.rows[veryLastKey].date_part){
+                                    let setkey = this.timeConverter(result.rows[veryLastKey].date_part);
+                                    let setVal = 0 ;
+                                    setData.push(JSON.stringify({setkey, setVal}));
+                                    result.rows[veryLastKey].date_part = result.rows[veryLastKey].date_part + 310;
+                                } else{
+                                    //setVal = 0 ;
+                                    console.log("inside  post break");
+                                    break;
+                                }
+                            }
                         }
+
                     }else{
                         for (var j = 0; j < 300; j++) {
-                            if(value.date_part >= dtimeStamp){
+                            if(value.date_part > dtimeStamp){
                                 let setkey = this.timeConverter(dtimeStamp);
                                 let setVal = 0 ;
                                 setData.push(JSON.stringify({setkey, setVal}));

@@ -259,6 +259,9 @@ var VisitorService = exports.VisitorService = function () {
                     var setVal = 1;
 
                     if (key > 0) {
+                        // check if the  last entry was 5 minutes prior, then add those values for
+                        // whatever the time entries are not there till this entry
+
                         if (result.rows[key - 1].date_part + 310 < value.date_part) {
 
                             for (var j = 0; j < 300; j++) {
@@ -274,12 +277,33 @@ var VisitorService = exports.VisitorService = function () {
                                 }
                             }
                         }
+
+                        // check if the  very last entry is 5 minutes prior than current timestamp,
+                        // if not then add those values for
+                        // whatever the time entries are not there till current timestamp
+                        var veryLastKey = result.rows.length - 1;
+                        var currtimeStamp = Math.floor(new Date() / 1000);
+                        if (result.rows[veryLastKey].date_part + 310 < currtimeStamp) {
+
+                            for (var j = 0; j < 300; j++) {
+                                if (currtimeStamp > result.rows[veryLastKey].date_part) {
+                                    var _setkey2 = _this12.timeConverter(result.rows[veryLastKey].date_part);
+                                    var _setVal2 = 0;
+                                    setData.push(JSON.stringify({ setkey: _setkey2, setVal: _setVal2 }));
+                                    result.rows[veryLastKey].date_part = result.rows[veryLastKey].date_part + 310;
+                                } else {
+                                    //setVal = 0 ;
+                                    console.log("inside  post break");
+                                    break;
+                                }
+                            }
+                        }
                     } else {
                         for (var j = 0; j < 300; j++) {
-                            if (value.date_part >= dtimeStamp) {
-                                var _setkey2 = _this12.timeConverter(dtimeStamp);
-                                var _setVal2 = 0;
-                                setData.push(JSON.stringify({ setkey: _setkey2, setVal: _setVal2 }));
+                            if (value.date_part > dtimeStamp) {
+                                var _setkey3 = _this12.timeConverter(dtimeStamp);
+                                var _setVal3 = 0;
+                                setData.push(JSON.stringify({ setkey: _setkey3, setVal: _setVal3 }));
                                 dtimeStamp = dtimeStamp + 310;
                             } else {
                                 console.log("inside break");
