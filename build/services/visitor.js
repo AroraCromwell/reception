@@ -239,9 +239,22 @@ var VisitorService = exports.VisitorService = function () {
             });
         }
     }, {
+        key: "cleanStatus",
+        value: function cleanStatus() {
+            var _this12 = this;
+
+            //this._logger.info(JSON.stringify(data));
+            return this._visitorStore.cleanStatus().then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this12._logger.error("Problem while cleaning status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
         key: "processGraphData",
         value: function processGraphData() {
-            var _this12 = this;
+            var _this13 = this;
 
             this._logger.info("getting graph data!");
 
@@ -255,7 +268,7 @@ var VisitorService = exports.VisitorService = function () {
                 var midnightStatus = 0;
                 _lodash._.forEach(result.rows, function (value, key) {
 
-                    var setkey = _this12.timeConverter(value.date_part);
+                    var setkey = _this13.timeConverter(value.date_part);
                     var setVal = 1;
 
                     if (key > 0) {
@@ -266,7 +279,7 @@ var VisitorService = exports.VisitorService = function () {
 
                             for (var j = 0; j < 300; j++) {
                                 if (value.date_part > result.rows[key - 1].date_part) {
-                                    var _setkey = _this12.timeConverter(result.rows[key - 1].date_part);
+                                    var _setkey = _this13.timeConverter(result.rows[key - 1].date_part);
                                     var _setVal = 0;
                                     setData.push(JSON.stringify({ setkey: _setkey, setVal: _setVal }));
                                     result.rows[key - 1].date_part = result.rows[key - 1].date_part + 310;
@@ -282,12 +295,16 @@ var VisitorService = exports.VisitorService = function () {
                         // if not then add those values for
                         // whatever the time entries are not there till current timestamp
                         var veryLastKey = result.rows.length - 1;
+
+                        //console.log("LAt key" + veryLastKey);
+                        //console.log("last key result " + result.rows[veryLastKey].date_part);
+
                         var currtimeStamp = Math.floor(new Date() / 1000);
-                        if (result.rows[veryLastKey].date_part + 310 < currtimeStamp) {
+                        if (key == veryLastKey && result.rows[veryLastKey].date_part + 310 < currtimeStamp) {
 
                             for (var j = 0; j < 300; j++) {
                                 if (currtimeStamp > result.rows[veryLastKey].date_part) {
-                                    var _setkey2 = _this12.timeConverter(result.rows[veryLastKey].date_part);
+                                    var _setkey2 = _this13.timeConverter(result.rows[veryLastKey].date_part);
                                     var _setVal2 = 0;
                                     setData.push(JSON.stringify({ setkey: _setkey2, setVal: _setVal2 }));
                                     result.rows[veryLastKey].date_part = result.rows[veryLastKey].date_part + 310;
@@ -301,12 +318,12 @@ var VisitorService = exports.VisitorService = function () {
                     } else {
                         for (var j = 0; j < 300; j++) {
                             if (value.date_part > dtimeStamp) {
-                                var _setkey3 = _this12.timeConverter(dtimeStamp);
+                                var _setkey3 = _this13.timeConverter(dtimeStamp);
                                 var _setVal3 = 0;
                                 setData.push(JSON.stringify({ setkey: _setkey3, setVal: _setVal3 }));
                                 dtimeStamp = dtimeStamp + 310;
                             } else {
-                                console.log("inside break");
+                                console.log("inside zero break");
                                 break;
                             }
                         }
@@ -315,20 +332,20 @@ var VisitorService = exports.VisitorService = function () {
                 });
 
                 if (midnightStatus == 0) {
-                    var setkey = _this12.timeConverter(dtimeStamp);
+                    var setkey = _this13.timeConverter(dtimeStamp);
                     var setVal = 0;
                     setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
                 }
                 return setData;
             }).catch(function (err) {
-                _this12._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
                 throw new Error(err);
             });
         }
     }, {
         key: "currentStatus",
         value: function currentStatus() {
-            var _this13 = this;
+            var _this14 = this;
 
             this._logger.info("Current Device Status!");
 
@@ -341,7 +358,7 @@ var VisitorService = exports.VisitorService = function () {
                     var setKey = "";
                     var setVal = 1;
                     if (key > 0) {
-                        setKey = _this13.timeConverter(value.date_part);
+                        setKey = _this14.timeConverter(value.date_part);
                         if (data.rows[key - 1].date_part - 310 > value.date_part) {
                             setVal = 0;
                         }
@@ -352,10 +369,10 @@ var VisitorService = exports.VisitorService = function () {
 
                             // As service is not up from last 1 minute , it means it is down for now as well,
                             // so show status down for now as well
-                            setKey = _this13.timeConverter(currtimeStamp);
+                            setKey = _this14.timeConverter(currtimeStamp);
                             setData.push({ setKey: setKey, setVal: setVal });
                         }
-                        setKey = _this13.timeConverter(value.date_part);
+                        setKey = _this14.timeConverter(value.date_part);
                     }
 
                     setData.push(JSON.stringify({ setKey: setKey, setVal: setVal }));
@@ -364,7 +381,7 @@ var VisitorService = exports.VisitorService = function () {
                 console.log(setData);
                 return setData;
             }).catch(function (err) {
-                _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                _this14._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
                 throw new Error(err);
             });
         }
@@ -374,6 +391,62 @@ var VisitorService = exports.VisitorService = function () {
             var a = new Date(UNIX_timestamp * 1000);
             var time = dateFormat(a, "yyyy-mm-dd HH:MM:ss");
             return time;
+        }
+
+        // Auto Complete functionality
+
+    }, {
+        key: "autoComplete",
+        value: function autoComplete() {
+            var _this15 = this;
+
+            return this._visitorStore.autoComplete().then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this15._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
+        key: "autoCompletePost",
+        value: function autoCompletePost(data) {
+            var _this16 = this;
+
+            //this._logger.info(JSON.stringify(data));
+            return this._visitorStore.autoCompletePost(data).then(function (res) {
+                return res;
+            }).then(function (result) {
+                return _this16._visitorStore.autoCompleteId(result.rows[0].id);
+            }).catch(function (err) {
+                _this16._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
+        key: "updateAutoComplete",
+        value: function updateAutoComplete(id, data) {
+            var _this17 = this;
+
+            return this._visitorStore.updateAutoComplete(id, data).then(function (res) {
+                return res;
+            }).then(function (result) {
+                return _this17._visitorStore.autoCompleteId(id);
+            }).catch(function (err) {
+                _this17._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
+        key: "deleteAutoComplete",
+        value: function deleteAutoComplete(id) {
+            var _this18 = this;
+
+            return this._visitorStore.deleteAutoComplete(id).then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this18._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
         }
     }]);
 

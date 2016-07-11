@@ -16,10 +16,11 @@
 import {_} from "lodash";
 export class Visitors {
 
-    constructor (visitorService, logger, localStorage ) {
+    constructor (visitorService, logger, localStorage, io ) {
         this._visitorService = visitorService;
         this._logger = logger;
         this._localStorage = localStorage;
+        this._io = io;
     }
 
     get () {
@@ -191,16 +192,15 @@ export class Visitors {
                 var id = req.params.id;
 
                 this._visitorService.getTermsRequest(id)
+                .then(result => {
 
-                    .then(result => {
+                    res.render(result, { title: 'my other page', layout: '' });
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
 
-                        res.render(result, { title: 'my other page', layout: '' });
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
-                    });
+                });
             }
         ]
     }
@@ -212,15 +212,14 @@ export class Visitors {
             (req,res) => {
 
                 this._visitorService.postTermsRequest(req.body)
+                .then(result => {
+                    res.redirect('allTerms');
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
 
-                    .then(result => {
-                        res.redirect('allTerms');
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
-                    });
+                });
             }
         ]
     }
@@ -230,15 +229,15 @@ export class Visitors {
             (req,res) => {
 
                 this._visitorService.updateTermsRequest(req.params.id)
-                    .then(result => {
-                        //res.render("allTerms",{"data": result.rows});
-                        res.send({success : 1, message : "Success!", data : " ", retry: 0});
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+                .then(result => {
+                    //res.render("allTerms",{"data": result.rows});
+                    res.send({success : 1, message : "Success!", data : " ", retry: 0});
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
 
-                    });
+                });
             }
         ]
     }
@@ -250,25 +249,21 @@ export class Visitors {
 
                 this._visitorService.allTermsRequest()
 
-                    .then(result => {
-
-                        // console.log(result.rows);
-                        // process.exit();
-
-                        res.render("allTerms",{"data": result.rows, helpers:{
-                            checkStatus: function (status) {
-                                if(status == 1){
-                                    return 'checked';
-                                }
-
+                .then(result => {
+                    res.render("allTerms",{"data": result.rows, helpers:{
+                        checkStatus: function (status) {
+                            if(status == 1){
+                                return 'checked';
                             }
-                        }});
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
 
-                    });
+                        }
+                    }});
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+
+                });
             }
         ]
     }
@@ -277,7 +272,7 @@ export class Visitors {
 
         return [
             (req,res) => {
-                     res.render('addTerms');
+                 res.render('addTerms');
             }
         ]
     }
@@ -287,46 +282,62 @@ export class Visitors {
             (req,res) => {
                 res.render('crom_visitor');
             }
-            ]
+        ]
     }
 
 
     status () {
         return [
             (req, res) => {
-                //
-                // console.log(req.body);
-                // process.exit();
                 this._visitorService.processStatus(req.body)
-
-                    .then(result => {
-
-                        //console.log(result);
-                        //process.exit();
-                        res.send({success : 1, message : "completed", data : {}, retry: 0});
-
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-                    });
+                .then(result => {
+                    res.send({success : 1, message : "completed", data : {}, retry: 0});
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+                });
             }
         ];
     }
 
-    graph(){
+    cleanStatus() {
 
+        return this._visitorService.cleanStatus()
+            .then(result => {
+                return {success : 1, message : "completed", data : {}, retry: 0};
+
+            })
+            .catch(err => {
+                this._logger.error(err);
+                return err;
+
+            });
+    }
+
+    deviceStatus (data) {
+        console.log("device status");
+        this._visitorService.processStatus(data)
+        .then(result => {
+            //res.send({success : 1, message : "completed", data : {}, retry: 0});
+        })
+        .catch(err => {
+            this._logger.error(err);
+            //res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+        });
+    }
+
+    graph(){
         return [
             (req, res) => {
                 this._visitorService.processGraphData()
-
-                    .then(result => {
-                        res.render('graph_data', {"data": result});
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-                    });
+                .then(result => {
+                    res.render('graph_data', {"data": result});
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+                });
             }
         ]
     }
@@ -336,36 +347,114 @@ export class Visitors {
         return [
             (req, res) => {
                 this._visitorService.currentStatus()
-                    .then(result => {
-                        res.send({success : 1, message : "completed", data : {result} });
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
-                    });
+                .then(result => {
+                    res.send({success : 1, message : "completed", data : {result} });
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                });
             }
         ]
     }
 
-    timeConverter(UNIX_timestamp){
-        var a = new Date(UNIX_timestamp * 1000);
-        var hour = a.getHours();
-        // if(hour < 10) {
-        //     hour = '0' + hour;
-        // }
-
-        var min = a.getMinutes();
-        if(min < 10) {
-            min = '0' + min;
-        }
-
-        var sec = a.getSeconds();
-        if(sec < 10) {
-            sec = '0' + sec;
-        }
-
-        var time =  hour + '.' + min ;
-        return time;
+    autoCompleteAdd(){
+        return [
+            (req, res) => {
+                res.render('autoComplete_add');
+            }
+        ]
     }
 
+    autoCompletePost(){
+        return [
+            (req, res) => {
+                this._visitorService.autoCompletePost(req.body)
+                .then(result => {
+                    if(result.rows[0].location =='BRC'){
+                            this._io.emit('brcSuggestionAdd', result.rows[0]);
+                    }
+
+                    res.redirect("/autoComplete");
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                });
+            }
+        ]
+    }
+
+    updateAutoComplete(){
+        return [
+            (req, res) => {
+                this._visitorService.updateAutoComplete(req.params.id, req.body)
+                .then(result => {
+                    if(result.rows[0].location =='BRC'){
+                        this._io.emit('brcSuggestionUpdate', result.rows[0]);
+                    }
+                    res.redirect("/autoComplete");
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                });
+            }
+        ]
+    }
+
+    deleteAutoComplete(){
+        return [
+            (req, res) => {
+                this._visitorService.deleteAutoComplete(req.params.id)
+                .then(result => {
+                    //Fire delete message, So Device will delete it from Android App
+                    var myString = {"id":req.params.id,"type":req.body.type} ;
+                    this._io.emit('brcSuggestionDelete', myString);
+                    res.send({success : 1, message : "completed", data : {result} });
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                });
+            }
+        ]
+    }
+
+    autoComplete(){
+        return [
+            (req, res) => {
+                if(this._localStorage.getItem('email')) {
+                    this._visitorService.autoComplete()
+                        .then(result => {
+                            let row = result.rows;
+                            res.render('auto_Complete', {data: row});
+                        })
+                        .catch(err => {
+                            this._logger.error(err);
+                            res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+
+                        });
+                }else {
+                    res.redirect("/");
+                }
+            }
+        ];
+    }
+
+    autoCompleteId(){
+        return [
+            (req, res) => {
+                this._visitorService.autoCompleteId(req.params.id)
+                    .then(result => {
+                        let row = result.rows;
+                        res.render('auto_Complete', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                });
+            }
+        ];
+    }
 }

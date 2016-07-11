@@ -259,20 +259,23 @@ export class VisitorStore {
             })
     }
 
-    saveStatus(data) {
+    saveStatus(status) {
         let insertQuery = `
                     INSERT INTO
                     reception_handler.app_status (
-                        location
+                        location,
+                        status
                     )
                     VALUES (
-                        $1
+                        $1,
+                        $2
                     )
                     RETURNING id
                 `;
 
         let args = [
-            'brc'
+            'brc',
+            status
         ];
         return this._resource.query(insertQuery, args)
             .then(response => {
@@ -280,8 +283,21 @@ export class VisitorStore {
             })
     }
 
+    cleanStatus(){
+
+        let deleteQuery = 'DELETE from reception_handler.app_status where settime < now()::date';
+        let args = [
+        ];
+
+        return this._resource.query(deleteQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+
     processGraphData() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id ASC;';
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
         let args = [
         ];
 
@@ -315,5 +331,71 @@ export class VisitorStore {
 
         var setTime = myDate + " " + myTime;
         return setTime;
+    }
+
+
+    autoCompletePost(data) {
+
+        console.log(data);
+        let insertQuery = 'INSERT INTO reception_handler.autoComplete (location, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
+        let args = [
+            data.location,
+            data.type,
+            data.suggestion
+        ];
+
+        return this._resource.query(insertQuery, args)
+            .then(response => {
+                return response;
+            })
+    }
+
+    autoCompleteId(id) {
+        let selectQuery = 'SELECT * FROM reception_handler.autoComplete WHERE id = $1 ';
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+    autoComplete() {
+        let selectQuery = 'SELECT * FROM reception_handler.autoComplete ORDER BY location DESC;';
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    updateAutoComplete(id, data) {
+        let selectQuery = 'UPDATE reception_handler.autoComplete SET  type = $1, location= $2, suggestion = $3  WHERE id = $4 ';
+        let args = [
+            data.type,
+            data.location,
+            data.suggestion,
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    deleteAutoComplete(id) {
+        let selectQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
     }
 }

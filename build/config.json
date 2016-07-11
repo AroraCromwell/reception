@@ -10,7 +10,7 @@
   "printer": {
     "set": "BrotherPrint_SMB"
   },
-  "runTime": "* 19,20 * * *",
+  "runTime": "* 0/5 * * *",
   "terms": {
     "version": "1"
   },

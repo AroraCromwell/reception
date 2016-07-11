@@ -194,18 +194,29 @@ var VisitorStore = exports.VisitorStore = function () {
         }
     }, {
         key: "saveStatus",
-        value: function saveStatus(data) {
-            var insertQuery = "\n                    INSERT INTO\n                    reception_handler.app_status (\n                        location\n                    )\n                    VALUES (\n                        $1\n                    )\n                    RETURNING id\n                ";
+        value: function saveStatus(status) {
+            var insertQuery = "\n                    INSERT INTO\n                    reception_handler.app_status (\n                        location,\n                        status\n                    )\n                    VALUES (\n                        $1,\n                        $2\n                    )\n                    RETURNING id\n                ";
 
-            var args = ['brc'];
+            var args = ['brc', status];
             return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "cleanStatus",
+        value: function cleanStatus() {
+
+            var deleteQuery = 'DELETE from reception_handler.app_status where settime < now()::date';
+            var args = [];
+
+            return this._resource.query(deleteQuery, args).then(function (response) {
                 return response;
             });
         }
     }, {
         key: "processGraphData",
         value: function processGraphData() {
-            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id ASC;';
+            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -239,6 +250,58 @@ var VisitorStore = exports.VisitorStore = function () {
 
             var setTime = myDate + " " + myTime;
             return setTime;
+        }
+    }, {
+        key: "autoCompletePost",
+        value: function autoCompletePost(data) {
+
+            console.log(data);
+            var insertQuery = 'INSERT INTO reception_handler.autoComplete (location, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
+            var args = [data.location, data.type, data.suggestion];
+
+            return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "autoCompleteId",
+        value: function autoCompleteId(id) {
+            var selectQuery = 'SELECT * FROM reception_handler.autoComplete WHERE id = $1 ';
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "autoComplete",
+        value: function autoComplete() {
+            var selectQuery = 'SELECT * FROM reception_handler.autoComplete ORDER BY location DESC;';
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "updateAutoComplete",
+        value: function updateAutoComplete(id, data) {
+            var selectQuery = 'UPDATE reception_handler.autoComplete SET  type = $1, location= $2, suggestion = $3  WHERE id = $4 ';
+            var args = [data.type, data.location, data.suggestion, id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "deleteAutoComplete",
+        value: function deleteAutoComplete(id) {
+            var selectQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
         }
     }]);
 
