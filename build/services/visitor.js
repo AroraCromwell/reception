@@ -448,6 +448,60 @@ var VisitorService = exports.VisitorService = function () {
                 throw new Error(err);
             });
         }
+
+        //Staff information
+
+    }, {
+        key: "allStaff",
+        value: function allStaff() {
+            var _this19 = this;
+
+            return this._visitorStore.allStaff().then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this19._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
+        key: "staffSignIn",
+        value: function staffSignIn(id) {
+            var _this20 = this;
+
+            return this._visitorStore.staffSignIn(id).then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this20._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut(id) {
+            var _this21 = this;
+
+            return this._visitorStore.staffSignOut(id).then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this21._logger.error("Problem while Staff Sign Out: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+
+        // All staff signed In
+
+    }, {
+        key: "staffSignedIn",
+        value: function staffSignedIn(id) {
+            var _this22 = this;
+
+            return this._visitorStore.staffSignedIn(id).then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this22._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
     }]);
 
     return VisitorService;

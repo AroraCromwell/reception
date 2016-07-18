@@ -429,4 +429,51 @@ export class VisitorService {
             });
     }
 
+
+    //Staff information
+
+    allStaff(){
+        return this._visitorStore.allStaff()
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    staffSignIn(id){
+        return this._visitorStore.staffSignIn(id)
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    staffSignOut(id){
+        return this._visitorStore.staffSignOut(id)
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while Staff Sign Out: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    // All staff signed In
+    staffSignedIn(id){
+        return this._visitorStore.staffSignedIn(id)
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
 }

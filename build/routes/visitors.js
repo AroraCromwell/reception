@@ -418,6 +418,70 @@ var Visitors = exports.Visitors = function () {
                 });
             }];
         }
+
+        // Staff information
+
+    }, {
+        key: "allStaff",
+        value: function allStaff() {
+            var _this23 = this;
+
+            return [function (req, res) {
+                _this23._visitorService.allStaff().then(function (result) {
+                    var row = result.rows;
+                    res.send({ status: 'ok', count: '20', count_total: result.rowCount, data: row });
+                }).catch(function (err) {
+                    _this23._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignIn",
+        value: function staffSignIn() {
+            var _this24 = this;
+
+            return [function (req, res) {
+
+                _this24._visitorService.staffSignIn(req.params.id).then(function (result) {
+                    res.send({ status: 'ok' });
+                }).catch(function (err) {
+                    _this24._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignedIn",
+        value: function staffSignedIn() {
+            var _this25 = this;
+
+            return [function (req, res) {
+
+                _this25._visitorService.staffSignedIn(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_staffsignedin', { data: row });
+                }).catch(function (err) {
+                    _this25._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut() {
+            var _this26 = this;
+
+            return [function (req, res) {
+
+                _this26._visitorService.staffSignOut(req.params.id).then(function (result) {
+                    res.send({ success: 1, message: "Completed" });
+                }).catch(function (err) {
+                    _this26._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
     }]);
 
     return Visitors;

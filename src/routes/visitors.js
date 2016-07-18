@@ -457,4 +457,71 @@ export class Visitors {
             }
         ];
     }
+
+    // Staff information
+
+    allStaff(){
+        return [
+            (req, res) => {
+                this._visitorService.allStaff()
+                    .then(result => {
+                        let row = result.rows;
+                        res.send({status: 'ok', count: '20' , count_total: result.rowCount, data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    staffSignIn(){
+        return [
+            (req, res) => {
+
+                this._visitorService.staffSignIn(req.params.id)
+                    .then(result => {
+                        res.send({status: 'ok'});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                });
+            }
+        ];
+    }
+
+    staffSignedIn(){
+        return [
+            (req, res) => {
+
+                this._visitorService.staffSignedIn(req.params.id)
+                    .then(result => {
+                        let row = result.rows;
+                        res.render('all_staffsignedin', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    staffSignOut(){
+        return [
+            (req, res) => {
+
+                this._visitorService.staffSignOut(req.params.id)
+                    .then(result => {
+                        res.send({success: 1, message: "Completed"});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
 }

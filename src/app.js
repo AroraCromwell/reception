@@ -40,7 +40,17 @@ let db = new DbConnect(config.db.postgres.string);
 
 db.createConnection()
     .then((connection) => {
-        var server = require('http').createServer(app);
+
+        //var server = require('http').createServer(app);
+       if(config.env.status !== "Production"){
+           var server = require('https').createServer({
+               cert: fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\ssl_certificate.crt"),
+               key:  fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\cromtoolssrv.key")
+           },app);
+       }else {
+           var server = require('http').createServer(app);
+       }
+
         var io = require('socket.io')(server);
         // create reusable transport method (opens pool of SMTP connections)
         var smtpTransport = nodemailer.createTransport("SMTP",{
@@ -118,6 +128,14 @@ db.createConnection()
         app.post("/autoComplete/:id", visitors.updateAutoComplete());
         app.delete("/autoComplete/:id", visitors.deleteAutoComplete());
 
+
+        // request for staff
+        app.get("/allStaff", visitors.allStaff());
+        app.get("/staffSignIn/:id", visitors.staffSignIn());
+        app.get("/staffSignOut/:id", visitors.staffSignOut());
+        app.get("/staffSignedIn/:id", visitors.staffSignedIn());
+
+
         nodeSchedule.scheduleJob(config.runTime, function () {
             visitors.allSignOut()
                 .then(done => {
@@ -181,7 +199,7 @@ db.createConnection()
             if(status != 'undefined'){
                 alive = setInterval(function () {
                     visitors.deviceStatus(1);
-                }, 10000);
+                }, 600000);
             }
             if(status != 'undefined') {
                 down = setInterval(function () {
