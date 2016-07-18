@@ -9,3 +9,7 @@
 .table>tbody>tr>td {
     vertical-align: middle;
 }
+
+.input-append .btn.dropdown-toggle {
+    float: none;
+}

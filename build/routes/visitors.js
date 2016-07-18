@@ -22,12 +22,13 @@ var _lodash = require("lodash");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Visitors = exports.Visitors = function () {
-    function Visitors(visitorService, logger, localStorage) {
+    function Visitors(visitorService, logger, localStorage, io) {
         _classCallCheck(this, Visitors);
 
         this._visitorService = visitorService;
         this._logger = logger;
         this._localStorage = localStorage;
+        this._io = io;
     }
 
     _createClass(Visitors, [{
@@ -228,10 +229,6 @@ var Visitors = exports.Visitors = function () {
             return [function (req, res) {
 
                 _this12._visitorService.allTermsRequest().then(function (result) {
-
-                    // console.log(result.rows);
-                    // process.exit();
-
                     res.render("allTerms", { "data": result.rows, helpers: {
                             checkStatus: function checkStatus(status) {
                                 if (status == 1) {
@@ -267,13 +264,7 @@ var Visitors = exports.Visitors = function () {
             var _this13 = this;
 
             return [function (req, res) {
-                //
-                // console.log(req.body);
-                // process.exit();
                 _this13._visitorService.processStatus(req.body).then(function (result) {
-
-                    //console.log(result);
-                    //process.exit();
                     res.send({ success: 1, message: "completed", data: {}, retry: 0 });
                 }).catch(function (err) {
                     _this13._logger.error(err);
@@ -282,15 +273,40 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "graph",
-        value: function graph() {
+        key: "cleanStatus",
+        value: function cleanStatus() {
             var _this14 = this;
 
+            return this._visitorService.cleanStatus().then(function (result) {
+                return { success: 1, message: "completed", data: {}, retry: 0 };
+            }).catch(function (err) {
+                _this14._logger.error(err);
+                return err;
+            });
+        }
+    }, {
+        key: "deviceStatus",
+        value: function deviceStatus(data) {
+            var _this15 = this;
+
+            console.log("device status");
+            this._visitorService.processStatus(data).then(function (result) {
+                //res.send({success : 1, message : "completed", data : {}, retry: 0});
+            }).catch(function (err) {
+                _this15._logger.error(err);
+                //res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+            });
+        }
+    }, {
+        key: "graph",
+        value: function graph() {
+            var _this16 = this;
+
             return [function (req, res) {
-                _this14._visitorService.processGraphData().then(function (result) {
+                _this16._visitorService.processGraphData().then(function (result) {
                     res.render('graph_data', { "data": result });
                 }).catch(function (err) {
-                    _this14._logger.error(err);
+                    _this16._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -298,38 +314,173 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "currentStatus",
         value: function currentStatus() {
-            var _this15 = this;
+            var _this17 = this;
 
             return [function (req, res) {
-                _this15._visitorService.currentStatus().then(function (result) {
+                _this17._visitorService.currentStatus().then(function (result) {
                     res.send({ success: 1, message: "completed", data: { result: result } });
                 }).catch(function (err) {
-                    _this15._logger.error(err);
+                    _this17._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
                 });
             }];
         }
     }, {
-        key: "timeConverter",
-        value: function timeConverter(UNIX_timestamp) {
-            var a = new Date(UNIX_timestamp * 1000);
-            var hour = a.getHours();
-            // if(hour < 10) {
-            //     hour = '0' + hour;
-            // }
+        key: "autoCompleteAdd",
+        value: function autoCompleteAdd() {
+            return [function (req, res) {
+                res.render('autoComplete_add');
+            }];
+        }
+    }, {
+        key: "autoCompletePost",
+        value: function autoCompletePost() {
+            var _this18 = this;
 
-            var min = a.getMinutes();
-            if (min < 10) {
-                min = '0' + min;
-            }
+            return [function (req, res) {
+                _this18._visitorService.autoCompletePost(req.body).then(function (result) {
+                    if (result.rows[0].location == 'BRC') {
+                        _this18._io.emit('brcSuggestionAdd', result.rows[0]);
+                    }
 
-            var sec = a.getSeconds();
-            if (sec < 10) {
-                sec = '0' + sec;
-            }
+                    res.redirect("/autoComplete");
+                }).catch(function (err) {
+                    _this18._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "updateAutoComplete",
+        value: function updateAutoComplete() {
+            var _this19 = this;
 
-            var time = hour + '.' + min;
-            return time;
+            return [function (req, res) {
+                _this19._visitorService.updateAutoComplete(req.params.id, req.body).then(function (result) {
+                    if (result.rows[0].location == 'BRC') {
+                        _this19._io.emit('brcSuggestionUpdate', result.rows[0]);
+                    }
+                    res.redirect("/autoComplete");
+                }).catch(function (err) {
+                    _this19._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "deleteAutoComplete",
+        value: function deleteAutoComplete() {
+            var _this20 = this;
+
+            return [function (req, res) {
+                _this20._visitorService.deleteAutoComplete(req.params.id).then(function (result) {
+                    //Fire delete message, So Device will delete it from Android App
+                    var myString = { "id": req.params.id, "type": req.body.type };
+                    _this20._io.emit('brcSuggestionDelete', myString);
+                    res.send({ success: 1, message: "completed", data: { result: result } });
+                }).catch(function (err) {
+                    _this20._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "autoComplete",
+        value: function autoComplete() {
+            var _this21 = this;
+
+            return [function (req, res) {
+                if (_this21._localStorage.getItem('email')) {
+                    _this21._visitorService.autoComplete().then(function (result) {
+                        var row = result.rows;
+                        res.render('auto_Complete', { data: row });
+                    }).catch(function (err) {
+                        _this21._logger.error(err);
+                        res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                    });
+                } else {
+                    res.redirect("/");
+                }
+            }];
+        }
+    }, {
+        key: "autoCompleteId",
+        value: function autoCompleteId() {
+            var _this22 = this;
+
+            return [function (req, res) {
+                _this22._visitorService.autoCompleteId(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('auto_Complete', { data: row });
+                }).catch(function (err) {
+                    _this22._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+
+        // Staff information
+
+    }, {
+        key: "allStaff",
+        value: function allStaff() {
+            var _this23 = this;
+
+            return [function (req, res) {
+                _this23._visitorService.allStaff().then(function (result) {
+                    var row = result.rows;
+                    res.send({ status: 'ok', count: '20', count_total: result.rowCount, data: row });
+                }).catch(function (err) {
+                    _this23._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignIn",
+        value: function staffSignIn() {
+            var _this24 = this;
+
+            return [function (req, res) {
+
+                _this24._visitorService.staffSignIn(req.params.id).then(function (result) {
+                    res.send({ status: 'ok' });
+                }).catch(function (err) {
+                    _this24._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignedIn",
+        value: function staffSignedIn() {
+            var _this25 = this;
+
+            return [function (req, res) {
+
+                _this25._visitorService.staffSignedIn(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_staffsignedin', { data: row });
+                }).catch(function (err) {
+                    _this25._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut() {
+            var _this26 = this;
+
+            return [function (req, res) {
+
+                _this26._visitorService.staffSignOut(req.params.id).then(function (result) {
+                    res.send({ success: 1, message: "Completed" });
+                }).catch(function (err) {
+                    _this26._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
         }
     }]);
 

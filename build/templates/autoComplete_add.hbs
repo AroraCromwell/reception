@@ -1,0 +1,38 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <form role="form" action="/autoCompletePost" method="post">
+                <div class="form-group">
+                    <div class="form-group">
+                        <label class="control-label col-sm-offset-2 col-sm-2" for="company">Location</label>
+                        <div class="col-sm-8 col-md-8">
+                            <select name="location" class="form-control">
+                                <option>BRC</option>
+                                <option>WDC</option>
+                            =</select>
+                        </div>
+                        <label class="control-label col-sm-offset-2 col-sm-2" for="company">Type</label>
+                        <div class="col-sm-8 col-md-8">
+                            <select name="type" class="form-control">
+                                <option value="visitor_name">Visitor Name</option>
+                                <option>Company</option>
+                                <option>Visiting</option>
+                            </select>
+                        </div>
+
+                        <label class="control-label col-sm-offset-2 col-sm-2" for="company">Suggestion:</label>
+                        <div class="col-sm-8 col-md-8">
+                            <input class="form-control"  name="suggestion"/>
+                        </div>
+                        <div class="col-sm-8 col-md-8">
+                            <label class="control-label col-sm-offset-2 col-sm-2" for="company"></label>
+                            <input type="submit" class="sbm-btn btn btn-sm btn-primary" value="Submit Button">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/js/jquery-1.12.3.min.js" ></script>

@@ -219,6 +219,18 @@ export class VisitorService {
             });
     }
 
+    cleanStatus () {
+        //this._logger.info(JSON.stringify(data));
+        return this._visitorStore.cleanStatus()
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while cleaning status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
     processGraphData() {
 
         this._logger.info("getting graph data!");
@@ -261,8 +273,12 @@ export class VisitorService {
                         // if not then add those values for
                         // whatever the time entries are not there till current timestamp
                         var veryLastKey = result.rows.length - 1;
+
+                        //console.log("LAt key" + veryLastKey);
+                        //console.log("last key result " + result.rows[veryLastKey].date_part);
+
                         var currtimeStamp  =  Math.floor(new Date() / 1000);
-                        if((result.rows[veryLastKey].date_part) + 310 < currtimeStamp) {
+                        if( key == veryLastKey && (result.rows[veryLastKey].date_part) + 310 < currtimeStamp) {
 
                             for (var j = 0; j < 300; j++) {
                                 if(currtimeStamp > result.rows[veryLastKey].date_part){
@@ -286,7 +302,7 @@ export class VisitorService {
                                 setData.push(JSON.stringify({setkey, setVal}));
                                 dtimeStamp = dtimeStamp + 310;
                             } else{
-                                console.log("inside break");
+                                console.log("inside zero break");
                                 break;
                             }
                         }
@@ -358,5 +374,106 @@ export class VisitorService {
         var a = new Date(UNIX_timestamp * 1000);
         var time = dateFormat(a, "yyyy-mm-dd HH:MM:ss");
         return time;
+    }
+
+    // Auto Complete functionality
+
+    autoComplete() {
+        return this._visitorStore.autoComplete()
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    autoCompletePost(data) {
+        //this._logger.info(JSON.stringify(data));
+        return this._visitorStore.autoCompletePost(data)
+            .then((res) => {
+                return res;
+            })
+            .then((result) => {
+                return this._visitorStore.autoCompleteId(result.rows[0].id);
+            })
+            .catch(err => {
+                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    updateAutoComplete(id, data){
+        return this._visitorStore.updateAutoComplete(id, data)
+            .then((res) => {
+                return res;
+            })
+            .then((result) => {
+                return this._visitorStore.autoCompleteId(id);
+            })
+            .catch(err => {
+                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    deleteAutoComplete(id){
+        return this._visitorStore.deleteAutoComplete(id)
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+
+    //Staff information
+
+    allStaff(){
+        return this._visitorStore.allStaff()
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    staffSignIn(id){
+        return this._visitorStore.staffSignIn(id)
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    staffSignOut(id){
+        return this._visitorStore.staffSignOut(id)
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while Staff Sign Out: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    // All staff signed In
+    staffSignedIn(id){
+        return this._visitorStore.staffSignedIn(id)
+            .then((res) => {
+                return res;
+            })
+            .catch(err => {
+                this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
     }
 }

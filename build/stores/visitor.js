@@ -194,18 +194,29 @@ var VisitorStore = exports.VisitorStore = function () {
         }
     }, {
         key: "saveStatus",
-        value: function saveStatus(data) {
-            var insertQuery = "\n                    INSERT INTO\n                    reception_handler.app_status (\n                        location\n                    )\n                    VALUES (\n                        $1\n                    )\n                    RETURNING id\n                ";
+        value: function saveStatus(status) {
+            var insertQuery = "\n                    INSERT INTO\n                    reception_handler.app_status (\n                        location,\n                        status\n                    )\n                    VALUES (\n                        $1,\n                        $2\n                    )\n                    RETURNING id\n                ";
 
-            var args = ['brc'];
+            var args = ['brc', status];
             return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "cleanStatus",
+        value: function cleanStatus() {
+
+            var deleteQuery = 'DELETE from reception_handler.app_status where settime < now()::date';
+            var args = [];
+
+            return this._resource.query(deleteQuery, args).then(function (response) {
                 return response;
             });
         }
     }, {
         key: "processGraphData",
         value: function processGraphData() {
-            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id ASC;';
+            var selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -239,6 +250,115 @@ var VisitorStore = exports.VisitorStore = function () {
 
             var setTime = myDate + " " + myTime;
             return setTime;
+        }
+    }, {
+        key: "autoCompletePost",
+        value: function autoCompletePost(data) {
+
+            console.log(data);
+            var insertQuery = 'INSERT INTO reception_handler.autoComplete (location, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
+            var args = [data.location, data.type, data.suggestion];
+
+            return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "autoCompleteId",
+        value: function autoCompleteId(id) {
+            var selectQuery = 'SELECT * FROM reception_handler.autoComplete WHERE id = $1 ';
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "autoComplete",
+        value: function autoComplete() {
+            var selectQuery = 'SELECT * FROM reception_handler.autoComplete ORDER BY location DESC;';
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "updateAutoComplete",
+        value: function updateAutoComplete(id, data) {
+            var selectQuery = 'UPDATE reception_handler.autoComplete SET  type = $1, location= $2, suggestion = $3  WHERE id = $4 ';
+            var args = [data.type, data.location, data.suggestion, id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "deleteAutoComplete",
+        value: function deleteAutoComplete(id) {
+            var selectQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "allStaff",
+        value: function allStaff() {
+            /*let selectQuery = `SELECT a.id, a.staff_id, a.firstname, a.surname,  a.email, a.job_title_code, b.department_code, b.department_name, c.post_title
+                               FROM active_directory.users a
+                               INNER JOIN active_directory.departments b ON b.department_code::text = 'P103'
+                               LEFT JOIN active_directory.job_posts c ON a.job_title_code::text = c.post_no::text  LIMIT 3;`; */
+
+            var selectQuery = "select * from active_directory.users u\n                            INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text) \n                            LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text\n                            WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)\n                            and date_left is null";
+            var args = ['BRC'];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "staffSignIn",
+        value: function staffSignIn(id) {
+            var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+            var args = [id, 'P103'];
+
+            return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut(id) {
+            var _this2 = this;
+
+            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 ORDER BY signin_time DESC LIMIT 1';
+
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            }).then(function (result) {
+                var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+
+                var args = [_this2.getTime(""), result.rows[0].id];
+
+                return _this2._resource.query(updateQuery, args).then(function (response) {
+                    return response;
+                });
+            });
+        }
+    }, {
+        key: "staffSignedIn",
+        value: function staffSignedIn(id) {
+
+            var selectQuery = "SELECT a.signin_time, a.signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id";
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
         }
     }]);
 

@@ -20,11 +20,11 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/allVisitors">Cromwell Reception</a>
+            <a class="navbar-brand" href="/graph">Cromwell Reception</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-left">
-
+                <li id="status"><a href="/graph" >Status</a></li>
                 <li id="allVisitor"><a href="/allVisitors" >All Visitors</a></li>
                 <li id="allOut"><a href="/allSignOut" >All Signed out</a></li>
                 <li id="terms">
@@ -35,7 +35,25 @@
                             <li><a href="/templateTerms">Add New Term</a></li>
                         </ul>
                 </li>
-                <li id="status"><a href="/graph" >Status</a></li>
+
+                <li id="suggestion">
+                    <a href="#" data-toggle="dropdown">Auto Suggestions
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/autoComplete">All Suggestion</a></li>
+                        <li><a href="/autoCompleteAdd">Add New Suggestion</a></li>
+                    </ul>
+                </li>
+                <li id="staff">
+                    <a href="#" data-toggle="dropdown">Staff SignIn
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/staffSignedIn/2">BRC</a></li>
+                        <li><a href="/staffSignedIn/2">WDC</a></li>
+                    </ul>
+                </li>
+
+
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/">Logout</a></li>

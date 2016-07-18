@@ -10,9 +10,11 @@ import path from "path";
 import  bodyParser from "body-parser";
 import nodeSchedule from "node-schedule";
 //import CanvasJS from 'canvasjs';
-
+var exec = require('child_process').exec;
 var localStorage = require('localStorage');
 var nodemailer = require("nodemailer");
+
+var connections = [];
 
 var app = express();
 var exphbs  = require('express-handlebars');
@@ -39,6 +41,17 @@ let db = new DbConnect(config.db.postgres.string);
 db.createConnection()
     .then((connection) => {
 
+        //var server = require('http').createServer(app);
+       if(config.env.status !== "Production"){
+           var server = require('https').createServer({
+               cert: fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\ssl_certificate.crt"),
+               key:  fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\cromtoolssrv.key")
+           },app);
+       }else {
+           var server = require('http').createServer(app);
+       }
+
+        var io = require('socket.io')(server);
         // create reusable transport method (opens pool of SMTP connections)
         var smtpTransport = nodemailer.createTransport("SMTP",{
             service: "Gmail",
@@ -76,7 +89,7 @@ db.createConnection()
         let eventListener = new EventListener(connection, logger);
         let visitorStore = new VisitorStore(postgres, logger);
         let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger);
-        let visitors = new Visitors(visitorService, logger, localStorage);
+        let visitors = new Visitors(visitorService, logger, localStorage, io);
 
 
 
@@ -106,22 +119,102 @@ db.createConnection()
         app.get("/graph", visitors.graph());
         app.get("/graph/getData", visitors.currentStatus());
 
+        // request for suggestions
+
+        app.get("/autoCompleteAdd", visitors.autoCompleteAdd());
+        app.post("/autoCompletePost", visitors.autoCompletePost());
+        app.get("/autoComplete", visitors.autoComplete());
+        app.get("/autoComplete/:id", visitors.autoCompleteId());
+        app.post("/autoComplete/:id", visitors.updateAutoComplete());
+        app.delete("/autoComplete/:id", visitors.deleteAutoComplete());
+
+
+        // request for staff
+        app.get("/allStaff", visitors.allStaff());
+        app.get("/staffSignIn/:id", visitors.staffSignIn());
+        app.get("/staffSignOut/:id", visitors.staffSignOut());
+        app.get("/staffSignedIn/:id", visitors.staffSignedIn());
+
+
         nodeSchedule.scheduleJob(config.runTime, function () {
             visitors.allSignOut()
                 .then(done => {
                     logger.info("All Signed Out");
                 })
                 .catch(err => {
-                    logger.error("Error occurred while Signing Out: " + JSON.stringify(err));
+                    logger.error("Error occurred while Signing Out All using cron job: " + JSON.stringify(err));
                 });
 
+            visitors.cleanStatus()
+                .then(done => {
+                    logger.info("Status Clean");
+                })
+                .catch(err => {
+                    logger.error("Error occurred cleaning status data for last day: " + JSON.stringify(err));
+                });
+
+            var cmd = "rm -Rf   build/pdf/*";
+
+            exec(cmd, function(error, stdout, stderr) {
+                // command output is in stdout
+                console.log(stdout);
+
+                if (error !== null) {
+                    console.log('exec error: ' + error);
+                }
+                //process.exit();
+            });
         });
 
 
         /* Start up the server */
-        app.listen(config.server.port, () => {
+
+
+        var status = 1;
+
+        io.on("connection", function(socket){
+            console.log(" new device connected");
+            var alive;
+            var down;
+            socket.emit("connectMessage", { msg : "Connected" });
+            socket.on('event', function(data){});
+
+            socket.once('up', function(data){
+                console.log("Serivce connected");
+                socket.room = 'appStatus';
+                socket.join('appStatus');
+                socket.username = 'brc';
+                status = 1;
+
+                clearInterval(down);
+            });
+
+            socket.once('disconnect', function(){
+                console.log("Serivce goes down");
+                socket.leave('appStatus');
+                status = 0;
+                clearInterval(alive);
+            });
+
+            if(status != 'undefined'){
+                alive = setInterval(function () {
+                    visitors.deviceStatus(1);
+                }, 600000);
+            }
+            if(status != 'undefined') {
+                down = setInterval(function () {
+                    visitors.deviceStatus(0);
+                }, 10000);
+            }
+
+        });
+        server.listen(config.server.port, () => {
             logger.info("System Listen on port " + config.server.port);
         });
+
+        // app.listen(config.server.port, () => {
+        //     logger.info("System Listen on port " + config.server.port);
+        // });
 
 
 

@@ -20,17 +20,17 @@ export class VisitorStore {
     }
 
     saveCustomer(customer) {
-       // if(customer.paramImagePath != ''){
-            var unix = Math.round(+new Date()/1000);
-            var imageName = customer.paramAccountName +'_'+ unix;
-            var options = {filename: './public/images/' + imageName};
-            //var options = {filename: './src/reception_handler/images/' + imageName};
-            var imageData = new Buffer(customer.paramImagePath, 'base64');
+        // if(customer.paramImagePath != ''){
+        var unix = Math.round(+new Date()/1000);
+        var imageName = customer.paramAccountName +'_'+ unix;
+        var options = {filename: './public/images/' + imageName};
+        //var options = {filename: './src/reception_handler/images/' + imageName};
+        var imageData = new Buffer(customer.paramImagePath, 'base64');
 
-            base64.base64decoder(imageData, options, function (err, saved) {
-                if (err) { console.log(err); }
-                console.log(saved);
-            });
+        base64.base64decoder(imageData, options, function (err, saved) {
+            if (err) { console.log(err); }
+            console.log(saved);
+        });
         //}
 
         let insertQuery = `
@@ -110,7 +110,7 @@ export class VisitorStore {
 
         return this._resource.query(selectQuery, args)
             .then(response => {
-               return response;
+                return response;
             });
     }
 
@@ -160,7 +160,7 @@ export class VisitorStore {
 
         return this._resource.query(selectQuery, args)
             .then(response => {
-                    return response;
+                return response;
             });
     }
 
@@ -187,14 +187,14 @@ export class VisitorStore {
         var args = "";
 
         if(id != null){
-             selectQuery = "SELECT * FROM reception_handler.terms WHERE status = $1 and id = $2";
-             args = [
+            selectQuery = "SELECT * FROM reception_handler.terms WHERE status = $1 and id = $2";
+            args = [
                 1,
                 id
             ];
         }else{
-             selectQuery = "SELECT * FROM reception_handler.terms WHERE status = $1";
-             args = [
+            selectQuery = "SELECT * FROM reception_handler.terms WHERE status = $1";
+            args = [
                 1
             ];
         }
@@ -259,20 +259,23 @@ export class VisitorStore {
             })
     }
 
-    saveStatus(data) {
+    saveStatus(status) {
         let insertQuery = `
                     INSERT INTO
                     reception_handler.app_status (
-                        location
+                        location,
+                        status
                     )
                     VALUES (
-                        $1
+                        $1,
+                        $2
                     )
                     RETURNING id
                 `;
 
         let args = [
-            'brc'
+            'brc',
+            status
         ];
         return this._resource.query(insertQuery, args)
             .then(response => {
@@ -280,8 +283,21 @@ export class VisitorStore {
             })
     }
 
+    cleanStatus(){
+
+        let deleteQuery = 'DELETE from reception_handler.app_status where settime < now()::date';
+        let args = [
+        ];
+
+        return this._resource.query(deleteQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+
     processGraphData() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id ASC;';
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
         let args = [
         ];
 
@@ -315,5 +331,145 @@ export class VisitorStore {
 
         var setTime = myDate + " " + myTime;
         return setTime;
+    }
+
+
+    autoCompletePost(data) {
+
+        console.log(data);
+        let insertQuery = 'INSERT INTO reception_handler.autoComplete (location, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
+        let args = [
+            data.location,
+            data.type,
+            data.suggestion
+        ];
+
+        return this._resource.query(insertQuery, args)
+            .then(response => {
+                return response;
+            })
+    }
+
+    autoCompleteId(id) {
+        let selectQuery = 'SELECT * FROM reception_handler.autoComplete WHERE id = $1 ';
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+    autoComplete() {
+        let selectQuery = 'SELECT * FROM reception_handler.autoComplete ORDER BY location DESC;';
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    updateAutoComplete(id, data) {
+        let selectQuery = 'UPDATE reception_handler.autoComplete SET  type = $1, location= $2, suggestion = $3  WHERE id = $4 ';
+        let args = [
+            data.type,
+            data.location,
+            data.suggestion,
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    deleteAutoComplete(id) {
+        let selectQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+    allStaff() {
+        /*let selectQuery = `SELECT a.id, a.staff_id, a.firstname, a.surname,  a.email, a.job_title_code, b.department_code, b.department_name, c.post_title
+                           FROM active_directory.users a
+                           INNER JOIN active_directory.departments b ON b.department_code::text = 'P103'
+                           LEFT JOIN active_directory.job_posts c ON a.job_title_code::text = c.post_no::text  LIMIT 3;`; */
+
+        let selectQuery = `select * from active_directory.users u
+                            INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text) 
+                            LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text
+                            WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)
+                            and date_left is null`;
+        let args = [
+            'BRC'
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+
+    staffSignIn(id) {
+        let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+        let args = [
+            id,
+           'P103'
+        ];
+
+        return this._resource.query(insertQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    staffSignOut(id) {
+        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 ORDER BY signin_time DESC LIMIT 1';
+
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            })
+            .then( result => {
+                let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+
+                let args = [
+                    this.getTime(""),
+                    result.rows[0].id
+                ];
+
+                return this._resource.query(updateQuery, args)
+                    .then(response => {
+                        return response;
+                    })
+            })
+    }
+
+    staffSignedIn(id) {
+
+        let selectQuery = `SELECT a.signin_time, a.signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code
+                           FROM reception_handler.building_signin a
+                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id`;
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
     }
 }
