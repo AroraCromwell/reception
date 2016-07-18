@@ -360,6 +360,20 @@ var VisitorStore = exports.VisitorStore = function () {
                 return response;
             });
         }
+
+        //search queries
+
+    }, {
+        key: "searchAllSignIns",
+        value: function searchAllSignIns(id) {
+
+            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   id = $1 ";
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
     }]);
 
     return VisitorStore;

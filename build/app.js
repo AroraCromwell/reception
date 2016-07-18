@@ -36,6 +36,8 @@ var _visitor = require("./stores/visitor");
 
 var _visitors = require("./routes/visitors");
 
+var _search = require("./routes/search");
+
 var _postgres = require("./resources/postgres");
 
 var _dbConnect = require("./resources/dbConnect");
@@ -120,6 +122,7 @@ db.createConnection().then(function (connection) {
     var visitorStore = new _visitor.VisitorStore(postgres, logger);
     var visitorService = new _visitor2.VisitorService(visitorStore, templateManager, dataCleaner, logger);
     var visitors = new _visitors.Visitors(visitorService, logger, localStorage, io);
+    var search = new _search.Search(visitorService, logger, localStorage, io);
 
     /* Start Listening */
     eventListener.listen();
@@ -161,6 +164,10 @@ db.createConnection().then(function (connection) {
     app.get("/staffSignIn/:id", visitors.staffSignIn());
     app.get("/staffSignOut/:id", visitors.staffSignOut());
     app.get("/staffSignedIn/:id", visitors.staffSignedIn());
+
+    //request for search
+
+    app.get("/searchAllSignIn/:id", search.searchAllSignIn());
 
     _nodeSchedule2.default.scheduleJob(_config2.default.runTime, function () {
         visitors.allSignOut().then(function (done) {

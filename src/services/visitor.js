@@ -476,4 +476,21 @@ export class VisitorService {
                 throw new Error(err);
             });
     }
+
+
+    //Search
+
+    searchAllSignIns (id) {
+
+        this._logger.info("Getting All Visitors!");
+        this._logger.info("Getting Data");
+        return this._visitorStore.searchAllSignIns(id)
+            .then((data) => {
+                return data;
+            })
+            .catch(err => {
+                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
 }
