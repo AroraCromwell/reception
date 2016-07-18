@@ -30,6 +30,7 @@ import {Logger} from "./lib/logger";
 import {DataCleaner} from "./services/dataCleaner";
 import {VisitorStore} from "./stores/visitor";
 import {Visitors} from "./routes/visitors";
+import {Search} from "./routes/search";
 import {Postgres} from "./resources/postgres";
 import {DbConnect} from "./resources/dbConnect";
 import {EventListener} from "./services/eventListener";
@@ -91,6 +92,7 @@ db.createConnection()
         let visitorStore = new VisitorStore(postgres, logger);
         let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger);
         let visitors = new Visitors(visitorService, logger, localStorage, io);
+        let search = new Search(visitorService, logger, localStorage, io);
 
 
 
@@ -135,6 +137,11 @@ db.createConnection()
         app.get("/staffSignIn/:id", visitors.staffSignIn());
         app.get("/staffSignOut/:id", visitors.staffSignOut());
         app.get("/staffSignedIn/:id", visitors.staffSignedIn());
+
+
+        //request for search
+
+        app.get("/searchAllSignIn/:id", search.searchAllSignIn());
 
 
         nodeSchedule.scheduleJob(config.runTime, function () {

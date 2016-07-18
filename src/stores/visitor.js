@@ -472,4 +472,20 @@ export class VisitorStore {
                 return response;
             });
     }
+
+
+    //search queries
+
+    searchAllSignIns(id){
+
+        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   id = $1 ";
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
 }

@@ -502,6 +502,23 @@ var VisitorService = exports.VisitorService = function () {
                 throw new Error(err);
             });
         }
+
+        //Search
+
+    }, {
+        key: "searchAllSignIns",
+        value: function searchAllSignIns(id) {
+            var _this23 = this;
+
+            this._logger.info("Getting All Visitors!");
+            this._logger.info("Getting Data");
+            return this._visitorStore.searchAllSignIns(id).then(function (data) {
+                return data;
+            }).catch(function (err) {
+                _this23._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
     }]);
 
     return VisitorService;
