@@ -13,6 +13,7 @@ import nodeSchedule from "node-schedule";
 var exec = require('child_process').exec;
 var localStorage = require('localStorage');
 var nodemailer = require("nodemailer");
+import fs from "fs";
 
 var connections = [];
 

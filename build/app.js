@@ -24,6 +24,10 @@ var _nodeSchedule = require("node-schedule");
 
 var _nodeSchedule2 = _interopRequireDefault(_nodeSchedule);
 
+var _fs = require("fs");
+
+var _fs2 = _interopRequireDefault(_fs);
+
 var _logger = require("./lib/logger");
 
 var _dataCleaner = require("./services/dataCleaner");
@@ -49,6 +53,7 @@ var exec = require('child_process').exec;
 var localStorage = require('localStorage');
 var nodemailer = require("nodemailer");
 
+
 var connections = [];
 
 var app = (0, _express2.default)();
@@ -70,8 +75,8 @@ db.createConnection().then(function (connection) {
     //var server = require('http').createServer(app);
     if (_config2.default.env.status !== "Production") {
         var server = require('https').createServer({
-            cert: fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\ssl_certificate.crt"),
-            key: fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\cromtoolssrv.key")
+            cert: _fs2.default.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\ssl_certificate.crt"),
+            key: _fs2.default.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\cromtoolssrv.key")
         }, app);
     } else {
         var server = require('http').createServer(app);
