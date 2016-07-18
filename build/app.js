@@ -75,8 +75,8 @@ db.createConnection().then(function (connection) {
     //var server = require('http').createServer(app);
     if (_config2.default.env.status !== "Production") {
         var server = require('https').createServer({
-            cert: _fs2.default.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\ssl_certificate.crt"),
-            key: _fs2.default.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cer\\cromtoolssrv.key")
+            cert: _fs2.default.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cert\\ssl_certificate.crt"),
+            key: _fs2.default.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cert\\cromtoolssrv.key")
         }, app);
     } else {
         var server = require('http').createServer(app);
