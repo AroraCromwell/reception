@@ -213,28 +213,25 @@ db.createConnection().then(function (connection) {
             socket.username = 'brc';
             status = 1;
 
-            clearInterval(down);
-
-            if (status != 'undefined') {
-                alive = setInterval(function () {
-                    visitors.deviceStatus(1);
-                }, 60000);
-            }
+            //clearInterval(down);
         });
 
         socket.once('disconnect', function () {
             console.log("Serivce goes down");
             socket.leave('appStatus');
             status = 0;
-            clearInterval(alive);
-
-            if (status != 'undefined') {
-                down = setInterval(function () {
-                    visitors.deviceStatus(0);
-                }, 60000);
-            }
+            //  clearInterval(alive);
         });
     });
+
+    if (status != 'undefined') {
+        console.log("inside status interval");
+        setInterval(function () {
+            console.log("Status Is" + status);
+            visitors.deviceStatus(status);
+        }, 60000);
+    }
+
     server.listen(_config2.default.server.port, function () {
         logger.info("System Listen on port " + _config2.default.server.port);
     });

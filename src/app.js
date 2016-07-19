@@ -194,29 +194,27 @@ db.createConnection()
                 socket.username = 'brc';
                 status = 1;
 
-                clearInterval(down);
+                //clearInterval(down);
 
-                if(status != 'undefined'){
-                    alive = setInterval(function () {
-                        visitors.deviceStatus(1);
-                    }, 60000);
-                }
             });
 
             socket.once('disconnect', function(){
                 console.log("Serivce goes down");
                 socket.leave('appStatus');
                 status = 0;
-                clearInterval(alive);
-
-                if(status != 'undefined') {
-                    down = setInterval(function () {
-                        visitors.deviceStatus(0);
-                    }, 60000);
-                }
+              //  clearInterval(alive);
             });
-
         });
+
+        if(status != 'undefined') {
+            console.log("inside status interval");
+            setInterval(function () {
+                console.log("Status Is" + status);
+                visitors.deviceStatus(status);
+            }, 60000);
+        }
+
+
         server.listen(config.server.port, () => {
             logger.info("System Listen on port " + config.server.port);
         });
