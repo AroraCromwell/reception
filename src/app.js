@@ -195,6 +195,12 @@ db.createConnection()
                 status = 1;
 
                 clearInterval(down);
+
+                if(status != 'undefined'){
+                    alive = setInterval(function () {
+                        visitors.deviceStatus(1);
+                    }, 60000);
+                }
             });
 
             socket.once('disconnect', function(){
@@ -202,18 +208,13 @@ db.createConnection()
                 socket.leave('appStatus');
                 status = 0;
                 clearInterval(alive);
-            });
 
-            if(status != 'undefined'){
-                alive = setInterval(function () {
-                    visitors.deviceStatus(1);
-                }, 600000);
-            }
-            if(status != 'undefined') {
-                down = setInterval(function () {
-                    visitors.deviceStatus(0);
-                }, 10000);
-            }
+                if(status != 'undefined') {
+                    down = setInterval(function () {
+                        visitors.deviceStatus(0);
+                    }, 60000);
+                }
+            });
 
         });
         server.listen(config.server.port, () => {

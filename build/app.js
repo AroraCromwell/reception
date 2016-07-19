@@ -214,6 +214,12 @@ db.createConnection().then(function (connection) {
             status = 1;
 
             clearInterval(down);
+
+            if (status != 'undefined') {
+                alive = setInterval(function () {
+                    visitors.deviceStatus(1);
+                }, 60000);
+            }
         });
 
         socket.once('disconnect', function () {
@@ -221,18 +227,13 @@ db.createConnection().then(function (connection) {
             socket.leave('appStatus');
             status = 0;
             clearInterval(alive);
-        });
 
-        if (status != 'undefined') {
-            alive = setInterval(function () {
-                visitors.deviceStatus(1);
-            }, 600000);
-        }
-        if (status != 'undefined') {
-            down = setInterval(function () {
-                visitors.deviceStatus(0);
-            }, 10000);
-        }
+            if (status != 'undefined') {
+                down = setInterval(function () {
+                    visitors.deviceStatus(0);
+                }, 60000);
+            }
+        });
     });
     server.listen(_config2.default.server.port, function () {
         logger.info("System Listen on port " + _config2.default.server.port);
