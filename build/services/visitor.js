@@ -259,83 +259,17 @@ var VisitorService = exports.VisitorService = function () {
             this._logger.info("getting graph data!");
 
             return this._visitorStore.processGraphData().then(function (result) {
-                var d = new Date();
-                d.setHours(0, 0, 0, 0);
-                var dtimeStamp = Math.floor(d / 1000);
-                console.log("check this dtiemstamp " + +dtimeStamp);
 
                 var setData = [];
-                var midnightStatus = 0;
+
                 _lodash._.forEach(result.rows, function (value, key) {
 
+                    console.log(result);
                     var setkey = _this13.timeConverter(value.date_part);
-                    var setVal = 1;
-
-                    if (key > 0) {
-                        // check if the  last entry was 5 minutes prior, then add those values for
-                        // whatever the time entries are not there till this entry
-
-                        if (result.rows[key - 1].date_part + 310 < value.date_part) {
-
-                            for (var j = 0; j < 300; j++) {
-                                if (value.date_part > result.rows[key - 1].date_part) {
-                                    var _setkey = _this13.timeConverter(result.rows[key - 1].date_part);
-                                    var _setVal = 0;
-                                    setData.push(JSON.stringify({ setkey: _setkey, setVal: _setVal }));
-                                    result.rows[key - 1].date_part = result.rows[key - 1].date_part + 310;
-                                } else {
-                                    setVal = 0;
-                                    console.log("inside break");
-                                    break;
-                                }
-                            }
-                        }
-
-                        // check if the  very last entry is 5 minutes prior than current timestamp,
-                        // if not then add those values for
-                        // whatever the time entries are not there till current timestamp
-                        var veryLastKey = result.rows.length - 1;
-
-                        //console.log("LAt key" + veryLastKey);
-                        //console.log("last key result " + result.rows[veryLastKey].date_part);
-
-                        var currtimeStamp = Math.floor(new Date() / 1000);
-                        if (key == veryLastKey && result.rows[veryLastKey].date_part + 310 < currtimeStamp) {
-
-                            for (var j = 0; j < 300; j++) {
-                                if (currtimeStamp > result.rows[veryLastKey].date_part) {
-                                    var _setkey2 = _this13.timeConverter(result.rows[veryLastKey].date_part);
-                                    var _setVal2 = 0;
-                                    setData.push(JSON.stringify({ setkey: _setkey2, setVal: _setVal2 }));
-                                    result.rows[veryLastKey].date_part = result.rows[veryLastKey].date_part + 310;
-                                } else {
-                                    //setVal = 0 ;
-                                    console.log("inside  post break");
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        for (var j = 0; j < 300; j++) {
-                            if (value.date_part > dtimeStamp) {
-                                var _setkey3 = _this13.timeConverter(dtimeStamp);
-                                var _setVal3 = 0;
-                                setData.push(JSON.stringify({ setkey: _setkey3, setVal: _setVal3 }));
-                                dtimeStamp = dtimeStamp + 310;
-                            } else {
-                                console.log("inside zero break");
-                                break;
-                            }
-                        }
-                    }
+                    var setVal = value.status;
                     setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
                 });
 
-                if (midnightStatus == 0) {
-                    var setkey = _this13.timeConverter(dtimeStamp);
-                    var setVal = 0;
-                    setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
-                }
                 return setData;
             }).catch(function (err) {
                 _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));

@@ -237,84 +237,17 @@ export class VisitorService {
 
         return this._visitorStore.processGraphData()
             .then((result) => {
-                var d = new Date();
-                d.setHours(0,0,0,0);
-                var dtimeStamp  =  Math.floor(d / 1000);
-                console.log("check this dtiemstamp "+ +dtimeStamp);
 
                 var setData = [];
-                var midnightStatus = 0;
+
                 _.forEach(result.rows, (value, key) => {
 
+                    console.log(result);
                     let setkey = this.timeConverter(value.date_part);
-                    let setVal = 1 ;
-
-                    if(key > 0 ){
-                        // check if the  last entry was 5 minutes prior, then add those values for
-                        // whatever the time entries are not there till this entry
-
-                        if((result.rows[key-1].date_part) + 310 < value.date_part) {
-
-                            for (var j = 0; j < 300; j++) {
-                                if(value.date_part > result.rows[key-1].date_part){
-                                    let setkey = this.timeConverter(result.rows[key-1].date_part);
-                                    let setVal = 0 ;
-                                    setData.push(JSON.stringify({setkey, setVal}));
-                                    result.rows[key-1].date_part = result.rows[key-1].date_part + 310;
-                                } else{
-                                    setVal = 0 ;
-                                    console.log("inside break");
-                                    break;
-                                }
-                            }
-                         }
-
-                        // check if the  very last entry is 5 minutes prior than current timestamp,
-                        // if not then add those values for
-                        // whatever the time entries are not there till current timestamp
-                        var veryLastKey = result.rows.length - 1;
-
-                        //console.log("LAt key" + veryLastKey);
-                        //console.log("last key result " + result.rows[veryLastKey].date_part);
-
-                        var currtimeStamp  =  Math.floor(new Date() / 1000);
-                        if( key == veryLastKey && (result.rows[veryLastKey].date_part) + 310 < currtimeStamp) {
-
-                            for (var j = 0; j < 300; j++) {
-                                if(currtimeStamp > result.rows[veryLastKey].date_part){
-                                    let setkey = this.timeConverter(result.rows[veryLastKey].date_part);
-                                    let setVal = 0 ;
-                                    setData.push(JSON.stringify({setkey, setVal}));
-                                    result.rows[veryLastKey].date_part = result.rows[veryLastKey].date_part + 310;
-                                } else{
-                                    //setVal = 0 ;
-                                    console.log("inside  post break");
-                                    break;
-                                }
-                            }
-                        }
-
-                    }else{
-                        for (var j = 0; j < 300; j++) {
-                            if(value.date_part > dtimeStamp){
-                                let setkey = this.timeConverter(dtimeStamp);
-                                let setVal = 0 ;
-                                setData.push(JSON.stringify({setkey, setVal}));
-                                dtimeStamp = dtimeStamp + 310;
-                            } else{
-                                console.log("inside zero break");
-                                break;
-                            }
-                        }
-                    }
+                    let setVal = value.status;
                     setData.push(JSON.stringify({setkey, setVal}));
                 });
 
-                if(midnightStatus == 0){
-                    let setkey = this.timeConverter(dtimeStamp);
-                    let setVal = 0 ;
-                    setData.push(JSON.stringify({setkey, setVal}));
-                }
                 return setData;
             })
             .catch(err => {

@@ -211,7 +211,7 @@ db.createConnection()
             setInterval(function () {
                 console.log("Status Is" + status);
                 visitors.deviceStatus(status);
-            }, 60000);
+            }, 300000);
         }
 
 

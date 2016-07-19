@@ -229,7 +229,7 @@ db.createConnection().then(function (connection) {
         setInterval(function () {
             console.log("Status Is" + status);
             visitors.deviceStatus(status);
-        }, 60000);
+        }, 300000);
     }
 
     server.listen(_config2.default.server.port, function () {
