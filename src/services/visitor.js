@@ -241,8 +241,6 @@ export class VisitorService {
                 var setData = [];
 
                 _.forEach(result.rows, (value, key) => {
-
-                    console.log(result);
                     let setkey = this.timeConverter(value.date_part);
                     let setVal = value.status;
                     setData.push(JSON.stringify({setkey, setVal}));
@@ -263,37 +261,12 @@ export class VisitorService {
             .then((data) => {
 
                 var setData = [];
-                var currtimeStamp  =  Math.floor(new Date() / 1000);
-
-
-
                 _.forEach(data.rows, (value, key) => {
-                    let setKey = "";
-                    let setVal = 1 ;
-                    if(key > 0 ){
-                        setKey = this.timeConverter(value.date_part);
-                        if((data.rows[key-1].date_part) - 310 > value.date_part) {
-                            setVal = 0 ;
-                        }
-                    }
-                    else {
 
-                        if(currtimeStamp - 310 > value.date_part) {
-                            setVal = 0 ;
-
-                            // As service is not up from last 1 minute , it means it is down for now as well,
-                            // so show status down for now as well
-                            setKey = this.timeConverter(currtimeStamp);
-                            setData.push({setKey, setVal});
-                        }
-                        setKey = this.timeConverter(value.date_part);
-                    }
-
-
-                    setData.push(JSON.stringify({setKey, setVal}));
+                    let setkey = this.timeConverter(value.date_part);
+                    let setVal = value.status;
+                    setData.push(JSON.stringify({setkey, setVal}));
                 });
-
-                console.log(setData);
                 return setData;
             })
             .catch(err => {

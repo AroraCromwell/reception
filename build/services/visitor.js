@@ -263,8 +263,6 @@ var VisitorService = exports.VisitorService = function () {
                 var setData = [];
 
                 _lodash._.forEach(result.rows, function (value, key) {
-
-                    console.log(result);
                     var setkey = _this13.timeConverter(value.date_part);
                     var setVal = value.status;
                     setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
@@ -286,33 +284,12 @@ var VisitorService = exports.VisitorService = function () {
             return this._visitorStore.currentStatus().then(function (data) {
 
                 var setData = [];
-                var currtimeStamp = Math.floor(new Date() / 1000);
-
                 _lodash._.forEach(data.rows, function (value, key) {
-                    var setKey = "";
-                    var setVal = 1;
-                    if (key > 0) {
-                        setKey = _this14.timeConverter(value.date_part);
-                        if (data.rows[key - 1].date_part - 310 > value.date_part) {
-                            setVal = 0;
-                        }
-                    } else {
 
-                        if (currtimeStamp - 310 > value.date_part) {
-                            setVal = 0;
-
-                            // As service is not up from last 1 minute , it means it is down for now as well,
-                            // so show status down for now as well
-                            setKey = _this14.timeConverter(currtimeStamp);
-                            setData.push({ setKey: setKey, setVal: setVal });
-                        }
-                        setKey = _this14.timeConverter(value.date_part);
-                    }
-
-                    setData.push(JSON.stringify({ setKey: setKey, setVal: setVal }));
+                    var setkey = _this14.timeConverter(value.date_part);
+                    var setVal = value.status;
+                    setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
                 });
-
-                console.log(setData);
                 return setData;
             }).catch(function (err) {
                 _this14._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
