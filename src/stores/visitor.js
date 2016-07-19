@@ -308,7 +308,7 @@ export class VisitorStore {
     }
 
     currentStatus() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime) FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
+        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime),status FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
         let args = [
         ];
 
