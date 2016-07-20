@@ -287,6 +287,11 @@ export class VisitorService {
     autoComplete() {
         return this._visitorStore.autoComplete()
             .then((res) => {
+                _.forEach(res.rows, (value, key) => {
+                    if(value.type == 'visitor_name'){
+                        value.type = "Visitor Name";
+                    }
+                });
                 return res;
             })
             .catch(err => {

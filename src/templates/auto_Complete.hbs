@@ -97,6 +97,9 @@
         var data = table.row( $(this).parents('tr') ).data();
         var contentPanelId = jQuery(this).attr("id");
         $('#locationId').val(data[0]);
+        if(data[1] == "Visitor Name"){
+            data[1] ="visitor_name";
+        }
         $('#typeId').val(data[1]);
         $('#suggestId').val(data[2]);
         $("#update-form").attr("action", "/autoComplete/" + contentPanelId);
