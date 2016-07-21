@@ -21,6 +21,8 @@ var _lodash = require("lodash");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var base64 = require('node-base64-image');
+
 var Visitors = exports.Visitors = function () {
     function Visitors(visitorService, logger, localStorage, io) {
         _classCallCheck(this, Visitors);
@@ -339,11 +341,16 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
                 _this18._visitorService.autoCompletePost(req.body).then(function (result) {
+
                     if (result.rows[0].location == 'BRC') {
                         _this18._io.emit('brcSuggestionAdd', result.rows[0]);
                     }
 
-                    res.redirect("/autoComplete");
+                    if (req.body.another != "undefined") {
+                        res.redirect("/autoCompleteAdd/?type=" + req.body.type);
+                    } else {
+                        res.redirect("/autoComplete");
+                    }
                 }).catch(function (err) {
                     _this18._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
@@ -479,6 +486,28 @@ var Visitors = exports.Visitors = function () {
                 }).catch(function (err) {
                     _this26._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "captureStaffImage",
+        value: function captureStaffImage() {
+            return [function (req, res) {
+                console.log("this is staff id" + req.body.paramStaffId);
+                console.log("this is staff image path" + req.body.paramLocalImagePath);
+
+                var imageName = req.body.paramStaffId;
+                var options = { filename: './src/public/images/' + imageName };
+                //var options = {filename: './src/reception_handler/images/' + imageName};
+                var imageData = new Buffer(req.body.paramImagePath, 'base64');
+
+                base64.base64decoder(imageData, options, function (err, saved) {
+                    if (err) {
+                        console.log(err);
+                        res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                    }
+                    console.log(saved);
+                    res.send({ success: 1, message: "Completed" });
                 });
             }];
         }

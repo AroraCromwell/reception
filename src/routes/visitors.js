@@ -14,6 +14,7 @@
 /* Files */
 
 import {_} from "lodash";
+var base64 = require('node-base64-image');
 export class Visitors {
 
     constructor (visitorService, logger, localStorage, io ) {
@@ -371,11 +372,17 @@ export class Visitors {
             (req, res) => {
                 this._visitorService.autoCompletePost(req.body)
                 .then(result => {
+
                     if(result.rows[0].location =='BRC'){
                             this._io.emit('brcSuggestionAdd', result.rows[0]);
                     }
 
-                    res.redirect("/autoComplete");
+                    if(req.body.another != "undefined"){
+                        res.redirect("/autoCompleteAdd/?type=" + req.body.type);
+                    }else {
+                        res.redirect("/autoComplete");
+                    }
+
                 })
                 .catch(err => {
                     this._logger.error(err);
@@ -524,4 +531,29 @@ export class Visitors {
             }
         ];
     }
+
+    captureStaffImage() {
+        return [
+            (req, res) => {
+                console.log("this is staff id" + req.body.paramStaffId);
+                console.log("this is staff image path" + req.body.paramLocalImagePath);
+
+
+                var imageName = req.body.paramStaffId ;
+                var options = {filename: './src/public/images/' + imageName};
+                //var options = {filename: './src/reception_handler/images/' + imageName};
+                var imageData = new Buffer(req.body.paramImagePath, 'base64');
+
+                base64.base64decoder(imageData, options, function (err, saved) {
+                    if (err) {
+                        console.log(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    }
+                    console.log(saved);
+                    res.send({success: 1, message: "Completed"});
+                });
+            }
+        ]
+    }
+
 }

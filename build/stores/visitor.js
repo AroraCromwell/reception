@@ -255,7 +255,6 @@ var VisitorStore = exports.VisitorStore = function () {
         key: "autoCompletePost",
         value: function autoCompletePost(data) {
 
-            console.log(data);
             var insertQuery = 'INSERT INTO reception_handler.autoComplete (location, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
             var args = [data.location, data.type, data.suggestion];
 

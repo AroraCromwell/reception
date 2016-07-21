@@ -1,38 +1,75 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-4">
-            <form role="form" action="/autoCompletePost" method="post">
+        <div class="col-md-6">
+            <form role="form" class="form-horizontal" action="/autoCompletePost" method="post">
                 <div class="form-group">
-                    <div class="form-group">
-                        <label class="control-label col-sm-offset-2 col-sm-2" for="company">Location</label>
-                        <div class="col-sm-6 col-md-6 col-sm-offset-2">
-                            <select name="location" class="form-control">
-                                <option>BRC</option>
-                                <!--<option>WDC</option>-->
-                            =</select>
-                        </div>
-                        <label class="control-label col-sm-offset-2 col-sm-2" for="company">Type</label>
-                        <div class="col-sm-6 col-md-6 col-sm-offset-2">
-                            <select name="type" class="form-control">
-                                <option value="visitor_name">Visitor Name</option>
-                                <option>Company</option>
-                                <option>Visiting</option>
-                            </select>
-                        </div>
-
-                        <label class="control-label col-sm-offset-2 col-sm-2" for="company">Suggestion:</label>
-                        <div class="col-sm-6 col-md-6 col-sm-offset-2">
-                            <input class="form-control"  name="suggestion"/>
-                        </div>
-                        <div class="col-sm-8 col-md-8">
-                            <label class="control-label col-sm-offset-2 col-sm-2" for="company"></label>
-                            <input type="submit" class="sbm-btn btn btn-sm btn-primary" value="Submit Button">
-                        </div>
+                    <label class="control-label col-sm-2" for="location">Location: </label>
+                    <div class="col-sm-10">
+                        <select name="location" class="form-control" id="location">
+                            <option>BRC</option>
+                            <!--<option>WDC</option>-->
+                        </select>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="type">Type: </label>
+                    <div class="col-sm-10">
+                        <select name="type" class="form-control" id="type">
+                            <option value="visitor_name">Visitor Name</option>
+                            <option>Company</option>
+                            <option>Visiting</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="suggestion">Suggestion: </label>
+                    <div class="col-sm-10">
+                        <input class="form-control"  id="suggestion" name="suggestion"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3 col-sm-offset-2">
+                        <input type="submit" class="sbm-btn btn btn-sm btn-primary" value="Add Suggestion">
+                    </div>
+                    <div class="col-sm-7">
+                        <label style="margin-top: 20px;"><input type="checkbox" name="another"  checked ><span style="margin-left:13px">Create Another</span></label>
+                    </div>
+                </div>
+
+
+
+                <!--
+                    <label class="control-label col-sm-offset-2 col-sm-2" for="company">Suggestion:</label>
+                    <div class="col-sm-6 col-md-6 ">
+                        <input class="form-control"  name="suggestion"/>
+                    </div>
+                    <div class="col-sm-1 col-md-10 col-sm-offset-2">
+                        <input type="submit" class="sbm-btn btn btn-sm btn-primary" value="Add Suggestion">
+                        <label style="margin-top: 10px;"><input type="checkbox" value="">Create Another</label>
+                    </div>
+
+                    </div>
+
+                </div>
+                -->
             </form>
         </div>
     </div>
 </div>
 
 <script src="/js/jquery-1.12.3.min.js" ></script>
+<script>
+    $.urlParam = function(name){
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results==null){
+            return null;
+        }
+        else{
+            return results[1] || 0;
+        }
+    };
+
+    $('#type').val($.urlParam('type'));
+
+</script>
