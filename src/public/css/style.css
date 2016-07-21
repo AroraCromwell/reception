@@ -13,3 +13,9 @@
 .input-append .btn.dropdown-toggle {
     float: none;
 }
+
+/* Ensure that the demo table scrolls */
+tfoot {
+    display: table-header-group;
+}
+

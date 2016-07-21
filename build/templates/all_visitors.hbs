@@ -37,8 +37,8 @@
 
 <script src="/js/jquery-1.12.3.min.js" ></script>
 <script>
-    $(function() {
-        var table = $('#datatable').DataTable( {
+    $(document).ready(function() {
+         $('#datatable').DataTable( {
             "order": [[ 4, "desc" ]],
             "scrollX": true
         });
