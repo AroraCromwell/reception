@@ -8,7 +8,6 @@
                     <th>Name</th>
                     <th>Company</th>
                     <th>Visiting</th>
-                    <th>Vehicle Reg</th>
                     <th>Signed Ins</th>
                     <th>image</th>
                     <th>Action</th>
@@ -22,11 +21,11 @@
                         <td>{{contactname}}</td>
                         <td>{{accountname}}</td>
                         <td>{{employeename}}</td>
-                        <td>{{vehiclereg}}</td>
                         <td>{{settime}}</td>
                         <td><img src="https://reception.cromwell-tools.co.uk/images/{{imagepath}}" style="width: 125px;length:100px;"/></td>
+
                         <!--<td class="target text-center"><a class="btn btn-sm btn-primary" href="#" id="">SignOut</a></td>-->
-                        <td  class ="target btn btn-primary btn-sm btn-space"  id="{{logid}}" href="" style="margin-top: 36px;margin-right: 10px;">Sign Me Out!</td>
+                        <td  class ="target btn btn-primary btn-sm btn-lg btn-space"  id="{{logid}}" href="" style="margin-top: 36px;margin-right: 10px;">Sign Me Out!</td>
                     </tr>
                 {{/each}}
 
@@ -39,8 +38,9 @@
 <script src="/js/jquery-1.12.3.min.js" ></script>
 <script>
     $(function() {
-        $('#datatable').DataTable( {
-            "order": [[ 5, "desc" ]]
+        var table = $('#datatable').DataTable( {
+            "order": [[ 5, "desc" ]],
+            "scrollX": true
         });
     });
 

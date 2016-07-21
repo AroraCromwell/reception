@@ -336,7 +336,6 @@ export class VisitorStore {
 
     autoCompletePost(data) {
 
-        console.log(data);
         let insertQuery = 'INSERT INTO reception_handler.autoComplete (location, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
         let args = [
             data.location,

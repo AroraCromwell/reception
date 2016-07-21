@@ -312,6 +312,11 @@ var VisitorService = exports.VisitorService = function () {
             var _this15 = this;
 
             return this._visitorStore.autoComplete().then(function (res) {
+                _lodash._.forEach(res.rows, function (value, key) {
+                    if (value.type == 'visitor_name') {
+                        value.type = "Visitor Name";
+                    }
+                });
                 return res;
             }).catch(function (err) {
                 _this15._logger.error("Problem while inserting status: -> " + JSON.stringify(err));

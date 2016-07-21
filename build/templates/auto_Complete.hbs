@@ -3,23 +3,30 @@
         <div class="col-md-12">
             <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
                 <thead>
-                <tr>
-                    <th>Location</th>
-                    <th>Type</th>
-                    <th>Suggestion</th>
-                    <th>&nbsp;&nbsp;&nbsp;&nbsp;Actions</th>
-                </tr>
+                    <tr>
+                        <th>Location</th>
+                        <th>Type</th>
+                        <th>Suggestion</th>
+                        <th>&nbsp;&nbsp;&nbsp;&nbsp;Actions</th>
+                    </tr>
                 </thead>
+                <tfoot>
+                    <tr>
+                        <th>Location</th>
+                        <th>Type</th>
+                        <th>Suggestion</th>
+                    </tr>
+                </tfoot>
 
                 <tbody>
                 {{#each data}}
                     <tr>
                         <td name="location">{{location}}</td>
-                        <td name="type">{{type}}</td>
+                        <td name="type" id="type">{{type}}</td>
                         <td name="suggestion">{{suggestion}}</td>
                         <td>
                             <input type="button" class="sbm-btn btn btn-sm btn-primary"   id="{{id}}" value="Update" onclick="">
-                            <input type="button" class="sbm-btn btn btn-sm btn-secondary"  id="{{id}}" value="Delete" onclick="">
+                            <input type="button" class="sbm-btn btn btn-sm btn-danger"  id="{{id}}" value="Delete" >
                         </td>
                     </tr>
                 {{/each}}
@@ -43,9 +50,8 @@
                 <h4 class="modal-title" id="myModalLabel">Update Suggestion</h4>
             </div>
             <div class="modal-body">
-                <form role="form" id="update-form" action="" method="post">
+                <form role="form" class="form-horizontal" id="update-form" action="" method="post">
                     <input name="_method" type="hidden" value="PUT">
-                    <div class="form-group">
                         <div class="form-group">
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company">Location</label>
                             <div class="col-sm-8 col-md-8">
@@ -54,6 +60,8 @@
                                     <!--<option value="WDC">WDC</option>-->
                                     </select>
                             </div>
+                        </div>
+                        <div class="form-group">
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company" >Type</label>
                             <div class="col-sm-8 col-md-8">
                                 <select name="type" class="form-control" id="typeId">
@@ -62,18 +70,22 @@
                                     <option value="Visiting">Visiting</option>
                                 </select>
                             </div>
+                        </div>
 
+                        <div class="form-group">
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company" >Suggestion:</label>
                             <div class="col-sm-8 col-md-8">
                                 <input class="form-control"  name="suggestion" id="suggestId"/>
                             </div>
+                        </div>
+                        <div class="form-group">
                             <div class="col-sm-12 col-md-12">
                                 <label class="control-label col-sm-offset-2 col-sm-2" for="company"></label>
                                 <button type="button" class="sbm-btn btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
-                                <input type="submit" class="sbm-btn btn btn-sm btn-primary" value="Submit Button">
+                                <input type="submit" class="sbm-btn btn btn-sm btn-primary" value="Add Suggestion">
                             </div>
                         </div>
-                    </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -86,9 +98,17 @@
 <script>
 
     $(function() {
-        $('#datatable').DataTable( {
-          //  "order": [[ 5, "desc" ]]
+        var table = $('#datatable').DataTable( {
+            "order": [[ 5, "desc" ]]
         });
+
+        // #column3_search is a <input type="text"> element
+        $('#type').on( 'keyup', function () {
+            table
+                    .columns( 1 )
+                    .search( this.value )
+                    .draw();
+        } );
     });
 
 
@@ -97,6 +117,9 @@
         var data = table.row( $(this).parents('tr') ).data();
         var contentPanelId = jQuery(this).attr("id");
         $('#locationId').val(data[0]);
+        if(data[1] == "Visitor Name"){
+            data[1] ="visitor_name";
+        }
         $('#typeId').val(data[1]);
         $('#suggestId').val(data[2]);
         $("#update-form").attr("action", "/autoComplete/" + contentPanelId);
@@ -105,11 +128,11 @@
 
     $(document).ready(function(){
         var table = $('#datatable').DataTable();
-        $(".btn-secondary").click(function(){
+        $(".btn-danger").click(function(){
             var line = this;
             var contentPanelId = jQuery(this).attr("id");
             var data = table.row( $(this).parents('tr') ).data();
-            //alert(contentPanelId);
+            alert(contentPanelId);
             $.ajax({
                 url: '/autoComplete/'+contentPanelId,
                 type: 'DELETE',

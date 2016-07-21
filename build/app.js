@@ -164,6 +164,7 @@ db.createConnection().then(function (connection) {
     app.get("/staffSignIn/:id", visitors.staffSignIn());
     app.get("/staffSignOut/:id", visitors.staffSignOut());
     app.get("/staffSignedIn/:id", visitors.staffSignedIn());
+    app.post("/captureStaffImage/", visitors.captureStaffImage());
 
     //request for search
 
@@ -217,7 +218,7 @@ db.createConnection().then(function (connection) {
         });
 
         socket.once('disconnect', function () {
-            console.log("Serivce goes down");
+            console.log("Service goes down");
             socket.leave('appStatus');
             status = 0;
             //  clearInterval(alive);
