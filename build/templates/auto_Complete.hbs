@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+            <table id="datatable" class="table table-striped table-bordered display" cellspacing="0" width="100%">
                 <thead>
                     <tr>
                         <th>Location</th>
@@ -10,6 +10,15 @@
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;Actions</th>
                     </tr>
                 </thead>
+                <tfoot>
+                    <tr>
+                        <th>Location</th>
+                        <th>Type</th>
+                        <th>Suggestion</th>
+                        <th>Blank</th>
+                    </tr>
+                </tfoot>
+
 
                 <tbody>
                 {{#each data}}
@@ -84,13 +93,30 @@
 </div>
 <script src="/js/jquery-1.12.3.min.js" ></script>
 <script>
-
-    $(function() {
+    $(document).ready(function() {
         $('#datatable').DataTable( {
-          //  "order": [[ 5, "desc" ]]
-        });
-    });
+            initComplete: function () {
+                this.api().columns().every( function () {
+                    var column = this;
+                    var select = $('<select><option value="">Select</option></select>')
+                            .appendTo( $(column.footer()).empty() )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                        $(this).val()
+                                );
 
+                                column
+                                        .search( val ? '^'+val+'$' : '', true, false )
+                                        .draw();
+                            } );
+
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option value="'+d+'">'+d+'</option>' )
+                    } );
+                } );
+            }
+        } );
+    } );
 
     $(".btn-primary").on("click", function() {
         var table = $('#datatable').DataTable();
