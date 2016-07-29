@@ -45,6 +45,10 @@ var EventListener = exports.EventListener = function (_EventEmitter) {
 
                 _this2.emit(notification.channel + ":connect", JSON.stringify(msg));
             });
+
+            this._connection.on("forceLogin", function () {
+                console.log('an event occurred!');
+            });
         }
     }, {
         key: "newChannel",

@@ -9,14 +9,28 @@ import {_} from "lodash";
 var fs = require("fs");
 var fileName = '../config.json';
 var file = require(fileName);
-
+var dateFormat = require('dateformat');
 var base64 = require('node-base64-image');
 
 export class VisitorStore {
 
-    constructor(resource, logger) {
+    constructor(resource, logger, io) {
         this._resource = resource;
         this._logger = logger;
+        this._io = io;
+    }
+
+    getCustomer(id) {
+
+        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE id = $1 LIMIT 1";
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
     }
 
     saveCustomer(customer) {
@@ -98,19 +112,6 @@ export class VisitorStore {
                     .then(data => {
                         return data.rows[0];
                     })
-            });
-    }
-
-    getCustomer(id) {
-
-        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE id = $1 LIMIT 1";
-        let args = [
-            id
-        ];
-
-        return this._resource.query(selectQuery, args)
-            .then(response => {
-                return response;
             });
     }
 
@@ -333,6 +334,11 @@ export class VisitorStore {
         return setTime;
     }
 
+    timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var time = dateFormat(a, "yyyy-mm-dd HH:MM:ss");
+        return time;
+    }
 
     autoCompletePost(data) {
 
@@ -398,11 +404,6 @@ export class VisitorStore {
             });
     }
     allStaff() {
-        /*let selectQuery = `SELECT a.id, a.staff_id, a.firstname, a.surname,  a.email, a.job_title_code, b.department_code, b.department_name, c.post_title
-                           FROM active_directory.users a
-                           INNER JOIN active_directory.departments b ON b.department_code::text = 'P103'
-                           LEFT JOIN active_directory.job_posts c ON a.job_title_code::text = c.post_no::text  LIMIT 3;`; */
-
         let selectQuery = `select * from active_directory.users u
                             INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text) 
                             LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text
@@ -415,25 +416,77 @@ export class VisitorStore {
         return this._resource.query(selectQuery, args)
             .then(response => {
                 return response;
-            });
+            })
+            .then(result => {
+
+                var result = result;
+                let staffSelectQuery = `select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id from reception_handler.building_signin where id in
+                        (
+                            SELECT max(id)
+                              FROM reception_handler.building_signin
+                              group by
+                              staff_id
+                      )
+                    `;
+                let args = [
+
+                ];
+
+                return this._resource.query(staffSelectQuery, args)
+                    .then(staffResponse => {
+                        _.forEach(result.rows, (value, key) => {
+
+                            result.rows[key]['signinTime'] = '';
+                            result.rows[key]['signoutTime'] = '';
+                            result.rows[key]['status'] = 'Not in the Building';
+                            result.rows[key]['primaryId'] = 0;
+
+                            _.forEach(staffResponse.rows, ( staffValue,staffKey ) => {
+                                if(staffValue.staff_id == value.staff_id){
+
+                                    console.log("ID matched" + staffValue.staff_id);
+
+                                    if(staffValue.signin_time != null){
+                                        result.rows[key]['status'] = 'In the Building';
+                                        result.rows[key]['signinTime'] = this.timeConverter(staffValue.signin_time);
+                                    }
+
+                                    if(staffValue.signout_time != null){
+                                        result.rows[key]['status'] = 'Not in the Building';
+                                        result.rows[key]['signoutTime'] = this.timeConverter(staffValue.signout_time);
+                                    }
+                                    result.rows[key]['primaryId'] = staffValue.id;
+                                }
+                            })
+
+                        });
+                        return result;
+                    })
+            })
     }
 
+    customizer(objValue, srcValue) {
+            return objValue.concat(srcValue);
+    }
 
-    staffSignIn(id) {
-        let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+    staffData(id) {
+        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
+
         let args = [
-            id,
-           'P103'
+            id
         ];
 
-        return this._resource.query(insertQuery, args)
+        return this._resource.query(selectQuery, args)
             .then(response => {
                 return response;
             });
     }
 
-    staffSignOut(id) {
-        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 ORDER BY signin_time DESC LIMIT 1';
+
+    staffSignIn(id) {
+
+        console.log("User ID going to sign in" + id);
+        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
 
         let args = [
             id
@@ -444,25 +497,102 @@ export class VisitorStore {
                 return response;
             })
             .then( result => {
-                let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+                if(result.rowCount == 1){
+                    let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
 
-                let args = [
-                    this.getTime(""),
-                    result.rows[0].id
-                ];
+                    let args = [
+                        this.getTime(""),
+                        result.rows[0].id
+                    ];
 
-                return this._resource.query(updateQuery, args)
-                    .then(response => {
-                        return response;
-                    })
+                    return this._resource.query(updateQuery, args)
+                        .then(response => {
+                            return response;
+                        })
+                        .then( updateResult => {
+                            let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                            let args = [
+                                id,
+                                'P103'
+                            ];
+
+                            return this._resource.query(insertQuery, args)
+                                .then(response => {
+                                    console.log("emitting new event");
+                                   this._io.emit("forceLogin");
+                                    return response;
+                                });
+                        })
+                }else {
+                    let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                    let args = [
+                        id,
+                        'P103'
+                    ];
+
+                    return this._resource.query(insertQuery, args)
+                        .then(response => {
+                            return response;
+                    });
+                }
             })
     }
 
+    staffSignOut(id) {
+        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
+
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            })
+            .then( result => {
+                if(result.rowCount == 1){
+                    let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+
+                    let args = [
+                        this.getTime(""),
+                        result.rows[0].id
+                    ];
+
+                    return this._resource.query(updateQuery, args)
+                        .then(response => {
+                            return response;
+                        })
+                }
+
+                throw new Error("What!! Are you sure , you was signed in today? Because, i am unable to find you.");
+            })
+
+        }
+
     staffSignedIn(id) {
 
-        let selectQuery = `SELECT a.signin_time, a.signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code
+        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code
                            FROM reception_handler.building_signin a
-                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id`;
+                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id
+                           where signin_time > now()::date`;
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                _.each(response.rows , (val, key) => {
+                    if(val.signin_time != null) {
+                        response.rows[key]['signin_time'] = this.timeConverter(val.signin_time);
+                    }
+                    if(val.signout_time != null){
+                        response.rows[key]['signout_time'] = this.timeConverter(val.signout_time);
+                    }
+                })
+                return response;
+            });
+    }
+    allVisitorsPrintOut(){
+        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > now()::date and signout IS NULL`;
         let args = [
         ];
 
@@ -470,7 +600,9 @@ export class VisitorStore {
             .then(response => {
                 return response;
             });
+
     }
+
 
 
     //search queries

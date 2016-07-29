@@ -354,6 +354,13 @@ export class VisitorService {
             });
     }
 
+    staffData(id){
+        return this._visitorStore.staffData(id)
+            .then((res) => {
+                return res;
+            })
+    }
+
     staffSignIn(id){
         return this._visitorStore.staffSignIn(id)
             .then((res) => {
@@ -370,10 +377,6 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while Staff Sign Out: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     // All staff signed In
@@ -384,6 +387,44 @@ export class VisitorService {
             })
             .catch(err => {
                 this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    // All Visitors print out
+    allVisitorsPrintOut(){
+        return this._visitorStore.allVisitorsPrintOut()
+            .then((res) => {
+                return res;
+            })
+            .then(result => {
+                //render the template
+                var html = this._templateManager.render('allVisitorsPrintOut',{ data: result.rows });
+
+                var options = {format: 'A5', orientation: 'landscape'};
+
+                pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
+                    if (err) return console.log(err);
+
+                    //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
+
+                    var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+
+                    exec(cmd, function (error, stdout, stderr) {
+                        // command output is in stdout
+                        console.log(stdout);
+
+                        if (error !== null) {
+                            console.log('exec error: ' + error);
+                        }
+                        //process.exit();
+                    });
+                })
+
+                return result;
+            })
+            .catch(err => {
+                this._logger.error("Problem while Printing Visitors: -> " + JSON.stringify(err));
                 throw new Error(err);
             });
     }

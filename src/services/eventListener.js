@@ -7,8 +7,9 @@
 import {EventEmitter} from "events";
 
 export class EventListener extends EventEmitter {
+    
 
-    constructor(connection, logger) {
+     constructor(connection, logger) {
         super();
 
         this._connection = connection;
@@ -26,6 +27,11 @@ export class EventListener extends EventEmitter {
 
             this.emit(`${notification.channel}:connect`, JSON.stringify(msg));
         });
+
+        this._connection.on("forceLogin", () => {
+            console.log('an event occurred!');
+        })
+
     }
 
     newChannel(channel) {
