@@ -437,7 +437,7 @@ var VisitorService = exports.VisitorService = function () {
                 var options = { format: 'A5', orientation: 'landscape' };
 
                 pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
-                    if (err) return console.log(err);
+                    //if (err) return console.log("this is eror" + err);
 
                     //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
 
