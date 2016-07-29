@@ -60,11 +60,18 @@ var connections = [];
 
 var app = (0, _express2.default)();
 var exphbs = require('express-handlebars');
+var qt = require('quickthumb');
 
 app.set('views', _path2.default.join(__dirname, 'templates'));
 app.engine('.hbs', exphbs({ extname: '.hbs', defaultLayout: 'main', layoutsDir: _path2.default.join(__dirname, 'templates/layouts') }));
 app.set('view engine', '.hbs');
-app.use(_express2.default.static(_path2.default.join(__dirname, 'public')));
+app.use(qt.static(_path2.default.join(__dirname, 'public')));
+
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 /* Files */
 
@@ -84,7 +91,6 @@ db.createConnection().then(function (connection) {
         var server = require('http').createServer(app);
     }
 
-    var io = require('socket.io')(server);
     // create reusable transport method (opens pool of SMTP connections)
     var smtpTransport = nodemailer.createTransport("SMTP", {
         service: "Gmail",
@@ -114,18 +120,22 @@ db.createConnection().then(function (connection) {
         });
     });
 
+    var io = require('socket.io')(server);
     var templateManager = new _templateManager.TemplateManager();
     var dataCleaner = new _dataCleaner.DataCleaner();
     //let emitter = new EventEmitter();
     var postgres = new _postgres.Postgres(connection);
     var eventListener = new _eventListener.EventListener(connection, logger);
-    var visitorStore = new _visitor.VisitorStore(postgres, logger);
+    var visitorStore = new _visitor.VisitorStore(postgres, logger, io);
     var visitorService = new _visitor2.VisitorService(visitorStore, templateManager, dataCleaner, logger);
     var visitors = new _visitors.Visitors(visitorService, logger, localStorage, io);
     var search = new _search.Search(visitorService, logger, localStorage, io);
 
     /* Start Listening */
     eventListener.listen();
+    eventListener.on("forcelogin", function () {
+        console.log("event has occured");
+    });
     app.use(_bodyParser2.default.json({ limit: '50mb' })); // to support JSON-encoded bodies
     app.use(_bodyParser2.default.urlencoded({ // to support URL-encoded bodies
         limit: '50mb',
@@ -161,10 +171,12 @@ db.createConnection().then(function (connection) {
 
     // request for staff
     app.get("/allStaff", visitors.allStaff());
+    app.get("/staffData/:id", visitors.staffData());
     app.get("/staffSignIn/:id", visitors.staffSignIn());
     app.get("/staffSignOut/:id", visitors.staffSignOut());
     app.get("/staffSignedIn/:id", visitors.staffSignedIn());
     app.post("/captureStaffImage/", visitors.captureStaffImage());
+    app.get("/allVisitorsPrintOut", visitors.allVisitorsPrintOut());
 
     //request for search
 

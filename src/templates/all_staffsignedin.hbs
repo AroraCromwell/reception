@@ -20,11 +20,23 @@
                         <td>{{staff_id}}</td>
                         <td>{{firstname}} {{surname}}</td>
                         <td>{{email}}</td>
-                        <td>{{signin_time}}</td>
-                        <td>{{signout_time}}</td>
-                        <td><img src="https://reception.cromwell-tools.co.uk/images/{{staff_id}}.jpg" style="width: 125px;length:100px;"/></td>
+                        <td id="signout_time">{{signin_time}}</td>
+
+                    {{#if signout_time}}
+                        <td >{{signout_time}}</td>
+                    {{else}}
+                        <td>In The Building</td>
+                    {{/if}}
+                        <!--<td><img src="https://reception.cromwell-tools.co.uk/images/{{staff_id}}.jpg" style="width: 125px;length:100px;"/></td>-->
+                        <td><img src="http://10.100.16.62:7000/images/{{staff_id}}.jpg" style="width: 125px;length:100px;"/></td>
                         <!--<td class="target text-center"><a class="btn btn-sm btn-primary" href="#" id="">SignOut</a></td>-->
-                        <td  class ="target btn btn-primary btn-sm btn-space"  id="{{staff_id}}" href="" style="margin-top: 36px;margin-right: 10px;">Sign Me Out!</td>
+                        {{#if signout_time}}
+                            <td  class =""  id="" href="" style="margin-top: 36px;margin-right: 10px;">Signed Out</td>
+                        {{else}}
+                            <td  class ="target btn btn-primary btn-sm btn-space"    id="{{staff_id}}" href="" style="margin-top: 36px;margin-right: 10px;">
+                                Sign Me Out!
+                            </td>
+                        {{/if}}
                     </tr>
                 {{/each}}
 
@@ -32,41 +44,44 @@
             </table>
         </div>
     </div>
+
 </div>
 
 <script src="/js/jquery-1.12.3.min.js" ></script>
 <script>
+    var table ="";
     $(function() {
-        $('#datatable').DataTable( {
-            "order": [[ 4, "desc" ]]
+        table = $('#datatable').DataTable( {
+            "order": [[ 3, "desc" ]]
         });
     });
 
+
+//    $( "#Signout" ).click(function() {
+//        alert( "Handler for .click() called." );
+//    });
     var chk = new Date();
     var month = chk.getMonth()+1;
     var myDate = [chk.getFullYear(), month <10 ? '0' + month : month , chk.getDate() < 10 ? '0' + chk.getDate() : chk.getDate()].join('-');
     var myTime = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
 
-    $(document).ready(function(){
-        var table = $('#datatable').DataTable();
+
         $(".target").click(function(){
+        console.log("button clicked");
+
             var line = this;
             var contentPanelId = jQuery(this).attr("id");
-            //alert(contentPanelId);
+           // alert(contentPanelId);
             $.ajax({
-                url: '/visitors/'+contentPanelId,
-                type: 'PUT',
-                data: JSON.stringify({ "signout": myDate + ' ' + myTime}),
-                contentType: 'application/json; charset=utf-8',
+                url: '/staffSignOut/'+contentPanelId,
+                type: 'GET',
                 success: function(response) {
                     //...
-                    console.log(response.message);
-
-
                     table
-                            .row( $(line).parents('tr') )
-                            .remove()
+                            .row( $(line).parents('tr').find('td').eq(4).text(myDate + ' ' + myTime))
+                            .row( $(line).attr({class: '', }) )
+                            .row( $(line).html('Signed Out') )
                             .draw();
                 },
                 error: function () {
@@ -74,5 +89,5 @@
                 }
             });
         });
-    });
+
 </script>

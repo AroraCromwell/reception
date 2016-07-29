@@ -15,6 +15,7 @@
 
 import {_} from "lodash";
 var base64 = require('node-base64-image');
+var thumb = require('node-thumbnail').thumb;
 export class Visitors {
 
     constructor (visitorService, logger, localStorage, io ) {
@@ -483,13 +484,29 @@ export class Visitors {
         ];
     }
 
+    staffData(){
+        return [
+            (req, res) => {
+                this._visitorService.staffData(req.params.id)
+                    .then(result => {
+                        let row = result.rows;
+                        res.send({status: 'ok', count: '20' , count_total: result.rowCount, data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
     staffSignIn(){
         return [
             (req, res) => {
 
                 this._visitorService.staffSignIn(req.params.id)
                     .then(result => {
-                        res.send({status: 'ok'});
+                        res.send({success: 1, message: "completed"});
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -522,11 +539,11 @@ export class Visitors {
 
                 this._visitorService.staffSignOut(req.params.id)
                     .then(result => {
-                        res.send({success: 1, message: "Completed"});
+                        res.send({success: 1, message: "completed", data: JSON.stringify(result.rows)});
                     })
                     .catch(err => {
-                        this._logger.error(err);
-                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                        this._logger.error(err.message);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err.message), retry: 1});
                     });
             }
         ];
@@ -550,10 +567,28 @@ export class Visitors {
                         res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
                     }
                     console.log(saved);
+
                     res.send({success: 1, message: "Completed"});
                 });
             }
         ]
+    }
+
+    allVisitorsPrintOut(){
+        return [
+            (req, res) => {
+
+                this._visitorService.allVisitorsPrintOut()
+                    .then(result => {
+                        let row = result.rows;
+                        res.render('allVisitorsPrintOut', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
     }
 
 }

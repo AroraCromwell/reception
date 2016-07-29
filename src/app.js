@@ -19,11 +19,18 @@ var connections = [];
 
 var app = express();
 var exphbs  = require('express-handlebars');
+var qt = require('quickthumb');
 
 app.set('views', path.join(__dirname, 'templates'));
 app.engine('.hbs', exphbs({extname: '.hbs', defaultLayout: 'main',layoutsDir: path.join(__dirname, 'templates/layouts')}));
 app.set('view engine', '.hbs');
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(qt.static(path.join(__dirname, 'public')));
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 /* Files */
 import {Logger} from "./lib/logger";
@@ -53,7 +60,7 @@ db.createConnection()
            var server = require('http').createServer(app);
        }
 
-        var io = require('socket.io')(server);
+
         // create reusable transport method (opens pool of SMTP connections)
         var smtpTransport = nodemailer.createTransport("SMTP",{
             service: "Gmail",
@@ -84,12 +91,13 @@ db.createConnection()
             });
         });
 
+        let io = require('socket.io')(server);
         let templateManager = new TemplateManager();
         let dataCleaner = new DataCleaner();
         //let emitter = new EventEmitter();
         let postgres = new Postgres(connection);
         let eventListener = new EventListener(connection, logger);
-        let visitorStore = new VisitorStore(postgres, logger);
+        let visitorStore = new VisitorStore(postgres, logger, io);
         let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger);
         let visitors = new Visitors(visitorService, logger, localStorage, io);
         let search = new Search(visitorService, logger, localStorage, io);
@@ -98,6 +106,9 @@ db.createConnection()
 
         /* Start Listening */
         eventListener.listen();
+        eventListener.on("forcelogin", () => {
+            console.log("event has occured");
+        })
         app.use( bodyParser.json({limit: '50mb'}) );       // to support JSON-encoded bodies
         app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
             limit: '50mb',
@@ -134,10 +145,12 @@ db.createConnection()
 
         // request for staff
         app.get("/allStaff", visitors.allStaff());
+        app.get("/staffData/:id", visitors.staffData());
         app.get("/staffSignIn/:id", visitors.staffSignIn());
         app.get("/staffSignOut/:id", visitors.staffSignOut());
         app.get("/staffSignedIn/:id", visitors.staffSignedIn());
         app.post("/captureStaffImage/", visitors.captureStaffImage());
+        app.get("/allVisitorsPrintOut", visitors.allVisitorsPrintOut());
 
         //request for search
 
@@ -206,6 +219,7 @@ db.createConnection()
               //  clearInterval(alive);
             });
         });
+
 
         if(status != 'undefined') {
             console.log("inside status interval");

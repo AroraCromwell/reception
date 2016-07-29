@@ -20,18 +20,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var fs = require("fs");
 var fileName = '../config.json';
 var file = require(fileName);
-
+var dateFormat = require('dateformat');
 var base64 = require('node-base64-image');
 
 var VisitorStore = exports.VisitorStore = function () {
-    function VisitorStore(resource, logger) {
+    function VisitorStore(resource, logger, io) {
         _classCallCheck(this, VisitorStore);
 
         this._resource = resource;
         this._logger = logger;
+        this._io = io;
     }
 
     _createClass(VisitorStore, [{
+        key: "getCustomer",
+        value: function getCustomer(id) {
+
+            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE id = $1 LIMIT 1";
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
         key: "saveCustomer",
         value: function saveCustomer(customer) {
             var _this = this;
@@ -64,17 +76,6 @@ var VisitorStore = exports.VisitorStore = function () {
                 return _this._resource.query(selectQuery, args).then(function (data) {
                     return data.rows[0];
                 });
-            });
-        }
-    }, {
-        key: "getCustomer",
-        value: function getCustomer(id) {
-
-            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE id = $1 LIMIT 1";
-            var args = [id];
-
-            return this._resource.query(selectQuery, args).then(function (response) {
-                return response;
             });
         }
     }, {
@@ -252,6 +253,13 @@ var VisitorStore = exports.VisitorStore = function () {
             return setTime;
         }
     }, {
+        key: "timeConverter",
+        value: function timeConverter(UNIX_timestamp) {
+            var a = new Date(UNIX_timestamp * 1000);
+            var time = dateFormat(a, "yyyy-mm-dd HH:MM:ss");
+            return time;
+        }
+    }, {
         key: "autoCompletePost",
         value: function autoCompletePost(data) {
 
@@ -305,13 +313,60 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "allStaff",
         value: function allStaff() {
-            /*let selectQuery = `SELECT a.id, a.staff_id, a.firstname, a.surname,  a.email, a.job_title_code, b.department_code, b.department_name, c.post_title
-                               FROM active_directory.users a
-                               INNER JOIN active_directory.departments b ON b.department_code::text = 'P103'
-                               LEFT JOIN active_directory.job_posts c ON a.job_title_code::text = c.post_no::text  LIMIT 3;`; */
+            var _this2 = this;
 
             var selectQuery = "select * from active_directory.users u\n                            INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text) \n                            LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text\n                            WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)\n                            and date_left is null";
             var args = ['BRC'];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            }).then(function (result) {
+
+                var result = result;
+                var staffSelectQuery = "select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id from reception_handler.building_signin where id in\n                        (\n                            SELECT max(id)\n                              FROM reception_handler.building_signin\n                              group by\n                              staff_id\n                      )\n                    ";
+                var args = [];
+
+                return _this2._resource.query(staffSelectQuery, args).then(function (staffResponse) {
+                    _lodash._.forEach(result.rows, function (value, key) {
+
+                        result.rows[key]['signinTime'] = '';
+                        result.rows[key]['signoutTime'] = '';
+                        result.rows[key]['status'] = 'Not in the Building';
+                        result.rows[key]['primaryId'] = 0;
+
+                        _lodash._.forEach(staffResponse.rows, function (staffValue, staffKey) {
+                            if (staffValue.staff_id == value.staff_id) {
+
+                                console.log("ID matched" + staffValue.staff_id);
+
+                                if (staffValue.signin_time != null) {
+                                    result.rows[key]['status'] = 'In the Building';
+                                    result.rows[key]['signinTime'] = _this2.timeConverter(staffValue.signin_time);
+                                }
+
+                                if (staffValue.signout_time != null) {
+                                    result.rows[key]['status'] = 'Not in the Building';
+                                    result.rows[key]['signoutTime'] = _this2.timeConverter(staffValue.signout_time);
+                                }
+                                result.rows[key]['primaryId'] = staffValue.id;
+                            }
+                        });
+                    });
+                    return result;
+                });
+            });
+        }
+    }, {
+        key: "customizer",
+        value: function customizer(objValue, srcValue) {
+            return objValue.concat(srcValue);
+        }
+    }, {
+        key: "staffData",
+        value: function staffData(id) {
+            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
+
+            var args = [id];
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 return response;
@@ -320,39 +375,92 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "staffSignIn",
         value: function staffSignIn(id) {
-            var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
-            var args = [id, 'P103'];
+            var _this3 = this;
 
-            return this._resource.query(insertQuery, args).then(function (response) {
-                return response;
-            });
-        }
-    }, {
-        key: "staffSignOut",
-        value: function staffSignOut(id) {
-            var _this2 = this;
-
-            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 ORDER BY signin_time DESC LIMIT 1';
+            console.log("User ID going to sign in" + id);
+            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
 
             var args = [id];
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 return response;
             }).then(function (result) {
-                var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+                if (result.rowCount == 1) {
+                    var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
 
-                var args = [_this2.getTime(""), result.rows[0].id];
+                    var _args = [_this3.getTime(""), result.rows[0].id];
 
-                return _this2._resource.query(updateQuery, args).then(function (response) {
-                    return response;
-                });
+                    return _this3._resource.query(updateQuery, _args).then(function (response) {
+                        return response;
+                    }).then(function (updateResult) {
+                        var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                        var args = [id, 'P103'];
+
+                        return _this3._resource.query(insertQuery, args).then(function (response) {
+                            console.log("emitting new event");
+                            _this3._io.emit("forceLogin");
+                            return response;
+                        });
+                    });
+                } else {
+                    var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                    var _args2 = [id, 'P103'];
+
+                    return _this3._resource.query(insertQuery, _args2).then(function (response) {
+                        return response;
+                    });
+                }
+            });
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut(id) {
+            var _this4 = this;
+
+            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
+
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            }).then(function (result) {
+                if (result.rowCount == 1) {
+                    var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+
+                    var _args3 = [_this4.getTime(""), result.rows[0].id];
+
+                    return _this4._resource.query(updateQuery, _args3).then(function (response) {
+                        return response;
+                    });
+                }
+
+                throw new Error("What!! Are you sure , you was signed in today? Because, i am unable to find you.");
             });
         }
     }, {
         key: "staffSignedIn",
         value: function staffSignedIn(id) {
+            var _this5 = this;
 
-            var selectQuery = "SELECT a.signin_time, a.signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id";
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id\n                           where signin_time > now()::date";
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                _lodash._.each(response.rows, function (val, key) {
+                    if (val.signin_time != null) {
+                        response.rows[key]['signin_time'] = _this5.timeConverter(val.signin_time);
+                    }
+                    if (val.signout_time != null) {
+                        response.rows[key]['signout_time'] = _this5.timeConverter(val.signout_time);
+                    }
+                });
+                return response;
+            });
+        }
+    }, {
+        key: "allVisitorsPrintOut",
+        value: function allVisitorsPrintOut() {
+            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > now()::date and signout IS NULL";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {

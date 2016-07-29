@@ -26,7 +26,20 @@
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-left">
                 <li id="status"><a href="/graph" >Status</a></li>
-                <li id="allVisitor"><a href="/allVisitors" >All Visitors</a></li>
+
+
+                <li id="allVisitor">
+                    <a href="#" data-toggle="dropdown">Visitors
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/allVisitors" >All Visitors</a></li>
+                        <li><a href="/allVisitorsPrintOut">Print Out All</a></li>
+                    </ul>
+                </li>
+
+
+
+                <li id="allVisitor"></li>
                 <li id="allOut"><a href="/allSignOut" >All Signed out</a></li>
                 <li id="terms">
                         <a href="#" data-toggle="dropdown">T&Cs
@@ -45,16 +58,14 @@
                         <li><a href="/autoCompleteAdd">Add New Suggestion</a></li>
                     </ul>
                 </li>
-                <!--<li id="staff">-->
-                    <!--<a href="#" data-toggle="dropdown">Staff SignIn-->
-                        <!--<span class="caret"></span></a>-->
-                    <!--<ul class="dropdown-menu">-->
-                        <!--<li><a href="/staffSignedIn/2">BRC</a></li>-->
-                        <!--<li><a href="/staffSignedIn/2">WDC</a></li>-->
-                    <!--</ul>-->
-                <!--</li>-->
-
-
+                <li id="staff">
+                    <a href="#" data-toggle="dropdown">Staff SignIn
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/staffSignedIn/2">BRC</a></li>
+                        <li><a href="/staffSignedIn/2">WDC</a></li>
+                    </ul>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/">Logout</a></li>

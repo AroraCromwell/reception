@@ -22,6 +22,7 @@ var _lodash = require("lodash");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var base64 = require('node-base64-image');
+var thumb = require('node-thumbnail').thumb;
 
 var Visitors = exports.Visitors = function () {
     function Visitors(visitorService, logger, localStorage, io) {
@@ -444,14 +445,14 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "staffSignIn",
-        value: function staffSignIn() {
+        key: "staffData",
+        value: function staffData() {
             var _this24 = this;
 
             return [function (req, res) {
-
-                _this24._visitorService.staffSignIn(req.params.id).then(function (result) {
-                    res.send({ status: 'ok' });
+                _this24._visitorService.staffData(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.send({ status: 'ok', count: '20', count_total: result.rowCount, data: row });
                 }).catch(function (err) {
                     _this24._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -459,15 +460,14 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "staffSignedIn",
-        value: function staffSignedIn() {
+        key: "staffSignIn",
+        value: function staffSignIn() {
             var _this25 = this;
 
             return [function (req, res) {
 
-                _this25._visitorService.staffSignedIn(req.params.id).then(function (result) {
-                    var row = result.rows;
-                    res.render('all_staffsignedin', { data: row });
+                _this25._visitorService.staffSignIn(req.params.id).then(function (result) {
+                    res.send({ success: 1, message: "completed" });
                 }).catch(function (err) {
                     _this25._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -475,17 +475,33 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "staffSignOut",
-        value: function staffSignOut() {
+        key: "staffSignedIn",
+        value: function staffSignedIn() {
             var _this26 = this;
 
             return [function (req, res) {
 
-                _this26._visitorService.staffSignOut(req.params.id).then(function (result) {
-                    res.send({ success: 1, message: "Completed" });
+                _this26._visitorService.staffSignedIn(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_staffsignedin', { data: row });
                 }).catch(function (err) {
                     _this26._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut() {
+            var _this27 = this;
+
+            return [function (req, res) {
+
+                _this27._visitorService.staffSignOut(req.params.id).then(function (result) {
+                    res.send({ success: 1, message: "completed", data: JSON.stringify(result.rows) });
+                }).catch(function (err) {
+                    _this27._logger.error(err.message);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err.message), retry: 1 });
                 });
             }];
         }
@@ -507,7 +523,24 @@ var Visitors = exports.Visitors = function () {
                         res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                     }
                     console.log(saved);
+
                     res.send({ success: 1, message: "Completed" });
+                });
+            }];
+        }
+    }, {
+        key: "allVisitorsPrintOut",
+        value: function allVisitorsPrintOut() {
+            var _this28 = this;
+
+            return [function (req, res) {
+
+                _this28._visitorService.allVisitorsPrintOut().then(function (result) {
+                    var row = result.rows;
+                    res.render('allVisitorsPrintOut', { data: row });
+                }).catch(function (err) {
+                    _this28._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
         }
