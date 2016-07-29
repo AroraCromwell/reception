@@ -582,6 +582,7 @@ export class Visitors {
                     .then(result => {
                         let row = result.rows;
                         res.render('allVisitorsPrintOut', {data: row});
+                        
                     })
                     .catch(err => {
                         this._logger.error(err);
