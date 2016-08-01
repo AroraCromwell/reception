@@ -177,7 +177,7 @@ export class Visitors {
 
         return [
             (req, res) => {
-                if( req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "1234"){
+                if( req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "Lewis@3524"){
                         this._localStorage.setItem("email", req.body.inputEmail);
                         res.redirect("allVisitors");
                 }else{
@@ -578,16 +578,97 @@ export class Visitors {
         return [
             (req, res) => {
 
-                this._visitorService.allVisitorsPrintOut()
+                var id = req.params.id;
+                this._visitorService.allVisitorsPrintOut(id)
                     .then(result => {
                         let row = result.rows;
-                        res.render('allVisitorsPrintOut', {data: row});
-                        
+                        if(id == 1 ){
+                            res.render('allVisitorsPrintOut', {data: row});
+                        }else {
+                            res.render('allVisitorsPrintOutWithPrint', {data: row});
+                        }
                     })
                     .catch(err => {
                         this._logger.error(err);
                         res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
                     });
+            }
+        ];
+    }
+
+    showFiremarshall (){
+        return [
+            (req,res) => {
+                res.render('show_firemarshall');
+            }
+        ]
+    }
+
+
+    addFiremarshall (){
+        return [
+            (req, res) => {
+                this._visitorService.addFiremarshall(req.body)
+                    .then(result => {
+                        res.redirect("/allFireMarshall");
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    updateFiremarshall (){
+        return [
+            (req, res) => {
+                console.log(req.body);
+                process.exit();
+                this._visitorService.updateFiremarshall(req.params.id, req.body)
+                    .then(result => {
+                        res.redirect("/allFireMarshall");
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    allFireMarshall (){
+        return [
+            (req, res) => {
+                this._visitorService.allFireMarshall()
+                    .then(result => {
+                        let row = result.rows;
+                        //res.render("/allVisitorsPrintOut", {data: row});
+                        res.render('all_firemarshall', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+
+    //NFC SignIn And SignOut
+    nfcActivity(){
+        return [
+            (req, res) => {
+
+                this._visitorService.nfcActivity(req.params.id)
+                .then(result => {
+                    var status = result.command == "UPDATE" ? "sign_out" : "sign_in" ;
+                    res.send({message: "Success", activity: JSON.stringify(status)});
+                })
+                .catch(err => {
+                    this._logger.error(err);
+                    res.send({ message: "Error!", data: JSON.stringify(err)});
+                });
             }
         ];
     }

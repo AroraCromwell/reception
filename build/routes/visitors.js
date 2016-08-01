@@ -167,7 +167,7 @@ var Visitors = exports.Visitors = function () {
             var _this8 = this;
 
             return [function (req, res) {
-                if (req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "1234") {
+                if (req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "Lewis@3524") {
                     _this8._localStorage.setItem("email", req.body.inputEmail);
                     res.redirect("allVisitors");
                 } else {
@@ -535,12 +535,89 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
 
-                _this28._visitorService.allVisitorsPrintOut().then(function (result) {
+                var id = req.params.id;
+                _this28._visitorService.allVisitorsPrintOut(id).then(function (result) {
                     var row = result.rows;
-                    res.render('allVisitorsPrintOut', { data: row });
+                    if (id == 1) {
+                        res.render('allVisitorsPrintOut', { data: row });
+                    } else {
+                        res.render('allVisitorsPrintOutWithPrint', { data: row });
+                    }
                 }).catch(function (err) {
                     _this28._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "showFiremarshall",
+        value: function showFiremarshall() {
+            return [function (req, res) {
+                res.render('show_firemarshall');
+            }];
+        }
+    }, {
+        key: "addFiremarshall",
+        value: function addFiremarshall() {
+            var _this29 = this;
+
+            return [function (req, res) {
+                _this29._visitorService.addFiremarshall(req.body).then(function (result) {
+                    res.redirect("/allFireMarshall");
+                }).catch(function (err) {
+                    _this29._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "updateFiremarshall",
+        value: function updateFiremarshall() {
+            var _this30 = this;
+
+            return [function (req, res) {
+                console.log(req.body);
+                process.exit();
+                _this30._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
+                    res.redirect("/allFireMarshall");
+                }).catch(function (err) {
+                    _this30._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "allFireMarshall",
+        value: function allFireMarshall() {
+            var _this31 = this;
+
+            return [function (req, res) {
+                _this31._visitorService.allFireMarshall().then(function (result) {
+                    var row = result.rows;
+                    //res.render("/allVisitorsPrintOut", {data: row});
+                    res.render('all_firemarshall', { data: row });
+                }).catch(function (err) {
+                    _this31._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+
+        //NFC SignIn And SignOut
+
+    }, {
+        key: "nfcActivity",
+        value: function nfcActivity() {
+            var _this32 = this;
+
+            return [function (req, res) {
+
+                _this32._visitorService.nfcActivity(req.params.id).then(function (result) {
+                    var status = result.command == "UPDATE" ? "sign_out" : "sign_in";
+                    res.send({ message: "Success", activity: JSON.stringify(status) });
+                }).catch(function (err) {
+                    _this32._logger.error(err);
+                    res.send({ message: "Error!", data: JSON.stringify(err) });
                 });
             }];
         }
