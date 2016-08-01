@@ -154,8 +154,9 @@ db.createConnection()
         app.get("/allVisitorsPrintOut/:id", visitors.allVisitorsPrintOut());
         app.post("/fireMarshall", visitors.addFiremarshall());
         app.get("/fireMarshall", visitors.showFiremarshall());
-        app.put("/fireMarshall/:id", visitors.updateFiremarshall());
+        app.post("/fireMarshall/:id", visitors.updateFiremarshall());
         app.get("/allFireMarshall", visitors.allFireMarshall());
+        app.delete("/fireMarshall/:id", visitors.deleteFireMarshall());
 
         //staff signin and signout from the NFC card
         app.get("/nfcActivity/:id", visitors.nfcActivity());

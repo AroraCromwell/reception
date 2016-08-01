@@ -451,6 +451,13 @@ export class VisitorService {
             })
     }
 
+    deleteFireMarshall (id) {
+        return this._visitorStore.deleteFiremarshall(id)
+            .then((res) => {
+                return res;
+            })
+    }
+
     //Search
 
     searchAllSignIns (id) {

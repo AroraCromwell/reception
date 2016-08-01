@@ -481,6 +481,13 @@ var VisitorService = exports.VisitorService = function () {
                 return res;
             });
         }
+    }, {
+        key: "deleteFireMarshall",
+        value: function deleteFireMarshall(id) {
+            return this._visitorStore.deleteFiremarshall(id).then(function (res) {
+                return res;
+            });
+        }
 
         //Search
 
