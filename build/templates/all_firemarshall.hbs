@@ -65,12 +65,12 @@
                             </div>
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company" >Name</label>
                             <div class="col-sm-8 col-md-8">
-                                <input name="type" class="form-control" id="typeId"  />
+                                <input name="name" class="form-control" id="typeId"  />
                             </div>
 
-                            <label class="control-label col-sm-offset-2 col-sm-2" for="company" >Suggestion:</label>
+                            <label class="control-label col-sm-offset-2 col-sm-2" for="company" >Email:</label>
                             <div class="col-sm-8 col-md-8">
-                                <input class="form-control"  name="suggestion" id="suggestId"/>
+                                <input class="form-control" pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" title="test@gmail.com"  name="email_adds" id="suggestId"/>
                             </div>
                             <div class="col-sm-12 col-md-12">
                                 <label class="control-label col-sm-offset-2 col-sm-2" for="company"></label>
@@ -133,10 +133,8 @@
             var data = table.row( $(this).parents('tr') ).data();
             //alert(contentPanelId);
             $.ajax({
-                url: '/autoComplete/'+contentPanelId,
+                url: '/fireMarshall/'+contentPanelId,
                 type: 'DELETE',
-                data: JSON.stringify({ "type": data[1]}),
-                contentType: 'application/json; charset=utf-8',
                 success: function(response) {
                     //...
                     console.log(response.message);

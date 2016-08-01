@@ -513,7 +513,7 @@ var Visitors = exports.Visitors = function () {
                 console.log("this is staff image path" + req.body.paramLocalImagePath);
 
                 var imageName = req.body.paramStaffId;
-                var options = { filename: './src/public/images/' + imageName };
+                var options = { filename: './public/images/' + imageName };
                 //var options = {filename: './src/reception_handler/images/' + imageName};
                 var imageData = new Buffer(req.body.paramImagePath, 'base64');
 
@@ -576,8 +576,6 @@ var Visitors = exports.Visitors = function () {
             var _this30 = this;
 
             return [function (req, res) {
-                console.log(req.body);
-                process.exit();
                 _this30._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
                     res.redirect("/allFireMarshall");
                 }).catch(function (err) {
@@ -602,21 +600,36 @@ var Visitors = exports.Visitors = function () {
                 });
             }];
         }
+    }, {
+        key: "deleteFireMarshall",
+        value: function deleteFireMarshall() {
+            var _this32 = this;
+
+            return [function (req, res) {
+                _this32._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_firemarshall', { data: row });
+                }).catch(function (err) {
+                    _this32._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
 
         //NFC SignIn And SignOut
 
     }, {
         key: "nfcActivity",
         value: function nfcActivity() {
-            var _this32 = this;
+            var _this33 = this;
 
             return [function (req, res) {
 
-                _this32._visitorService.nfcActivity(req.params.id).then(function (result) {
+                _this33._visitorService.nfcActivity(req.params.id).then(function (result) {
                     var status = result.command == "UPDATE" ? "sign_out" : "sign_in";
                     res.send({ message: "Success", activity: status });
                 }).catch(function (err) {
-                    _this32._logger.error(err);
+                    _this33._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
             }];

@@ -557,7 +557,7 @@ export class Visitors {
 
 
                 var imageName = req.body.paramStaffId ;
-                var options = {filename: './src/public/images/' + imageName};
+                var options = {filename: './public/images/' + imageName};
                 //var options = {filename: './src/reception_handler/images/' + imageName};
                 var imageData = new Buffer(req.body.paramImagePath, 'base64');
 
@@ -623,8 +623,6 @@ export class Visitors {
     updateFiremarshall (){
         return [
             (req, res) => {
-                console.log(req.body);
-                process.exit();
                 this._visitorService.updateFiremarshall(req.params.id, req.body)
                     .then(result => {
                         res.redirect("/allFireMarshall");
@@ -644,6 +642,22 @@ export class Visitors {
                     .then(result => {
                         let row = result.rows;
                         //res.render("/allVisitorsPrintOut", {data: row});
+                        res.render('all_firemarshall', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    deleteFireMarshall (){
+        return [
+            (req, res) => {
+                this._visitorService.deleteFireMarshall(req.params.id)
+                    .then(result => {
+                        let row = result.rows;
                         res.render('all_firemarshall', {data: row});
                     })
                     .catch(err => {

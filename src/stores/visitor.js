@@ -558,9 +558,23 @@ export class VisitorStore {
 
         let insertQuery = 'UPDATE reception_handler.fire_marshall SET name = $1, email_adds = $2, location = $3 WHERE id= $4';
         let args = [
-            data.marshall_name,
-            data.marshall_email,
-            data.location
+            data.name,
+            data.email_adds,
+            data.location,
+            id
+        ];
+
+        return this._resource.query(insertQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    deleteFiremarshall (id){
+
+        let insertQuery = 'DELETE FROM reception_handler.fire_marshall  WHERE id= $1';
+        let args = [
+            id
         ];
 
         return this._resource.query(insertQuery, args)

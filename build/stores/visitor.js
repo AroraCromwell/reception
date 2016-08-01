@@ -428,7 +428,18 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function updateFiremarshall(id, data) {
 
             var insertQuery = 'UPDATE reception_handler.fire_marshall SET name = $1, email_adds = $2, location = $3 WHERE id= $4';
-            var args = [data.marshall_name, data.marshall_email, data.location];
+            var args = [data.name, data.email_adds, data.location, id];
+
+            return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "deleteFiremarshall",
+        value: function deleteFiremarshall(id) {
+
+            var insertQuery = 'DELETE FROM reception_handler.fire_marshall  WHERE id= $1';
+            var args = [id];
 
             return this._resource.query(insertQuery, args).then(function (response) {
                 return response;
