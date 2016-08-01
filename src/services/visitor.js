@@ -369,7 +369,7 @@ export class VisitorService {
             .catch(err => {
                 this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
                 throw new Error(err);
-            });
+        });
     }
 
     staffSignOut(id){
@@ -392,34 +392,34 @@ export class VisitorService {
     }
 
     // All Visitors print out
-    allVisitorsPrintOut(){
+    allVisitorsPrintOut(id){
         return this._visitorStore.allVisitorsPrintOut()
             .then((res) => {
                 return res;
             })
             .then(result => {
-                //render the template
-                var html = this._templateManager.render('allVisitorsPrintOut',{ data: result.rows });
+                if(id == 1) {
 
-                var options = {format: 'A5', orientation: 'landscape'};
+                    //render the template
+                    var html = this._templateManager.render('allVisitorsPrintOut', {data: result.rows});
 
-                pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
-                    //if (err) return console.log("this is eror" + err);
+                    var options = {format: 'A5', orientation: 'landscape'};
 
-                    //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
+                    pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
 
-                    var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                        var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
-                    exec(cmd, function (error, stdout, stderr) {
-                        // command output is in stdout
-                        console.log(stdout);
+                        exec(cmd, function (error, stdout, stderr) {
+                            // command output is in stdout
+                            console.log(stdout);
 
-                        if (error !== null) {
-                            console.log('exec error: ' + error);
-                        }
-                        //process.exit();
-                    });
-                })
+                            if (error !== null) {
+                                console.log('exec error: ' + error);
+                            }
+                            //process.exit();
+                        });
+                    })
+                }
 
                 return result;
             })
@@ -430,6 +430,27 @@ export class VisitorService {
     }
 
 
+    addFiremarshall (data) {
+        return this._visitorStore.addFiremarshall(data)
+            .then((res) => {
+                return res;
+            })
+    }
+
+    updateFiremarshall (id, data) {
+        return this._visitorStore.updateFiremarshall(id, data)
+            .then((res) => {
+                return res;
+            })
+    }
+
+    allFireMarshall () {
+        return this._visitorStore.allFiremarshall()
+            .then((res) => {
+                return res;
+            })
+    }
+
     //Search
 
     searchAllSignIns (id) {
@@ -439,6 +460,18 @@ export class VisitorService {
         return this._visitorStore.searchAllSignIns(id)
             .then((data) => {
                 return data;
+            })
+            .catch(err => {
+                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+    }
+
+    //NFC Activity
+    nfcActivity (id) {
+        return this._visitorStore.nfcActivity(id)
+            .then((res) => {
+                return res;
             })
             .catch(err => {
                 this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));

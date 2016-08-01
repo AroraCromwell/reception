@@ -221,7 +221,7 @@ export class VisitorStore {
         return this._resource.query(insertQuery, args)
             .then(response => {
                 return response;
-            });
+        });
     }
 
     allTermsRequest() {
@@ -538,6 +538,37 @@ export class VisitorStore {
             })
     }
 
+
+    addFiremarshall (data){
+
+        let insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, location) VALUES ( $1, $2, $3 ) RETURNING id';
+        let args = [
+            data.marshall_name,
+            data.marshall_email,
+            data.location
+        ];
+
+        return this._resource.query(insertQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    updateFiremarshall (id, data){
+
+        let insertQuery = 'UPDATE reception_handler.fire_marshall SET name = $1, email_adds = $2, location = $3 WHERE id= $4';
+        let args = [
+            data.marshall_name,
+            data.marshall_email,
+            data.location
+        ];
+
+        return this._resource.query(insertQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
     staffSignOut(id) {
         let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
 
@@ -603,6 +634,18 @@ export class VisitorStore {
 
     }
 
+    allFiremarshall() {
+        let selectQuery = 'SELECT * from reception_handler.fire_marshall ORDER BY id DESC';
+
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
 
 
     //search queries
@@ -618,5 +661,48 @@ export class VisitorStore {
             .then(response => {
                 return response;
             });
+    }
+
+    nfcActivity (id){
+
+        console.log("User ID going to sign in" + id);
+        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
+
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+        .then(response => {
+            return response;
+        })
+        .then( result => {
+
+            if(result.rowCount == 1){
+                let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+
+                let args = [
+                    this.getTime(""),
+                    result.rows[0].id
+                ];
+
+                return this._resource.query(updateQuery, args)
+                .then(response => {
+                    return response;
+                })
+
+            }else {
+                let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                let args = [
+                    id,
+                    'P103'
+                ];
+
+                return this._resource.query(insertQuery, args)
+                .then(response => {
+                    return response;
+                });
+            }
+        })
     }
 }

@@ -177,6 +177,14 @@ db.createConnection().then(function (connection) {
     app.get("/staffSignedIn/:id", visitors.staffSignedIn());
     app.post("/captureStaffImage/", visitors.captureStaffImage());
     app.get("/allVisitorsPrintOut", visitors.allVisitorsPrintOut());
+    app.get("/allVisitorsPrintOut/:id", visitors.allVisitorsPrintOut());
+    app.post("/fireMarshall", visitors.addFiremarshall());
+    app.get("/fireMarshall", visitors.showFiremarshall());
+    app.put("/fireMarshall/:id", visitors.updateFiremarshall());
+    app.get("/allFireMarshall", visitors.allFireMarshall());
+
+    //staff signin and signout from the NFC card
+    app.get("/nfcActivity/:id", visitors.nfcActivity());
 
     //request for search
 

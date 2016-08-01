@@ -425,39 +425,60 @@ var VisitorService = exports.VisitorService = function () {
 
     }, {
         key: "allVisitorsPrintOut",
-        value: function allVisitorsPrintOut() {
+        value: function allVisitorsPrintOut(id) {
             var _this22 = this;
 
             return this._visitorStore.allVisitorsPrintOut().then(function (res) {
                 return res;
             }).then(function (result) {
-                //render the template
-                var html = _this22._templateManager.render('allVisitorsPrintOut', { data: result.rows });
+                if (id == 1) {
 
-                var options = { format: 'A5', orientation: 'landscape' };
+                    //render the template
+                    var html = _this22._templateManager.render('allVisitorsPrintOut', { data: result.rows });
 
-                pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
-                    //if (err) return console.log("this is eror" + err);
+                    var options = { format: 'A5', orientation: 'landscape' };
 
-                    //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
+                    pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
 
-                    var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                        var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
-                    exec(cmd, function (error, stdout, stderr) {
-                        // command output is in stdout
-                        console.log(stdout);
+                        exec(cmd, function (error, stdout, stderr) {
+                            // command output is in stdout
+                            console.log(stdout);
 
-                        if (error !== null) {
-                            console.log('exec error: ' + error);
-                        }
-                        //process.exit();
+                            if (error !== null) {
+                                console.log('exec error: ' + error);
+                            }
+                            //process.exit();
+                        });
                     });
-                });
+                }
 
                 return result;
             }).catch(function (err) {
                 _this22._logger.error("Problem while Printing Visitors: -> " + JSON.stringify(err));
                 throw new Error(err);
+            });
+        }
+    }, {
+        key: "addFiremarshall",
+        value: function addFiremarshall(data) {
+            return this._visitorStore.addFiremarshall(data).then(function (res) {
+                return res;
+            });
+        }
+    }, {
+        key: "updateFiremarshall",
+        value: function updateFiremarshall(id, data) {
+            return this._visitorStore.updateFiremarshall(id, data).then(function (res) {
+                return res;
+            });
+        }
+    }, {
+        key: "allFireMarshall",
+        value: function allFireMarshall() {
+            return this._visitorStore.allFiremarshall().then(function (res) {
+                return res;
             });
         }
 
@@ -474,6 +495,21 @@ var VisitorService = exports.VisitorService = function () {
                 return data;
             }).catch(function (err) {
                 _this23._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
+                throw new Error(err);
+            });
+        }
+
+        //NFC Activity
+
+    }, {
+        key: "nfcActivity",
+        value: function nfcActivity(id) {
+            var _this24 = this;
+
+            return this._visitorStore.nfcActivity(id).then(function (res) {
+                return res;
+            }).catch(function (err) {
+                _this24._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
                 throw new Error(err);
             });
         }

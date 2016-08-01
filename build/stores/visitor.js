@@ -413,6 +413,28 @@ var VisitorStore = exports.VisitorStore = function () {
             });
         }
     }, {
+        key: "addFiremarshall",
+        value: function addFiremarshall(data) {
+
+            var insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, location) VALUES ( $1, $2, $3 ) RETURNING id';
+            var args = [data.marshall_name, data.marshall_email, data.location];
+
+            return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
+        key: "updateFiremarshall",
+        value: function updateFiremarshall(id, data) {
+
+            var insertQuery = 'UPDATE reception_handler.fire_marshall SET name = $1, email_adds = $2, location = $3 WHERE id= $4';
+            var args = [data.marshall_name, data.marshall_email, data.location];
+
+            return this._resource.query(insertQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
         key: "staffSignOut",
         value: function staffSignOut(id) {
             var _this4 = this;
@@ -467,6 +489,17 @@ var VisitorStore = exports.VisitorStore = function () {
                 return response;
             });
         }
+    }, {
+        key: "allFiremarshall",
+        value: function allFiremarshall() {
+            var selectQuery = 'SELECT * from reception_handler.fire_marshall ORDER BY id DESC';
+
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
 
         //search queries
 
@@ -479,6 +512,38 @@ var VisitorStore = exports.VisitorStore = function () {
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 return response;
+            });
+        }
+    }, {
+        key: "nfcActivity",
+        value: function nfcActivity(id) {
+            var _this6 = this;
+
+            console.log("User ID going to sign in" + id);
+            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
+
+            var args = [id];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            }).then(function (result) {
+
+                if (result.rowCount == 1) {
+                    var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+
+                    var _args4 = [_this6.getTime(""), result.rows[0].id];
+
+                    return _this6._resource.query(updateQuery, _args4).then(function (response) {
+                        return response;
+                    });
+                } else {
+                    var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                    var _args5 = [id, 'P103'];
+
+                    return _this6._resource.query(insertQuery, _args5).then(function (response) {
+                        return response;
+                    });
+                }
             });
         }
     }]);
