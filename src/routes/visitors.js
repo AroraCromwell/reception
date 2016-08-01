@@ -663,11 +663,11 @@ export class Visitors {
                 this._visitorService.nfcActivity(req.params.id)
                 .then(result => {
                     var status = result.command == "UPDATE" ? "sign_out" : "sign_in" ;
-                    res.send({message: "Success", activity: JSON.stringify(status)});
+                    res.send({message: "Success", activity: status});
                 })
                 .catch(err => {
                     this._logger.error(err);
-                    res.send({ message: "Error!", data: JSON.stringify(err)});
+                    res.send({ message: "Error", data: JSON.stringify(err)});
                 });
             }
         ];
