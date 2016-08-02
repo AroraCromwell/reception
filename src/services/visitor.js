@@ -458,6 +458,14 @@ export class VisitorService {
             })
     }
 
+    fireMarshallMail () {
+        return this._visitorStore.fireMarshallMail()
+            .then((res) => {
+                return res;
+            })
+    }
+
+
     //Search
 
     searchAllSignIns (id) {

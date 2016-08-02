@@ -598,6 +598,19 @@ export class VisitorStore {
             });
     }
 
+    fireMarshallMail () {
+
+        let selectQuery = `SELECT * FROM reception_handler.fire_marshall`;
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            })
+
+    }
+
     staffSignOut(id) {
         let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
 

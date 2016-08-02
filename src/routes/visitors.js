@@ -18,11 +18,12 @@ var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
 export class Visitors {
 
-    constructor (visitorService, logger, localStorage, io ) {
+    constructor (visitorService, logger, localStorage, io, sendMail ) {
         this._visitorService = visitorService;
         this._logger = logger;
         this._localStorage = localStorage;
         this._io = io;
+        this._sendMail = sendMail;
     }
 
     get () {
@@ -579,33 +580,36 @@ export class Visitors {
         return [
             (req, res) => {
 
-                var id = req.params.id;
-                this._visitorService.allVisitorsPrintOut(id)
-                    .then(result => {
-                        let row = result.rows;
-                        if(id == 1 ){
-                            res.render('allVisitorsPrintOut', {data: row});
-                        }else {
-                            res.render('allVisitorsPrintOutWithPrint', {data: row});
-                        }
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
-                    });
-            }
-        ];
-    }
-
-    allVisitorsPrintOut(){
-        return [
-            (req, res) => {
-
                 var id = req.params.id == null ? 1 : req.params.id;
 
                 this._visitorService.allVisitorsPrintOut(id)
                     .then(result => {
-                        let row = result.rows;
+                        return result;
+                    })
+                    .then(response => {
+                        var row = response.rows;
+                        this._visitorService.fireMarshallMail()
+                            .then( res => {
+
+                                var emailReceiver = [];
+                                _.each(res.rows , function (value, key) {
+                                    emailReceiver.push(value.email_adds);
+                                });
+
+
+                                var emailR = emailReceiver.toString();
+
+                                var mailOptions = {
+                                    from: "shibi arora<shibbi.arora@gmail.com>", // sender address
+                                    to: emailR, // list of receivers
+                                    subject: "Fire: Cromwell Reception", // Subject line
+                                    text: "this is fire", // plaintext body
+                                };
+
+                                console.log("Sending Email ");
+                                //this._sendMail.mail(mailOptions);
+                            })
+
                         if(id == 1 ){
                             res.render('allVisitorsPrintOut', {data: row});
                         }else {
