@@ -16,6 +16,8 @@
 import {_} from "lodash";
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
+var Thumbnail = require('thumbnail');
+var thumbnail = new Thumbnail('/public/images', '/public/images/thumbnails');
 export class Visitors {
 
     constructor (visitorService, logger, localStorage, io, sendMail ) {
@@ -569,9 +571,15 @@ export class Visitors {
                         res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
                     }
                     console.log(saved);
-
-                    res.send({success: 1, message: "Completed"});
                 });
+
+                thumbnail.ensureThumbnail(imageName + '.jpg', 200, 150, function (err, filename) {
+                    // "filename" is the name of the thumb in '/path/to/thumbnails'
+                    console.log("this is filename " + filename);
+                });
+
+                res.send({success: 1, message: "Completed"});
+                
             }
         ]
     }
