@@ -24,7 +24,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
 var Thumbnail = require('thumbnail');
-var thumbnail = new Thumbnail('/public/images', '/public/images/thumbnails');
+var thumbnail = new Thumbnail('public/images', 'public/images/thumbnails');
 
 var Visitors = exports.Visitors = function () {
     function Visitors(visitorService, logger, localStorage, io, sendMail) {
