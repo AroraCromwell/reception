@@ -371,6 +371,7 @@ export class Visitors {
     autoCompletePost(){
         return [
             (req, res) => {
+
                 this._visitorService.autoCompletePost(req.body)
                 .then(result => {
 
@@ -596,6 +597,29 @@ export class Visitors {
         ];
     }
 
+    allVisitorsPrintOut(){
+        return [
+            (req, res) => {
+
+                var id = req.params.id == null ? 1 : req.params.id;
+
+                this._visitorService.allVisitorsPrintOut(id)
+                    .then(result => {
+                        let row = result.rows;
+                        if(id == 1 ){
+                            res.render('allVisitorsPrintOut', {data: row});
+                        }else {
+                            res.render('allVisitorsPrintOutWithPrint', {data: row});
+                        }
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
     showFiremarshall (){
         return [
             (req,res) => {
@@ -610,7 +634,13 @@ export class Visitors {
             (req, res) => {
                 this._visitorService.addFiremarshall(req.body)
                     .then(result => {
-                        res.redirect("/allFireMarshall");
+
+                        if(req.body.another != "undefined"){
+                            res.redirect("/fireMarshall");
+                        }else {
+                            res.redirect("/allFireMarshall");
+                        }
+
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -676,8 +706,8 @@ export class Visitors {
 
                 this._visitorService.nfcActivity(req.params.id)
                 .then(result => {
-                    var status = result.command == "UPDATE" ? "sign_out" : "sign_in" ;
-                    res.send({message: "Success", activity: status});
+                    var status = result.activity == "UPDATE" ? "sign_out" : "sign_in" ;
+                    res.send({message: "Success", activity: status, name: result.rows[0].firstname + " " + result.rows[0].surname});
                 })
                 .catch(err => {
                     this._logger.error(err);
