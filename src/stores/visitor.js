@@ -334,6 +334,21 @@ export class VisitorStore {
         return setTime;
     }
 
+    getTimeforsettime(from="midnight"){
+        var data = new Date();
+        var month = data.getMonth()+1;
+        var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
+        var myTime = "";
+        if(from == "midnight"){
+            myTime = "00:00:00";
+        }else{
+            myTime = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+        }
+
+        var setTime = myDate + " " + myTime;
+        return setTime;
+    }
+
     timeConverter(UNIX_timestamp){
         var a = new Date(UNIX_timestamp * 1000);
         var time = dateFormat(a, "yyyy-mm-dd HH:MM:ss");
@@ -636,9 +651,11 @@ export class VisitorStore {
                 return response;
             });
     }
+
     allVisitorsPrintOut(){
-        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > now()::date and signout IS NULL`;
+        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL`;
         let args = [
+            this.getTimeforsettime("midnight")
         ];
 
         return this._resource.query(selectQuery, args)

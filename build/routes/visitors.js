@@ -550,6 +550,28 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
+        key: "allVisitorsPrintOut",
+        value: function allVisitorsPrintOut() {
+            var _this29 = this;
+
+            return [function (req, res) {
+
+                var id = req.params.id == null ? 1 : req.params.id;
+
+                _this29._visitorService.allVisitorsPrintOut(id).then(function (result) {
+                    var row = result.rows;
+                    if (id == 1) {
+                        res.render('allVisitorsPrintOut', { data: row });
+                    } else {
+                        res.render('allVisitorsPrintOutWithPrint', { data: row });
+                    }
+                }).catch(function (err) {
+                    _this29._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
         key: "showFiremarshall",
         value: function showFiremarshall() {
             return [function (req, res) {
@@ -559,24 +581,10 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "addFiremarshall",
         value: function addFiremarshall() {
-            var _this29 = this;
-
-            return [function (req, res) {
-                _this29._visitorService.addFiremarshall(req.body).then(function (result) {
-                    res.redirect("/allFireMarshall");
-                }).catch(function (err) {
-                    _this29._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
-                });
-            }];
-        }
-    }, {
-        key: "updateFiremarshall",
-        value: function updateFiremarshall() {
             var _this30 = this;
 
             return [function (req, res) {
-                _this30._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
+                _this30._visitorService.addFiremarshall(req.body).then(function (result) {
                     res.redirect("/allFireMarshall");
                 }).catch(function (err) {
                     _this30._logger.error(err);
@@ -585,15 +593,13 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "allFireMarshall",
-        value: function allFireMarshall() {
+        key: "updateFiremarshall",
+        value: function updateFiremarshall() {
             var _this31 = this;
 
             return [function (req, res) {
-                _this31._visitorService.allFireMarshall().then(function (result) {
-                    var row = result.rows;
-                    //res.render("/allVisitorsPrintOut", {data: row});
-                    res.render('all_firemarshall', { data: row });
+                _this31._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
+                    res.redirect("/allFireMarshall");
                 }).catch(function (err) {
                     _this31._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -601,16 +607,32 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "deleteFireMarshall",
-        value: function deleteFireMarshall() {
+        key: "allFireMarshall",
+        value: function allFireMarshall() {
             var _this32 = this;
 
             return [function (req, res) {
-                _this32._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                _this32._visitorService.allFireMarshall().then(function (result) {
                     var row = result.rows;
+                    //res.render("/allVisitorsPrintOut", {data: row});
                     res.render('all_firemarshall', { data: row });
                 }).catch(function (err) {
                     _this32._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "deleteFireMarshall",
+        value: function deleteFireMarshall() {
+            var _this33 = this;
+
+            return [function (req, res) {
+                _this33._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_firemarshall', { data: row });
+                }).catch(function (err) {
+                    _this33._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -621,15 +643,15 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity() {
-            var _this33 = this;
+            var _this34 = this;
 
             return [function (req, res) {
 
-                _this33._visitorService.nfcActivity(req.params.id).then(function (result) {
+                _this34._visitorService.nfcActivity(req.params.id).then(function (result) {
                     var status = result.command == "UPDATE" ? "sign_out" : "sign_in";
                     res.send({ message: "Success", activity: status });
                 }).catch(function (err) {
-                    _this33._logger.error(err);
+                    _this34._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
             }];

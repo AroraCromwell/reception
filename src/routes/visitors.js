@@ -596,6 +596,29 @@ export class Visitors {
         ];
     }
 
+    allVisitorsPrintOut(){
+        return [
+            (req, res) => {
+
+                var id = req.params.id == null ? 1 : req.params.id;
+
+                this._visitorService.allVisitorsPrintOut(id)
+                    .then(result => {
+                        let row = result.rows;
+                        if(id == 1 ){
+                            res.render('allVisitorsPrintOut', {data: row});
+                        }else {
+                            res.render('allVisitorsPrintOutWithPrint', {data: row});
+                        }
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
     showFiremarshall (){
         return [
             (req,res) => {
