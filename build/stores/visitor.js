@@ -558,7 +558,7 @@ var VisitorStore = exports.VisitorStore = function () {
             }).then(function (result) {
 
                 if (result.rowCount == 1) {
-                    var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+                    var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2 RETURNING id";
 
                     var _args4 = [_this6.getTime(""), result.rows[0].id];
 
@@ -566,13 +566,25 @@ var VisitorStore = exports.VisitorStore = function () {
                         return response;
                     });
                 } else {
-                    var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                    var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 ) RETURNING id';
                     var _args5 = [id, 'P103'];
 
                     return _this6._resource.query(insertQuery, _args5).then(function (response) {
                         return response;
                     });
                 }
+            }).then(function (result) {
+                console.log("NFC activity result" + JSON.stringify(result));
+
+                var activity = result.command;
+                var selectQuery = 'SELECT * from active_directory.users where staff_id = $1';
+
+                var args = [id];
+
+                return _this6._resource.query(selectQuery, args).then(function (response) {
+                    response.activity = activity;
+                    return response;
+                });
             });
         }
     }]);

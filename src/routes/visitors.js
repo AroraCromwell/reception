@@ -371,6 +371,7 @@ export class Visitors {
     autoCompletePost(){
         return [
             (req, res) => {
+
                 this._visitorService.autoCompletePost(req.body)
                 .then(result => {
 
@@ -633,7 +634,13 @@ export class Visitors {
             (req, res) => {
                 this._visitorService.addFiremarshall(req.body)
                     .then(result => {
-                        res.redirect("/allFireMarshall");
+
+                        if(req.body.another != "undefined"){
+                            res.redirect("/fireMarshall");
+                        }else {
+                            res.redirect("/allFireMarshall");
+                        }
+
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -699,8 +706,8 @@ export class Visitors {
 
                 this._visitorService.nfcActivity(req.params.id)
                 .then(result => {
-                    var status = result.command == "UPDATE" ? "sign_out" : "sign_in" ;
-                    res.send({message: "Success", activity: status});
+                    var status = result.activity == "UPDATE" ? "sign_out" : "sign_in" ;
+                    res.send({message: "Success", activity: status, name: result.rows[0].firstname + " " + result.rows[0].surname});
                 })
                 .catch(err => {
                     this._logger.error(err);

@@ -341,6 +341,7 @@ var Visitors = exports.Visitors = function () {
             var _this18 = this;
 
             return [function (req, res) {
+
                 _this18._visitorService.autoCompletePost(req.body).then(function (result) {
 
                     if (result.rows[0].location == 'BRC') {
@@ -585,7 +586,12 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
                 _this30._visitorService.addFiremarshall(req.body).then(function (result) {
-                    res.redirect("/allFireMarshall");
+
+                    if (req.body.another != "undefined") {
+                        res.redirect("/fireMarshall");
+                    } else {
+                        res.redirect("/allFireMarshall");
+                    }
                 }).catch(function (err) {
                     _this30._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -648,8 +654,8 @@ var Visitors = exports.Visitors = function () {
             return [function (req, res) {
 
                 _this34._visitorService.nfcActivity(req.params.id).then(function (result) {
-                    var status = result.command == "UPDATE" ? "sign_out" : "sign_in";
-                    res.send({ message: "Success", activity: status });
+                    var status = result.activity == "UPDATE" ? "sign_out" : "sign_in";
+                    res.send({ message: "Success", activity: status, name: result.rows[0].firstname + " " + result.rows[0].surname });
                 }).catch(function (err) {
                     _this34._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });

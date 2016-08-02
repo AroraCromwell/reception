@@ -710,7 +710,7 @@ export class VisitorStore {
         .then( result => {
 
             if(result.rowCount == 1){
-                let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
+                let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2 RETURNING id";
 
                 let args = [
                     this.getTime(""),
@@ -723,7 +723,7 @@ export class VisitorStore {
                 })
 
             }else {
-                let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 ) RETURNING id';
                 let args = [
                     id,
                     'P103'
@@ -735,5 +735,22 @@ export class VisitorStore {
                 });
             }
         })
+        .then(result => {
+            console.log("NFC activity result" + JSON.stringify(result));
+
+            var activity = result.command;
+            let selectQuery = 'SELECT * from active_directory.users where staff_id = $1';
+
+            let args = [
+                id
+            ];
+
+            return this._resource.query(selectQuery, args)
+                .then(response => {
+                    response.activity = activity;
+                    return response;
+                })
+        })
+
     }
 }
