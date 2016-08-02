@@ -48,12 +48,13 @@ var _visitor2 = require("./services/visitor");
 
 var _templateManager = require("./services/templateManager");
 
+var _sendMail = require("./lib/sendMail");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //import CanvasJS from 'canvasjs';
 var exec = require('child_process').exec;
 var localStorage = require('localStorage');
-var nodemailer = require("nodemailer");
 
 
 var connections = [];
@@ -77,6 +78,7 @@ app.use(function (req, res, next) {
 
 
 var logger = new _logger.Logger();
+var sendMail = new _sendMail.SendMail();
 var db = new _dbConnect.DbConnect(_config2.default.db.postgres.string);
 
 db.createConnection().then(function (connection) {
@@ -91,15 +93,6 @@ db.createConnection().then(function (connection) {
         var server = require('http').createServer(app);
     }
 
-    // create reusable transport method (opens pool of SMTP connections)
-    var smtpTransport = nodemailer.createTransport("SMTP", {
-        service: "Gmail",
-        auth: {
-            user: "shibbi.arora@gmail.com",
-            pass: "Leicester@195"
-        }
-    });
-
     connection.query('LISTEN "watchers"');
 
     connection.on('notification', function (data) {
@@ -111,13 +104,7 @@ db.createConnection().then(function (connection) {
             text: data.payload };
 
         console.log("sending mail");
-        // send mail with defined transport object
-        smtpTransport.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log(error);
-            }
-            console.log('Message sent: ' + info);
-        });
+        sendMail.mail(mailOptions);
     });
 
     var io = require('socket.io')(server);
@@ -128,7 +115,7 @@ db.createConnection().then(function (connection) {
     var eventListener = new _eventListener.EventListener(connection, logger);
     var visitorStore = new _visitor.VisitorStore(postgres, logger, io);
     var visitorService = new _visitor2.VisitorService(visitorStore, templateManager, dataCleaner, logger);
-    var visitors = new _visitors.Visitors(visitorService, logger, localStorage, io);
+    var visitors = new _visitors.Visitors(visitorService, logger, localStorage, io, sendMail);
     var search = new _search.Search(visitorService, logger, localStorage, io);
 
     /* Start Listening */

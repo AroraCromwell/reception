@@ -488,6 +488,13 @@ var VisitorService = exports.VisitorService = function () {
                 return res;
             });
         }
+    }, {
+        key: "fireMarshallMail",
+        value: function fireMarshallMail() {
+            return this._visitorStore.fireMarshallMail().then(function (res) {
+                return res;
+            });
+        }
 
         //Search
 

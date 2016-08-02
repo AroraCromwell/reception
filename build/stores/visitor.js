@@ -464,6 +464,17 @@ var VisitorStore = exports.VisitorStore = function () {
             });
         }
     }, {
+        key: "fireMarshallMail",
+        value: function fireMarshallMail() {
+
+            var selectQuery = "SELECT * FROM reception_handler.fire_marshall";
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                return response;
+            });
+        }
+    }, {
         key: "staffSignOut",
         value: function staffSignOut(id) {
             var _this4 = this;

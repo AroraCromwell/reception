@@ -12,7 +12,6 @@ import nodeSchedule from "node-schedule";
 //import CanvasJS from 'canvasjs';
 var exec = require('child_process').exec;
 var localStorage = require('localStorage');
-var nodemailer = require("nodemailer");
 import fs from "fs";
 
 var connections = [];
@@ -43,9 +42,12 @@ import {DbConnect} from "./resources/dbConnect";
 import {EventListener} from "./services/eventListener";
 import {VisitorService} from "./services/visitor";
 import {TemplateManager} from "./services/templateManager";
+import {SendMail} from "./lib/sendMail";
 
 let logger = new Logger();
+let sendMail = new SendMail();
 let db = new DbConnect(config.db.postgres.string);
+
 
 db.createConnection()
     .then((connection) => {
@@ -60,16 +62,6 @@ db.createConnection()
            var server = require('http').createServer(app);
        }
 
-
-        // create reusable transport method (opens pool of SMTP connections)
-        var smtpTransport = nodemailer.createTransport("SMTP",{
-            service: "Gmail",
-            auth: {
-                user: "shibbi.arora@gmail.com",
-                pass: "Leicester@195"
-            }
-        });
-
         connection.query('LISTEN "watchers"');
 
         connection.on('notification', function(data) {
@@ -82,13 +74,7 @@ db.createConnection()
             };
 
             console.log("sending mail");
-            // send mail with defined transport object
-            smtpTransport.sendMail(mailOptions, function(error, info){
-                if(error){
-                    console.log(error);
-                }
-                console.log('Message sent: ' + info);
-            });
+            sendMail.mail(mailOptions);
         });
 
         let io = require('socket.io')(server);
@@ -99,7 +85,7 @@ db.createConnection()
         let eventListener = new EventListener(connection, logger);
         let visitorStore = new VisitorStore(postgres, logger, io);
         let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger);
-        let visitors = new Visitors(visitorService, logger, localStorage, io);
+        let visitors = new Visitors(visitorService, logger, localStorage, io, sendMail);
         let search = new Search(visitorService, logger, localStorage, io);
 
 
