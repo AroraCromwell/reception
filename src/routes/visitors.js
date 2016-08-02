@@ -573,7 +573,7 @@ export class Visitors {
                     console.log(saved);
                 });
 
-                thumbnail.ensureThumbnail(imageName + '.jpg', 200, 150, function (err, filename) {
+                thumbnail.ensureThumbnail('03994.jpg', 200, 150, function (err, filename) {
                     // "filename" is the name of the thumb in '/path/to/thumbnails'
                     console.log("this is filename " + filename);
                 });
