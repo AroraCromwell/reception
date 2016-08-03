@@ -60,12 +60,14 @@ var localStorage = require('localStorage');
 var connections = [];
 
 var app = (0, _express2.default)();
+var expressThumbnail = require('express-thumbnail');
 var exphbs = require('express-handlebars');
 var qt = require('quickthumb');
 
 app.set('views', _path2.default.join(__dirname, 'templates'));
 app.engine('.hbs', exphbs({ extname: '.hbs', defaultLayout: 'main', layoutsDir: _path2.default.join(__dirname, 'templates/layouts') }));
 app.set('view engine', '.hbs');
+app.use(expressThumbnail.register(_path2.default.join(__dirname, 'public')));
 app.use(qt.static(_path2.default.join(__dirname, 'public')));
 
 app.use(function (req, res, next) {
