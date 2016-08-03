@@ -17,14 +17,14 @@ import fs from "fs";
 var connections = [];
 
 var app = express();
-//var expressThumbnail = require('express-thumbnail');
+var expressThumbnail = require('express-thumbnail');
 var exphbs  = require('express-handlebars');
 var qt = require('quickthumb');
 
 app.set('views', path.join(__dirname, 'templates'));
 app.engine('.hbs', exphbs({extname: '.hbs', defaultLayout: 'main',layoutsDir: path.join(__dirname, 'templates/layouts')}));
 app.set('view engine', '.hbs');
-//app.use(expressThumbnail.register(path.join(__dirname , 'public')));
+app.use(expressThumbnail.register(path.join(__dirname , 'public')));
 app.use(qt.static(path.join(__dirname, 'public')));
 
 
