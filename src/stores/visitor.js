@@ -419,11 +419,20 @@ export class VisitorStore {
             });
     }
     allStaff() {
-        let selectQuery = `select * from active_directory.users u
-                            INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text) 
-                            LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text
-                            WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)
-                            and date_left is null`;
+        // let selectQuery = `select * from active_directory.users u
+        //                     INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text)
+        //                     LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text
+        //                     WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)
+        //                     and date_left is null`;
+        //
+
+        let selectQuery = `select * from reception_handler.buildings b
+                           inner join reception_handler.building_departments bd using(building_id)
+                           inner join human_resource.employees e on bd.department_id = e.department_id
+                           where b.building_name = $1
+                           and b.building_active is true
+                           and bd.active is true`;
+
         let args = [
             'BRC'
         ];
@@ -457,7 +466,7 @@ export class VisitorStore {
                             result.rows[key]['primaryId'] = 0;
 
                             _.forEach(staffResponse.rows, ( staffValue,staffKey ) => {
-                                if(staffValue.staff_id == value.staff_id){
+                                if(staffValue.staff_id == value.employee_number){
 
                                     console.log("ID matched" + staffValue.staff_id);
 
@@ -644,9 +653,9 @@ export class VisitorStore {
 
     staffSignedIn(id) {
 
-        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code
+        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time,  b.employee_number, b.first_name, b.surname
                            FROM reception_handler.building_signin a
-                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id
+                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying
                            where signin_time > now()::date`;
         let args = [
         ];
@@ -666,15 +675,37 @@ export class VisitorStore {
     }
 
     allVisitorsPrintOut(){
-        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL`;
+        var data = new Date();
+        var month = data.getMonth()+1;
+        var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
+
+        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and id >392`;
         let args = [
-            this.getTimeforsettime("midnight")
+            //this.getTimeforsettime("midnight")
+            myDate + ' 00:0:00'
         ];
 
         return this._resource.query(selectQuery, args)
             .then(response => {
+                //All visitors data
                 return response;
-            });
+            })
+            .then( visitorResponse => {
+
+                //Adding all staff data
+                let selectQuery = `SELECT staff.*, u.employee_number,u.first_name,u.surname FROM reception_handler.building_signin staff
+                                    LEFT JOIN human_resource.employees u ON staff.staff_id::character varying = u.employee_number
+                                    WHERE   staff.signin_time > now()::date`;
+                let args = [
+                ];
+
+                return this._resource.query(selectQuery, args)
+                    .then(staffResponse => {
+                        staffResponse.visitors = visitorResponse.rows;
+                        return staffResponse;
+                    });
+            })
+
 
     }
 
@@ -749,10 +780,8 @@ export class VisitorStore {
             }
         })
         .then(result => {
-            console.log("NFC activity result" + JSON.stringify(result));
-
             var activity = result.command;
-            let selectQuery = 'SELECT * from active_directory.users where staff_id = $1';
+            let selectQuery = 'SELECT * from human_resource.employees where employee_number = $1';
 
             let args = [
                 id
@@ -760,6 +789,7 @@ export class VisitorStore {
 
             return this._resource.query(selectQuery, args)
                 .then(response => {
+                   // console.log("NFC activity result" + JSON.stringify(response));
                     response.activity = activity;
                     return response;
                 })

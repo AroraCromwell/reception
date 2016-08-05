@@ -1,3 +1,4 @@
+
 <div class="container">
     <div class="row">
         <div class="col-md-12">
@@ -69,8 +70,17 @@
 
 <script src="/js/jquery-1.12.3.min.js" ></script>
 <script>
+    $(function() {
+        $('#datatable_staff').DataTable( {
+            "order": [[ 3, "desc" ]],
+            paging: false
 
-    $(document).ready(function() {
-       window.print();
-           });
+        });
+
+        $('#datatable_visitors').DataTable( {
+            "order": [[ 4, "desc" ]],
+            paging: false
+        });
+
+    });
 </script>

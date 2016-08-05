@@ -431,16 +431,17 @@ var VisitorService = exports.VisitorService = function () {
             return this._visitorStore.allVisitorsPrintOut().then(function (res) {
                 return res;
             }).then(function (result) {
+
                 if (id == 1) {
 
-                    //render the template
-                    var html = _this22._templateManager.render('allVisitorsPrintOut', { data: result.rows });
+                    //render the Staff
+                    var html = _this22._templateManager.render('allStaffPrintOut', { data: result.rows });
 
                     var options = { format: 'A5', orientation: 'landscape' };
 
-                    pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
+                    pdf.create(html, options).toFile('./pdf/allStaff.pdf', function (err, pdfRes) {
 
-                        var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                        var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allStaff.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
                         exec(cmd, function (error, stdout, stderr) {
                             // command output is in stdout
@@ -452,6 +453,28 @@ var VisitorService = exports.VisitorService = function () {
                             //process.exit();
                         });
                     });
+
+                    if (result.visitors != null) {
+                        //render the Visitors
+                        var html = _this22._templateManager.render('allVisitorsPrintOut', { data: result.visitors });
+
+                        var options = { format: 'A5', orientation: 'landscape' };
+
+                        pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
+
+                            var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+
+                            exec(cmd, function (error, stdout, stderr) {
+                                // command output is in stdout
+                                console.log(stdout);
+
+                                if (error !== null) {
+                                    console.log('exec error: ' + error);
+                                }
+                                //process.exit();
+                            });
+                        });
+                    }
                 }
 
                 return result;

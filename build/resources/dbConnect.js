@@ -19,6 +19,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var types = _pg2.default.types;
+types.setTypeParser(1114, function (stringValue) {
+    return stringValue;
+});
+
 var DbConnect = exports.DbConnect = function () {
     function DbConnect(connectionString) {
         _classCallCheck(this, DbConnect);

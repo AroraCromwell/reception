@@ -23,8 +23,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
-var Thumbnail = require('thumbnail');
-var thumbnail = new Thumbnail('./public/images', './public/images/thumbnails');
 
 var Visitors = exports.Visitors = function () {
     function Visitors(visitorService, logger, localStorage, io, sendMail) {
@@ -527,14 +525,9 @@ var Visitors = exports.Visitors = function () {
                         res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                     }
                     console.log(saved);
-                });
 
-                thumbnail.ensureThumbnail('03994.jpg', 200, 150, function (err, filename) {
-                    // "filename" is the name of the thumb in '/path/to/thumbnails'
-                    console.log("this is filename " + filename);
+                    res.send({ success: 1, message: "Completed" });
                 });
-
-                res.send({ success: 1, message: "Completed" });
             }];
         }
     }, {
@@ -549,7 +542,8 @@ var Visitors = exports.Visitors = function () {
                 _this28._visitorService.allVisitorsPrintOut(id).then(function (result) {
                     return result;
                 }).then(function (response) {
-                    var row = response.rows;
+                    var combineData = response;
+                    console.log(combineData.rows);
                     _this28._visitorService.fireMarshallMail().then(function (res) {
 
                         var emailReceiver = [];
@@ -570,9 +564,9 @@ var Visitors = exports.Visitors = function () {
                     });
 
                     if (id == 1) {
-                        res.render('allVisitorsPrintOut', { data: row });
+                        res.render('allPrintOut', { data: combineData });
                     } else {
-                        res.render('allVisitorsPrintOutWithPrint', { data: row });
+                        res.render('allVisitorsPrintOutWithPrint', { data: combineData });
                     }
                 }).catch(function (err) {
                     _this28._logger.error(err);
@@ -663,7 +657,7 @@ var Visitors = exports.Visitors = function () {
 
                 _this33._visitorService.nfcActivity(req.params.id).then(function (result) {
                     var status = result.activity == "UPDATE" ? "sign_out" : "sign_in";
-                    res.send({ message: "Success", activity: status, name: result.rows[0].firstname + " " + result.rows[0].surname });
+                    res.send({ message: "Success", activity: status, name: result.rows[0].first_name + " " + result.rows[0].surname });
                 }).catch(function (err) {
                     _this33._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });

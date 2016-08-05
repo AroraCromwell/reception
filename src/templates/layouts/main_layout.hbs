@@ -9,7 +9,10 @@
     body {
         padding-top: 85px;
     }
+
+
 </style>
+
 
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -27,20 +30,25 @@
             <ul class="nav navbar-nav navbar-left">
                 <li id="status"><a href="/graph" >Status</a></li>
 
-
-                <li id="allVisitor">
-                    <a href="#" data-toggle="dropdown">Visitors
+                <li id="allPrintOut">
+                    <a href="#" data-toggle="dropdown">PrintOut
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="/allVisitors" >All Visitors</a></li>
                         <li><a href="/allVisitorsPrintOut/1">Print Out Reception</a></li>
                         <li><a href="/allVisitorsPrintOut/2">Print Out HERE</a></li>
                     </ul>
                 </li>
 
+                <!--<li id="allVisitor">-->
+                    <!--<a href="#" data-toggle="dropdown">Visitors-->
+                        <!--<span class="caret"></span></a>-->
+                    <!--<ul class="dropdown-menu">-->
+                        <!--<li><a href="/allVisitors" >All Visitors</a></li>-->
+                        <!---->
+                    <!--</ul>-->
+                <!--</li>-->
 
-
-                <li id="allVisitor"></li>
+                <li id="allVisitor"><a href="/allVisitors" >All Visitors</a></li>
                 <li id="allOut"><a href="/allSignOut" >All Signed out</a></li>
                 <li id="terms">
                         <a href="#" data-toggle="dropdown">T&Cs
@@ -60,11 +68,11 @@
                     </ul>
                 </li>
                 <li id="staff">
-                    <a href="#" data-toggle="dropdown">Staff SignIn
+                    <a href="#" data-toggle="dropdown">Staff Signed In
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="/staffSignedIn/2">BRC</a></li>
-                        <li><a href="/staffSignedIn/2">WDC</a></li>
+                        <li><a href="#">WDC</a></li>
                     </ul>
                 </li>
                 <li id="fireMarshall">
@@ -106,4 +114,9 @@
 
 </script>
 </body>
+<script>
+//    var t = "<span>this is text</span>";
+//    var iframe =$('<iframe id="mailtoFrame" src="mailto:exapmle?Content-Type=text/html;&body=<span>thsi is test</span>" width="1" height="1" border="0" frameborder="0"></iframe>');
+//    $('body').append(iframe);
+</script>
 </html>
