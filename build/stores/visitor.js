@@ -333,7 +333,15 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function allStaff() {
             var _this2 = this;
 
-            var selectQuery = "select * from active_directory.users u\n                            INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text) \n                            LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text\n                            WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)\n                            and date_left is null";
+            // let selectQuery = `select * from active_directory.users u
+            //                     INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text)
+            //                     LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text
+            //                     WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)
+            //                     and date_left is null`;
+            //
+
+            var selectQuery = "select * from reception_handler.buildings b\n                           inner join reception_handler.building_departments bd using(building_id)\n                           inner join human_resource.employees e on bd.department_id = e.department_id\n                           where b.building_name = $1\n                           and b.building_active is true\n                           and bd.active is true";
+
             var args = ['BRC'];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -353,7 +361,7 @@ var VisitorStore = exports.VisitorStore = function () {
                         result.rows[key]['primaryId'] = 0;
 
                         _lodash._.forEach(staffResponse.rows, function (staffValue, staffKey) {
-                            if (staffValue.staff_id == value.staff_id) {
+                            if (staffValue.staff_id == value.employee_number) {
 
                                 console.log("ID matched" + staffValue.staff_id);
 
@@ -504,7 +512,7 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function staffSignedIn(id) {
             var _this5 = this;
 
-            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, b.id, b.staff_id, b.firstname, b.surname,  b.email, b.job_title_code\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN active_directory.users b ON b.staff_id = a.staff_id\n                           where signin_time > now()::date";
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time,  b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -522,11 +530,30 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "allVisitorsPrintOut",
         value: function allVisitorsPrintOut() {
-            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL";
-            var args = [this.getTimeforsettime("midnight")];
+            var _this6 = this;
+
+            var data = new Date();
+            var month = data.getMonth() + 1;
+            var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month < 10 ? '0' + month : month, data.getFullYear()].join('-');
+
+            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and id >392";
+            var args = [
+            //this.getTimeforsettime("midnight")
+            myDate + ' 00:0:00'];
 
             return this._resource.query(selectQuery, args).then(function (response) {
+                //All visitors data
                 return response;
+            }).then(function (visitorResponse) {
+
+                //Adding all staff data
+                var selectQuery = "SELECT staff.*, u.employee_number,u.first_name,u.surname FROM reception_handler.building_signin staff\n                                    LEFT JOIN human_resource.employees u ON staff.staff_id::character varying = u.employee_number\n                                    WHERE   staff.signin_time > now()::date";
+                var args = [];
+
+                return _this6._resource.query(selectQuery, args).then(function (staffResponse) {
+                    staffResponse.visitors = visitorResponse.rows;
+                    return staffResponse;
+                });
             });
         }
     }, {
@@ -557,7 +584,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity(id) {
-            var _this6 = this;
+            var _this7 = this;
 
             console.log("User ID going to sign in" + id);
             var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
@@ -571,28 +598,27 @@ var VisitorStore = exports.VisitorStore = function () {
                 if (result.rowCount == 1) {
                     var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2 RETURNING id";
 
-                    var _args4 = [_this6.getTime(""), result.rows[0].id];
+                    var _args4 = [_this7.getTime(""), result.rows[0].id];
 
-                    return _this6._resource.query(updateQuery, _args4).then(function (response) {
+                    return _this7._resource.query(updateQuery, _args4).then(function (response) {
                         return response;
                     });
                 } else {
                     var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 ) RETURNING id';
                     var _args5 = [id, 'P103'];
 
-                    return _this6._resource.query(insertQuery, _args5).then(function (response) {
+                    return _this7._resource.query(insertQuery, _args5).then(function (response) {
                         return response;
                     });
                 }
             }).then(function (result) {
-                console.log("NFC activity result" + JSON.stringify(result));
-
                 var activity = result.command;
-                var selectQuery = 'SELECT * from active_directory.users where staff_id = $1';
+                var selectQuery = 'SELECT * from human_resource.employees where employee_number = $1';
 
                 var args = [id];
 
-                return _this6._resource.query(selectQuery, args).then(function (response) {
+                return _this7._resource.query(selectQuery, args).then(function (response) {
+                    // console.log("NFC activity result" + JSON.stringify(response));
                     response.activity = activity;
                     return response;
                 });

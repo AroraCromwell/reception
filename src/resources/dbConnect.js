@@ -4,6 +4,10 @@
 
 "use strict";
 import pg from "pg";
+var types = pg.types;
+types.setTypeParser(1114, function(stringValue) {
+    return stringValue;
+});
 
 export class DbConnect {
 

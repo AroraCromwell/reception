@@ -16,8 +16,6 @@
 import {_} from "lodash";
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
-var Thumbnail = require('thumbnail');
-var thumbnail = new Thumbnail('./public/images', './public/images/thumbnails');
 export class Visitors {
 
     constructor (visitorService, logger, localStorage, io, sendMail ) {
@@ -571,15 +569,9 @@ export class Visitors {
                         res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
                     }
                     console.log(saved);
+
+                    res.send({success: 1, message: "Completed"});
                 });
-
-                thumbnail.ensureThumbnail('03994.jpg', 200, 150, function (err, filename) {
-                    // "filename" is the name of the thumb in '/path/to/thumbnails'
-                    console.log("this is filename " + filename);
-                });
-
-                res.send({success: 1, message: "Completed"});
-
             }
         ]
     }
@@ -595,7 +587,8 @@ export class Visitors {
                         return result;
                     })
                     .then(response => {
-                        var row = response.rows;
+                        var combineData = response;
+                        console.log(combineData.rows);
                         this._visitorService.fireMarshallMail()
                             .then( res => {
 
@@ -619,9 +612,9 @@ export class Visitors {
                             })
 
                         if(id == 1 ){
-                            res.render('allVisitorsPrintOut', {data: row});
+                            res.render('allPrintOut', {data: combineData});
                         }else {
-                            res.render('allVisitorsPrintOutWithPrint', {data: row});
+                            res.render('allVisitorsPrintOutWithPrint', {data: combineData});
                         }
                     })
                     .catch(err => {
@@ -719,7 +712,7 @@ export class Visitors {
                 this._visitorService.nfcActivity(req.params.id)
                 .then(result => {
                     var status = result.activity == "UPDATE" ? "sign_out" : "sign_in" ;
-                    res.send({message: "Success", activity: status, name: result.rows[0].firstname + " " + result.rows[0].surname});
+                    res.send({message: "Success", activity: status, name: result.rows[0].first_name + " " + result.rows[0].surname});
                 })
                 .catch(err => {
                     this._logger.error(err);
