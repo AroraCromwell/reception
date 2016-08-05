@@ -1,0 +1,122 @@
+
+<html>
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="/css/responsive.bootstrap.min.css">
+<link rel="stylesheet" href="/css/style.css">
+
+<style>
+    body {
+        padding-top: 85px;
+    }
+
+
+</style>
+
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/graph">Cromwell Reception</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-left">
+                <li id="status"><a href="/graph" >Status</a></li>
+
+                <li id="allPrintOut">
+                    <a href="#" data-toggle="dropdown">PrintOut
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/allVisitorsPrintOut/1">Print Out Reception</a></li>
+                        <li><a href="/allVisitorsPrintOut/2">Print Out HERE</a></li>
+                    </ul>
+                </li>
+
+                <!--<li id="allVisitor">-->
+                    <!--<a href="#" data-toggle="dropdown">Visitors-->
+                        <!--<span class="caret"></span></a>-->
+                    <!--<ul class="dropdown-menu">-->
+                        <!--<li><a href="/allVisitors" >All Visitors</a></li>-->
+                        <!---->
+                    <!--</ul>-->
+                <!--</li>-->
+
+                <li id="allVisitor"><a href="/allVisitors" >All Visitors</a></li>
+                <li id="allOut"><a href="/allSignOut" >All Signed out</a></li>
+                <li id="terms">
+                        <a href="#" data-toggle="dropdown">T&Cs
+                            <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/allTerms">All T&Cs</a></li>
+                            <li><a href="/templateTerms">Add New T&Cs</a></li>
+                        </ul>
+                </li>
+
+                <li id="suggestion">
+                    <a href="#" data-toggle="dropdown">Auto Complete
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/autoComplete">All Suggestions</a></li>
+                        <li><a href="/autoCompleteAdd">Add New Suggestion</a></li>
+                    </ul>
+                </li>
+                <li id="staff">
+                    <a href="#" data-toggle="dropdown">Staff Signed In
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/staffSignedIn/2">BRC</a></li>
+                        <li><a href="#">WDC</a></li>
+                    </ul>
+                </li>
+                <li id="fireMarshall">
+                    <a href="#" data-toggle="dropdown">Fire Marshall
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/allFireMarshall">All FireMarshall</a></li>
+                        <li><a href="/fireMarshall">Add FireMarshall</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/">Logout</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+{{{body}}}
+
+<script src="/js/jquery-1.12.3.min.js" ></script>
+<script src="/js/jquery.dataTables.min.js" ></script>
+<script src="/js/dataTables.bootstrap.min.js" ></script>
+<script src="/js/dataTables.responsive.min.js" ></script>
+<script src="/js/responsive.bootstrap.min.js" ></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+
+    $(".nav li").on("click", function() {
+        $(".nav li").removeClass("active");
+        localStorage.setItem("activeClass", jQuery(this).attr("id"));
+    });
+
+    if(localStorage.getItem("activeClass")){
+        var lid = localStorage.getItem("activeClass");
+        $("ul").find( "#" + lid).addClass("active");
+    }
+
+</script>
+</body>
+<script>
+//    var t = "<span>this is text</span>";
+//    var iframe =$('<iframe id="mailtoFrame" src="mailto:exapmle?Content-Type=text/html;&body=<span>thsi is test</span>" width="1" height="1" border="0" frameborder="0"></iframe>');
+//    $('body').append(iframe);
+</script>
+</html>

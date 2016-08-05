@@ -1,0 +1,86 @@
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-5"></div>
+            <div class="col-md-5"> <span>All Staff In the Building</div>
+            <div class="col-md-2"></div>
+            <table id="datatable_staff" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                <thead>
+                <tr>
+                    <th>StaffId</th>
+                    <th>User Type</th>
+                    <th>Name</th>
+                    <th>Sign In</th>
+                    <th>Sign Out</th>
+
+                </tr>
+                </thead>
+
+                <tbody>
+
+                {{#each data.rows}}
+                    <tr>
+                        <td>{{staff_id}}</td>
+                        <td>Staff</td>
+                        <td>{{first_name}} {{surname}}</td>
+                        <td>{{signin_time}}</td>
+                        <td>{{signout_time}}</td>
+
+                    </tr>
+                {{/each}}
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-12">
+            <div class="col-md-5"></div>
+            <div class="col-md-5"> <span>All Visitors In the Building</div>
+            <div class="col-md-2"></div>
+            <table id="datatable_visitors" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>User Type</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Signed Ins</th>
+                    <th>Sign Out</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {{#each data.visitors}}
+                    <tr>
+                        <td>{{id}}</td>
+                        <td>Staff</td>
+                        <td>{{contactname}}</td>
+                        <td>{{employeename}}</td>
+                        <td>{{settime}}</td>
+                        <td>{{signout}}</td>
+                    </tr>
+                {{/each}}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="/js/jquery-1.12.3.min.js" ></script>
+<script>
+    $(function() {
+        $('#datatable_staff').DataTable( {
+            "order": [[ 3, "desc" ]],
+            paging: false
+
+        });
+
+        $('#datatable_visitors').DataTable( {
+            "order": [[ 4, "desc" ]],
+            paging: false
+        });
+
+    });
+</script>
