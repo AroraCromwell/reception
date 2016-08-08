@@ -646,7 +646,7 @@ export class VisitorStore {
                         })
                 }
 
-                throw new Error("What!! Are you sure , you was signed in today? Because, i am unable to find you.");
+                throw new Error("Sorry! I am unable to find you was Signed In today, Can you please Sign In first");
             })
 
         }
