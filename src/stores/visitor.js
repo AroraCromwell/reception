@@ -621,7 +621,7 @@ export class VisitorStore {
     }
 
     staffSignOut(id) {
-        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
+        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date  and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
 
         let args = [
             id
@@ -644,9 +644,22 @@ export class VisitorStore {
                         .then(response => {
                             return response;
                         })
+                }else{
+                    let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, signin_time, department_code, signout_time ) VALUES ( $1, $2 , $3, $4)';
+                    let args = [
+                        id,
+                        null,
+                        'P103',
+                        this.getTime("")
+                    ];
+
+                    return this._resource.query(insertQuery, args)
+                        .then(response => {
+                            return response;
+                        });
                 }
 
-                throw new Error("Sorry! I am unable to find you was Signed In today, Can you please Sign In first");
+                //throw new Error("Sorry! I am unable to find you was Signed In today, Can you please Sign In first");
             })
 
         }
@@ -656,7 +669,7 @@ export class VisitorStore {
         let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname
                            FROM reception_handler.building_signin a
                            LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying
-                           where signin_time > now()::date`;
+                           where signin_time > now()::date OR signin_time IS NULL and signout_time > now()::date`;
         let args = [
         ];
 
