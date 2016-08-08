@@ -487,7 +487,7 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function staffSignOut(id) {
             var _this4 = this;
 
-            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
+            var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date  and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
 
             var args = [id];
 
@@ -502,9 +502,16 @@ var VisitorStore = exports.VisitorStore = function () {
                     return _this4._resource.query(updateQuery, _args3).then(function (response) {
                         return response;
                     });
+                } else {
+                    var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, signin_time, department_code, signout_time ) VALUES ( $1, $2 , $3, $4)';
+                    var _args4 = [id, null, 'P103', _this4.getTime("")];
+
+                    return _this4._resource.query(insertQuery, _args4).then(function (response) {
+                        return response;
+                    });
                 }
 
-                throw new Error("What!! Are you sure , you was signed in today? Because, i am unable to find you.");
+                //throw new Error("Sorry! I am unable to find you was Signed In today, Can you please Sign In first");
             });
         }
     }, {
@@ -512,7 +519,7 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function staffSignedIn(id) {
             var _this5 = this;
 
-            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date";
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date OR signin_time IS NULL and signout_time > now()::date";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -598,16 +605,16 @@ var VisitorStore = exports.VisitorStore = function () {
                 if (result.rowCount == 1) {
                     var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2 RETURNING id";
 
-                    var _args4 = [_this7.getTime(""), result.rows[0].id];
+                    var _args5 = [_this7.getTime(""), result.rows[0].id];
 
-                    return _this7._resource.query(updateQuery, _args4).then(function (response) {
+                    return _this7._resource.query(updateQuery, _args5).then(function (response) {
                         return response;
                     });
                 } else {
                     var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 ) RETURNING id';
-                    var _args5 = [id, 'P103'];
+                    var _args6 = [id, 'P103'];
 
-                    return _this7._resource.query(insertQuery, _args5).then(function (response) {
+                    return _this7._resource.query(insertQuery, _args6).then(function (response) {
                         return response;
                     });
                 }
