@@ -72,73 +72,53 @@ var VisitorService = exports.VisitorService = function () {
                 });
 
                 return visitorId;
-            }).catch(function (err) {
-                _this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "processGetRequest",
         value: function processGetRequest(id) {
-            var _this2 = this;
 
             this._logger.info("Existing Customer!");
             this._logger.info("Getting Data");
 
             return this._visitorStore.getCustomer(id).then(function (data) {
                 return data;
-            }).catch(function (err) {
-                _this2._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "allSignIns",
         value: function allSignIns() {
-            var _this3 = this;
 
             this._logger.info("Getting All Visitors!");
             this._logger.info("Getting Data");
             return this._visitorStore.getAllSignIns().then(function (data) {
                 return data;
-            }).catch(function (err) {
-                _this3._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "processPutRequest",
         value: function processPutRequest(id, data) {
-            var _this4 = this;
 
             this._logger.info("Existing Customer!");
             this._logger.info("Signing out");
 
             return this._visitorStore.updateCustomer(id, data).then(function (data) {
                 return data;
-            }).catch(function (err) {
-                _this4._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "allSignOut",
         value: function allSignOut() {
-            var _this5 = this;
 
             this._logger.info("Signing Out All Visitors!");
 
             return this._visitorStore.allSignOut().then(function () {
                 return true;
-            }).catch(function (err) {
-                _this5._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "allSignOutToday",
         value: function allSignOutToday() {
-            var _this6 = this;
 
             this._logger.info("All Signed Out Today!");
 
@@ -149,16 +129,11 @@ var VisitorService = exports.VisitorService = function () {
                 });
 
                 return result;
-            }).catch(function (err) {
-                _this6._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "getTermsRequest",
         value: function getTermsRequest(id) {
-            var _this7 = this;
-
             return this._visitorStore.getTermsRequest(id).then(function (result) {
                 var row = result.rows;
 
@@ -171,16 +146,11 @@ var VisitorService = exports.VisitorService = function () {
                 }
 
                 return 'terms_' + row[0].id;
-            }).catch(function (err) {
-                _this7._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "postTermsRequest",
         value: function postTermsRequest(data) {
-            var _this8 = this;
-
             return this._visitorStore.postTermsRequest(data).then(function (result) {
                 var row = result.rows;
                 if (row[0].id != _config2.default.terms.version) {
@@ -192,69 +162,46 @@ var VisitorService = exports.VisitorService = function () {
                 }
 
                 return 'terms_' + row[0].id;
-            }).catch(function (err) {
-                _this8._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "allTermsRequest",
         value: function allTermsRequest() {
-            var _this9 = this;
-
             this._logger.info(" Getting All Terms!");
 
             return this._visitorStore.allTermsRequest().then(function (result) {
                 return result;
-            }).catch(function (err) {
-                _this9._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "updateTermsRequest",
         value: function updateTermsRequest(id) {
-            var _this10 = this;
-
             this._logger.info(" Updating Term!");
 
             return this._visitorStore.updateTermsRequest(id).then(function (result) {
                 return result;
-            }).catch(function (err) {
-                _this10._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "processStatus",
         value: function processStatus(data) {
-            var _this11 = this;
-
             //this._logger.info(JSON.stringify(data));
             return this._visitorStore.saveStatus(data).then(function (res) {
                 return res;
-            }).catch(function (err) {
-                _this11._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "cleanStatus",
         value: function cleanStatus() {
-            var _this12 = this;
-
             //this._logger.info(JSON.stringify(data));
             return this._visitorStore.cleanStatus().then(function (res) {
                 return res;
-            }).catch(function (err) {
-                _this12._logger.error("Problem while cleaning status: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "processGraphData",
         value: function processGraphData() {
-            var _this13 = this;
+            var _this2 = this;
 
             this._logger.info("getting graph data!");
 
@@ -263,21 +210,18 @@ var VisitorService = exports.VisitorService = function () {
                 var setData = [];
 
                 _lodash._.forEach(result.rows, function (value, key) {
-                    var setkey = _this13.timeConverter(value.date_part);
+                    var setkey = _this2.timeConverter(value.date_part);
                     var setVal = value.status;
                     setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
                 });
 
                 return setData;
-            }).catch(function (err) {
-                _this13._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "currentStatus",
         value: function currentStatus() {
-            var _this14 = this;
+            var _this3 = this;
 
             this._logger.info("Current Device Status!");
 
@@ -286,14 +230,11 @@ var VisitorService = exports.VisitorService = function () {
                 var setData = [];
                 _lodash._.forEach(data.rows, function (value, key) {
 
-                    var setkey = _this14.timeConverter(value.date_part);
+                    var setkey = _this3.timeConverter(value.date_part);
                     var setVal = value.status;
                     setData.push(JSON.stringify({ setkey: setkey, setVal: setVal }));
                 });
                 return setData;
-            }).catch(function (err) {
-                _this14._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
@@ -309,8 +250,6 @@ var VisitorService = exports.VisitorService = function () {
     }, {
         key: "autoComplete",
         value: function autoComplete() {
-            var _this15 = this;
-
             return this._visitorStore.autoComplete().then(function (res) {
                 _lodash._.forEach(res.rows, function (value, key) {
                     if (value.type == 'visitor_name') {
@@ -318,50 +257,36 @@ var VisitorService = exports.VisitorService = function () {
                     }
                 });
                 return res;
-            }).catch(function (err) {
-                _this15._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
         key: "autoCompletePost",
         value: function autoCompletePost(data) {
-            var _this16 = this;
+            var _this4 = this;
 
             //this._logger.info(JSON.stringify(data));
             return this._visitorStore.autoCompletePost(data).then(function (res) {
                 return res;
             }).then(function (result) {
-                return _this16._visitorStore.autoCompleteId(result.rows[0].id);
-            }).catch(function (err) {
-                _this16._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
+                return _this4._visitorStore.autoCompleteId(result.rows[0].id);
             });
         }
     }, {
         key: "updateAutoComplete",
         value: function updateAutoComplete(id, data) {
-            var _this17 = this;
+            var _this5 = this;
 
             return this._visitorStore.updateAutoComplete(id, data).then(function (res) {
                 return res;
             }).then(function (result) {
-                return _this17._visitorStore.autoCompleteId(id);
-            }).catch(function (err) {
-                _this17._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
+                return _this5._visitorStore.autoCompleteId(id);
             });
         }
     }, {
         key: "deleteAutoComplete",
         value: function deleteAutoComplete(id) {
-            var _this18 = this;
-
             return this._visitorStore.deleteAutoComplete(id).then(function (res) {
                 return res;
-            }).catch(function (err) {
-                _this18._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
 
@@ -370,13 +295,8 @@ var VisitorService = exports.VisitorService = function () {
     }, {
         key: "allStaff",
         value: function allStaff() {
-            var _this19 = this;
-
             return this._visitorStore.allStaff().then(function (res) {
                 return res;
-            }).catch(function (err) {
-                _this19._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
@@ -389,13 +309,8 @@ var VisitorService = exports.VisitorService = function () {
     }, {
         key: "staffSignIn",
         value: function staffSignIn(id) {
-            var _this20 = this;
-
             return this._visitorStore.staffSignIn(id).then(function (res) {
                 return res;
-            }).catch(function (err) {
-                _this20._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
@@ -411,13 +326,8 @@ var VisitorService = exports.VisitorService = function () {
     }, {
         key: "staffSignedIn",
         value: function staffSignedIn(id) {
-            var _this21 = this;
-
             return this._visitorStore.staffSignedIn(id).then(function (res) {
                 return res;
-            }).catch(function (err) {
-                _this21._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
 
@@ -426,7 +336,7 @@ var VisitorService = exports.VisitorService = function () {
     }, {
         key: "allVisitorsPrintOut",
         value: function allVisitorsPrintOut(id) {
-            var _this22 = this;
+            var _this6 = this;
 
             return this._visitorStore.allVisitorsPrintOut().then(function (res) {
                 return res;
@@ -435,7 +345,7 @@ var VisitorService = exports.VisitorService = function () {
                 if (id == 1) {
 
                     //render the Staff
-                    var html = _this22._templateManager.render('allStaffPrintOut', { data: result.rows });
+                    var html = _this6._templateManager.render('allStaffPrintOut', { data: result.rows });
 
                     var options = { format: 'A5', orientation: 'landscape' };
 
@@ -456,7 +366,7 @@ var VisitorService = exports.VisitorService = function () {
 
                     if (result.visitors != null) {
                         //render the Visitors
-                        var html = _this22._templateManager.render('allVisitorsPrintOut', { data: result.visitors });
+                        var html = _this6._templateManager.render('allVisitorsPrintOut', { data: result.visitors });
 
                         var options = { format: 'A5', orientation: 'landscape' };
 
@@ -478,9 +388,6 @@ var VisitorService = exports.VisitorService = function () {
                 }
 
                 return result;
-            }).catch(function (err) {
-                _this22._logger.error("Problem while Printing Visitors: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }, {
@@ -524,15 +431,11 @@ var VisitorService = exports.VisitorService = function () {
     }, {
         key: "searchAllSignIns",
         value: function searchAllSignIns(id) {
-            var _this23 = this;
 
             this._logger.info("Getting All Visitors!");
             this._logger.info("Getting Data");
             return this._visitorStore.searchAllSignIns(id).then(function (data) {
                 return data;
-            }).catch(function (err) {
-                _this23._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
 
@@ -541,13 +444,8 @@ var VisitorService = exports.VisitorService = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity(id) {
-            var _this24 = this;
-
             return this._visitorStore.nfcActivity(id).then(function (res) {
                 return res;
-            }).catch(function (err) {
-                _this24._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
             });
         }
     }]);

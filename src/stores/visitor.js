@@ -653,7 +653,7 @@ export class VisitorStore {
 
     staffSignedIn(id) {
 
-        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time,  b.employee_number, b.first_name, b.surname
+        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname
                            FROM reception_handler.building_signin a
                            LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying
                            where signin_time > now()::date`;
