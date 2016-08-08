@@ -554,10 +554,18 @@ var Visitors = exports.Visitors = function () {
                         var emailR = emailReceiver.toString();
 
                         var mailOptions = {
-                            from: "shibi arora<shibbi.arora@gmail.com>", // sender address
+                            from: "IT Services<aroras@cromwell.co.uk>", // sender address
                             to: emailR, // list of receivers
                             subject: "Fire: Cromwell Reception", // Subject line
-                            text: "this is fire" };
+                            text: "There is fire in the building. Please find attached list of all Staff and Visitors in the building.",
+                            attachments: [{ // utf-8 string as an attachment
+                                filename: "staff.pdf",
+                                content: "C:\\reception-handler\\build\\pdf\\allStaff.pdf"
+                            }, {
+                                filename: "visitors.pdf",
+                                content: "C:\\reception-handler\\build\\pdf\\allVisitors.pdf"
+                            }]
+                        };
 
                         console.log("Sending Email ");
                         //this._sendMail.mail(mailOptions);

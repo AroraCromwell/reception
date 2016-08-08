@@ -512,7 +512,7 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function staffSignedIn(id) {
             var _this5 = this;
 
-            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time,  b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date";
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {

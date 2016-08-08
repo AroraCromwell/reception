@@ -54,10 +54,7 @@ export class VisitorService {
 
                         return visitorId;
                     })
-                    .catch(err => {
-                        this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                        throw new Error(err);
-                    });
+
     }
 
     processGetRequest (id) {
@@ -69,10 +66,7 @@ export class VisitorService {
             .then((data) => {
                 return data;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
+
     }
 
     allSignIns () {
@@ -83,10 +77,6 @@ export class VisitorService {
             .then((data) => {
                 return data;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     processPutRequest (id, data) {
@@ -98,10 +88,7 @@ export class VisitorService {
             .then((data) => {
                 return data;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
+
     }
 
     allSignOut(){
@@ -112,10 +99,7 @@ export class VisitorService {
             .then(() => {
                 return true;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
+
     }
 
     allSignOutToday(){
@@ -131,10 +115,7 @@ export class VisitorService {
 
                 return result;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
+
     }
 
     getTermsRequest(id) {
@@ -153,10 +134,6 @@ export class VisitorService {
 
                 return 'terms_' + row[0].id ;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
 
@@ -175,10 +152,6 @@ export class VisitorService {
 
                 return 'terms_' + row[0].id ;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     allTermsRequest(){
@@ -188,10 +161,6 @@ export class VisitorService {
             .then((result) => {
                 return result;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     updateTermsRequest(id){
@@ -201,10 +170,6 @@ export class VisitorService {
             .then((result) => {
                 return result;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     processStatus (data) {
@@ -213,10 +178,6 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     cleanStatus () {
@@ -225,10 +186,6 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while cleaning status: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     processGraphData() {
@@ -248,10 +205,6 @@ export class VisitorService {
 
                 return setData;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     currentStatus() {
@@ -269,10 +222,6 @@ export class VisitorService {
                 });
                 return setData;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
 
@@ -294,10 +243,6 @@ export class VisitorService {
                 });
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     autoCompletePost(data) {
@@ -309,10 +254,6 @@ export class VisitorService {
             .then((result) => {
                 return this._visitorStore.autoCompleteId(result.rows[0].id);
             })
-            .catch(err => {
-                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     updateAutoComplete(id, data){
@@ -323,10 +264,6 @@ export class VisitorService {
             .then((result) => {
                 return this._visitorStore.autoCompleteId(id);
             })
-            .catch(err => {
-                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     deleteAutoComplete(id){
@@ -334,10 +271,6 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
 
@@ -348,10 +281,6 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while inserting status: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     staffData(id){
@@ -366,10 +295,6 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
-                throw new Error(err);
-        });
     }
 
     staffSignOut(id){
@@ -385,10 +310,6 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Problem while Staff Sign In: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     // All Visitors print out
@@ -448,10 +369,6 @@ export class VisitorService {
 
                 return result;
             })
-            .catch(err => {
-                this._logger.error("Problem while Printing Visitors: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
 
@@ -501,10 +418,6 @@ export class VisitorService {
             .then((data) => {
                 return data;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 
     //NFC Activity
@@ -513,9 +426,5 @@ export class VisitorService {
             .then((res) => {
                 return res;
             })
-            .catch(err => {
-                this._logger.error("Cannot create customer see error for more info: -> " + JSON.stringify(err));
-                throw new Error(err);
-            });
     }
 }

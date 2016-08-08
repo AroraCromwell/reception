@@ -12,7 +12,7 @@ export class SendMail {
             auth: {
                 user: "shibi.arora@gmail.com",
                 pass: "Leicester@195"
-            }
+            }   
         });
     }
 
