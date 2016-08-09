@@ -333,13 +333,6 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function allStaff() {
             var _this2 = this;
 
-            // let selectQuery = `select * from active_directory.users u
-            //                     INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text)
-            //                     LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text
-            //                     WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)
-            //                     and date_left is null`;
-            //
-
             var selectQuery = "select * from reception_handler.buildings b\n                           inner join reception_handler.building_departments bd using(building_id)\n                           inner join human_resource.employees e on bd.department_id = e.department_id\n                           where b.building_name = $1\n                           and b.building_active is true\n                           and bd.active is true";
 
             var args = ['BRC'];
@@ -349,7 +342,7 @@ var VisitorStore = exports.VisitorStore = function () {
             }).then(function (result) {
 
                 var result = result;
-                var staffSelectQuery = "select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id from reception_handler.building_signin where id in\n                        (\n                            SELECT max(id)\n                              FROM reception_handler.building_signin\n                              group by\n                              staff_id\n                      )\n                    ";
+                var staffSelectQuery = "select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id \n                from reception_handler.building_signin \n                where id in\n                        (\n                            SELECT max(id)\n                              FROM reception_handler.building_signin\n                              where signin_time > now()::date OR \n                              signout_time > now()::date\n                              group by\n                              staff_id\n                      )\n                    ";
                 var args = [];
 
                 return _this2._resource.query(staffSelectQuery, args).then(function (staffResponse) {
@@ -357,6 +350,7 @@ var VisitorStore = exports.VisitorStore = function () {
 
                         result.rows[key]['signinTime'] = '';
                         result.rows[key]['signoutTime'] = '';
+                        result.rows[key]['lastActivity'] = 'Never';
                         result.rows[key]['status'] = 'Not in the Building';
                         result.rows[key]['primaryId'] = 0;
 
@@ -367,11 +361,13 @@ var VisitorStore = exports.VisitorStore = function () {
 
                                 if (staffValue.signin_time != null) {
                                     result.rows[key]['status'] = 'In the Building';
+                                    result.rows[key]['lastActivity'] = 'Signed In';
                                     result.rows[key]['signinTime'] = _this2.timeConverter(staffValue.signin_time);
                                 }
 
                                 if (staffValue.signout_time != null) {
                                     result.rows[key]['status'] = 'Not in the Building';
+                                    result.rows[key]['lastActivity'] = 'Signed Out';
                                     result.rows[key]['signoutTime'] = _this2.timeConverter(staffValue.signout_time);
                                 }
                                 result.rows[key]['primaryId'] = staffValue.id;

@@ -419,12 +419,7 @@ export class VisitorStore {
             });
     }
     allStaff() {
-        // let selectQuery = `select * from active_directory.users u
-        //                     INNER JOIN active_directory.departments d ON d.department_code::text = replace(split_part(u.job_title_code::text, '-'::text, 1), 'H'::text, 'P'::text)
-        //                     LEFT JOIN active_directory.job_posts jp ON u.job_title_code::text = jp.post_no::text
-        //                     WHERE d.department_code IN (select department_code from reception_handler.building_users where building_name = $1)
-        //                     and date_left is null`;
-        //
+
 
         let selectQuery = `select * from reception_handler.buildings b
                            inner join reception_handler.building_departments bd using(building_id)
@@ -444,10 +439,14 @@ export class VisitorStore {
             .then(result => {
 
                 var result = result;
-                let staffSelectQuery = `select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id from reception_handler.building_signin where id in
+                let staffSelectQuery = `select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id 
+                from reception_handler.building_signin 
+                where id in
                         (
                             SELECT max(id)
                               FROM reception_handler.building_signin
+                              where signin_time > now()::date OR 
+                              signout_time > now()::date
                               group by
                               staff_id
                       )
@@ -462,6 +461,7 @@ export class VisitorStore {
 
                             result.rows[key]['signinTime'] = '';
                             result.rows[key]['signoutTime'] = '';
+                            result.rows[key]['lastActivity'] = 'Never';
                             result.rows[key]['status'] = 'Not in the Building';
                             result.rows[key]['primaryId'] = 0;
 
@@ -472,11 +472,13 @@ export class VisitorStore {
 
                                     if(staffValue.signin_time != null){
                                         result.rows[key]['status'] = 'In the Building';
+                                        result.rows[key]['lastActivity'] = 'Signed In';
                                         result.rows[key]['signinTime'] = this.timeConverter(staffValue.signin_time);
                                     }
 
                                     if(staffValue.signout_time != null){
                                         result.rows[key]['status'] = 'Not in the Building';
+                                        result.rows[key]['lastActivity'] = 'Signed Out';
                                         result.rows[key]['signoutTime'] = this.timeConverter(staffValue.signout_time);
                                     }
                                     result.rows[key]['primaryId'] = staffValue.id;
