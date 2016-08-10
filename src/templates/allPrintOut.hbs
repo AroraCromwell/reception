@@ -12,8 +12,6 @@
                     <th>User Type</th>
                     <th>Name</th>
                     <th>Sign In</th>
-                    <th>Sign Out</th>
-
                 </tr>
                 </thead>
 
@@ -25,8 +23,6 @@
                         <td>Staff</td>
                         <td>{{first_name}} {{surname}}</td>
                         <td>{{signin_time}}</td>
-                        <td>{{signout_time}}</td>
-
                     </tr>
                 {{/each}}
 
@@ -46,7 +42,6 @@
                     <th>Name</th>
                     <th>Company</th>
                     <th>Signed Ins</th>
-                    <th>Sign Out</th>
                 </tr>
                 </thead>
 
@@ -54,11 +49,10 @@
                 {{#each data.visitors}}
                     <tr>
                         <td>{{id}}</td>
-                        <td>Staff</td>
+                        <td>Visitors</td>
                         <td>{{contactname}}</td>
                         <td>{{employeename}}</td>
                         <td>{{settime}}</td>
-                        <td>{{signout}}</td>
                     </tr>
                 {{/each}}
 
@@ -72,13 +66,13 @@
 <script>
     $(function() {
         $('#datatable_staff').DataTable( {
-            "order": [[ 3, "desc" ]],
+            "order": [[ 2, "asc" ]],
             paging: false
 
         });
 
         $('#datatable_visitors').DataTable( {
-            "order": [[ 4, "desc" ]],
+            "order": [[ 2, "asc" ]],
             paging: false
         });
 
