@@ -165,8 +165,8 @@ db.createConnection().then(function (connection) {
     app.get("/staffSignOut/:id", visitors.staffSignOut());
     app.get("/staffSignedIn/:id", visitors.staffSignedIn());
     app.post("/captureStaffImage/", visitors.captureStaffImage());
-    app.get("/allVisitorsPrintOut", visitors.allVisitorsPrintOut());
-    app.get("/allVisitorsPrintOut/:id", visitors.allVisitorsPrintOut());
+    app.get("/allVisitorsPrintOut", visitors.allPrintOut());
+    app.get("/allPrintOut/:id", visitors.allPrintOut());
     app.post("/fireMarshall", visitors.addFiremarshall());
     app.get("/fireMarshall", visitors.showFiremarshall());
     app.post("/fireMarshall/:id", visitors.updateFiremarshall());

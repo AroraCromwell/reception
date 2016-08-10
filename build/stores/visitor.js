@@ -350,8 +350,8 @@ var VisitorStore = exports.VisitorStore = function () {
 
                         result.rows[key]['signinTime'] = '';
                         result.rows[key]['signoutTime'] = '';
-                        result.rows[key]['lastActivity'] = 'No Activity Today';
-                        result.rows[key]['status'] = 'Not in the Building';
+                        result.rows[key]['lastActivity'] = 'Never';
+                        result.rows[key]['status'] = 'Outside of Building';
                         result.rows[key]['primaryId'] = 0;
 
                         _lodash._.forEach(staffResponse.rows, function (staffValue, staffKey) {
@@ -360,13 +360,13 @@ var VisitorStore = exports.VisitorStore = function () {
                                 console.log("ID matched" + staffValue.staff_id);
 
                                 if (staffValue.signin_time != null) {
-                                    result.rows[key]['status'] = 'In the Building';
+                                    result.rows[key]['status'] = 'Inside Building';
                                     result.rows[key]['lastActivity'] = 'Signed In';
                                     result.rows[key]['signinTime'] = _this2.timeConverter(staffValue.signin_time);
                                 }
 
                                 if (staffValue.signout_time != null) {
-                                    result.rows[key]['status'] = 'Not in the Building';
+                                    result.rows[key]['status'] = 'Outside of Building';
                                     result.rows[key]['lastActivity'] = 'Signed Out';
                                     result.rows[key]['signoutTime'] = _this2.timeConverter(staffValue.signout_time);
                                 }
@@ -531,18 +531,16 @@ var VisitorStore = exports.VisitorStore = function () {
             });
         }
     }, {
-        key: "allVisitorsPrintOut",
-        value: function allVisitorsPrintOut() {
+        key: "allPrintOut",
+        value: function allPrintOut() {
             var _this6 = this;
 
             var data = new Date();
             var month = data.getMonth() + 1;
             var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month < 10 ? '0' + month : month, data.getFullYear()].join('-');
 
-            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1  and id >392";
-            var args = [
-            //this.getTimeforsettime("midnight")
-            myDate + ' 00:0:00'];
+            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL  and id >392 ORDER BY contactname asc";
+            var args = [myDate + ' 00:0:00'];
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 //All visitors data
@@ -550,7 +548,7 @@ var VisitorStore = exports.VisitorStore = function () {
             }).then(function (visitorResponse) {
 
                 //Adding all staff data
-                var selectQuery = "SELECT staff.*, u.employee_number,u.first_name,u.surname FROM reception_handler.building_signin staff\n                                    LEFT JOIN human_resource.employees u ON staff.staff_id::character varying = u.employee_number\n                                    WHERE   staff.signin_time > now()::date";
+                var selectQuery = "SELECT staff.*, u.employee_number,u.first_name,u.surname FROM reception_handler.building_signin staff\n                                    LEFT JOIN human_resource.employees u ON staff.staff_id::character varying = u.employee_number\n                                    WHERE   staff.signin_time > now()::date and signout_time IS NULL ORDER BY u.first_name asc";
                 var args = [];
 
                 return _this6._resource.query(selectQuery, args).then(function (staffResponse) {

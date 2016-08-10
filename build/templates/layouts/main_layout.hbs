@@ -28,61 +28,64 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-left">
-                <li id="status"><a href="/graph" >Status</a></li>
 
-                <li id="allPrintOut">
-                    <a href="#" data-toggle="dropdown">PrintOut
+                <li id="allVisitor">
+                    <a href="/allVisitors" data-toggle="dropdown">Visitors
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="/allVisitorsPrintOut/1">Print Out Reception</a></li>
-                        <li><a href="/allVisitorsPrintOut/2">Print Out HERE</a></li>
+                        <li id="VisitorsIn"><a href="/allVisitors" >Visitors In</a></li>
+                        <li id="VisitorsOut"><a href="/allSignOut" >Visitors Out</a></li>
+
                     </ul>
                 </li>
 
-                <!--<li id="allVisitor">-->
-                    <!--<a href="#" data-toggle="dropdown">Visitors-->
-                        <!--<span class="caret"></span></a>-->
-                    <!--<ul class="dropdown-menu">-->
-                        <!--<li><a href="/allVisitors" >All Visitors</a></li>-->
-                        <!---->
-                    <!--</ul>-->
-                <!--</li>-->
-
-                <li id="allVisitor"><a href="/allVisitors" >All Visitors</a></li>
-                <li id="allOut"><a href="/allSignOut" >All Signed out</a></li>
-                <li id="terms">
-                        <a href="#" data-toggle="dropdown">T&Cs
-                            <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="/allTerms">All T&Cs</a></li>
-                            <li><a href="/templateTerms">Add New T&Cs</a></li>
-                        </ul>
-                </li>
-
-                <li id="suggestion">
-                    <a href="#" data-toggle="dropdown">Auto Complete
-                        <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="/autoComplete">All Suggestions</a></li>
-                        <li><a href="/autoCompleteAdd">Add New Suggestion</a></li>
-                    </ul>
-                </li>
                 <li id="staff">
-                    <a href="#" data-toggle="dropdown">Staff Signed In
+                    <a href="/staffSignedIn/2" data-toggle="dropdown">Staff
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="/staffSignedIn/2">BRC</a></li>
-                        <li><a href="#">WDC</a></li>
+                        <!--<li><a href="#">WDC</a></li>-->
                     </ul>
                 </li>
-                <li id="fireMarshall">
-                    <a href="#" data-toggle="dropdown">Fire Marshall
+
+                <li id="allPrintOut">
+                    <a href="#" data-toggle="dropdown">Print
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="/allFireMarshall">All FireMarshall</a></li>
-                        <li><a href="/fireMarshall">Add FireMarshall</a></li>
+                        <li><a href="/allPrintOut/1">Print At Reception</a></li>
+                        <li><a href="/allPrintOut/2">Print Here</a></li>
                     </ul>
                 </li>
+
+                <li class="menu-item dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Config <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+
+                                <li class="menu-item dropdown dropdown-submenu"><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">Auto Complete</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/autoComplete">All Suggestions</a></li>
+                                        <li><a href="/autoCompleteAdd">Add New Suggestion</a></li>
+                                    </ul>
+                                </li>
+                                <li class="menu-item dropdown dropdown-submenu"><a href="/allFireMarshall" class="dropdown-toggle" data-toggle="dropdown">Fire Marshall</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/allFireMarshall">All FireMarshall</a></li>
+                                        <li><a href="/fireMarshall">Add FireMarshall</a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="menu-item dropdown dropdown-submenu"><a href="/allTerms" class="dropdown-toggle" data-toggle="dropdown">T&C's</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/allTerms">All T&Cs</a></li>
+                                        <li><a href="/templateTerms">Add New T&Cs</a></li>
+                                    </ul>
+                                </li>
+
+                                <li id="status"><a href="/graph" >Status</a></li>
+                    </ul>
+                </li>
+
+
+
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/">Logout</a></li>
@@ -99,8 +102,29 @@
 <script src="/js/responsive.bootstrap.min.js" ></script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="/js/bootstrap.min.js"></script>
-
 <script>
+
+    $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+        // Avoid following the href location when clicking
+        event.preventDefault();
+        // Avoid having the menu to close when clicking
+        event.stopPropagation();
+        // If a menu is already open we close it
+        $('ul.dropdown-menu [data-toggle=dropdown]').parent().removeClass('open');
+        // opening the one you clicked on
+        $(this).parent().addClass('open');
+
+        var menu = $(this).parent().find("ul");
+        var menupos = menu.offset();
+
+        if ((menupos.left + menu.width()) + 30 > $(window).width()) {
+            var newpos = - menu.width();
+        } else {
+            var newpos = $(this).parent().width();
+        }
+        menu.css({ left:newpos });
+
+    });
 
     $(".nav li").on("click", function() {
         $(".nav li").removeClass("active");

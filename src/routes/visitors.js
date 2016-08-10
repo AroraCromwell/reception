@@ -576,13 +576,13 @@ export class Visitors {
         ]
     }
 
-    allVisitorsPrintOut(){
+    allPrintOut(){
         return [
             (req, res) => {
 
                 var id = req.params.id == null ? 1 : req.params.id;
 
-                this._visitorService.allVisitorsPrintOut(id)
+                this._visitorService.allPrintOut(id)
                     .then(result => {
                         return result;
                     })

@@ -32,7 +32,10 @@ export class VisitorService {
                         let visitorId = result.id;
                         var html = this._templateManager.render('crom_visitor', result);
 
-                        var options = { format: 'A5', orientation: 'landscape'};
+                        var options = {
+                            format: 'A5',
+                            orientation: 'landscape'
+                        };
 
                         pdf.create(html, options).toFile('./pdf/' + visitorId + '.pdf', function(err, pdfRes) {
                             if (err) return console.log(err);
@@ -313,8 +316,8 @@ export class VisitorService {
     }
 
     // All Visitors print out
-    allVisitorsPrintOut(id){
-        return this._visitorStore.allVisitorsPrintOut()
+    allPrintOut(id){
+        return this._visitorStore.allPrintOut()
             .then((res) => {
                 return res;
             })
@@ -325,7 +328,18 @@ export class VisitorService {
                     //render the Staff
                     var html = this._templateManager.render('allStaffPrintOut', {data: result.rows});
 
-                    var options = {format: 'A5', orientation: 'landscape'};
+                    var options = {
+                        format: 'A5',
+                        orientation: 'landscape',
+                        header: {
+                            "height": "15mm",
+                            "contents": '<div style="text-align: center;">BRC Staff</div>'
+                        },
+                        footer: {
+                            "height": "10mm",
+                            "contents": '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>'
+                        }
+                    };
 
                     pdf.create(html, options).toFile('./pdf/allStaff.pdf', function (err, pdfRes) {
 
@@ -347,7 +361,19 @@ export class VisitorService {
                         //render the Visitors
                         var html = this._templateManager.render('allVisitorsPrintOut', {data: result.visitors});
 
-                        var options = {format: 'A5', orientation: 'landscape'};
+                        var options = {
+                            format: 'A5',
+                            orientation: 'landscape',
+                            header: {
+                                "height": "15mm",
+                                "contents": '<div style="text-align: center;">BRC Site Visitors</div>'
+                            },
+                            footer: {
+                                "height": "10mm",
+                                "contents": '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>'
+                            }
+
+                        };
 
                         pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
 

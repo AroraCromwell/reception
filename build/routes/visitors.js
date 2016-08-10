@@ -531,15 +531,15 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "allVisitorsPrintOut",
-        value: function allVisitorsPrintOut() {
+        key: "allPrintOut",
+        value: function allPrintOut() {
             var _this28 = this;
 
             return [function (req, res) {
 
                 var id = req.params.id == null ? 1 : req.params.id;
 
-                _this28._visitorService.allVisitorsPrintOut(id).then(function (result) {
+                _this28._visitorService.allPrintOut(id).then(function (result) {
                     return result;
                 }).then(function (response) {
                     var combineData = response;

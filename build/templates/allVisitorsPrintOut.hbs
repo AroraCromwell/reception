@@ -8,7 +8,6 @@
                     <th>Name</th>
                     <th>Company</th>
                     <th>Signed Ins</th>
-                    <th>Sign Out</th>
                 </tr>
                 </thead>
 
@@ -19,7 +18,6 @@
                         <td>{{contactname}}</td>
                         <td>{{employeename}}</td>
                         <td>{{settime}}</td>
-                        <td>{{signout}}</td>
                     </tr>
                 {{/each}}
 
@@ -30,3 +28,12 @@
 </div>
 
 <script src="/js/jquery-1.12.3.min.js" ></script>
+<script>
+    $(function() {
+        $('#datatable').DataTable( {
+            "order": [[ 2, "desc" ]],
+            paging: false
+        });
+
+    });
+</script>
