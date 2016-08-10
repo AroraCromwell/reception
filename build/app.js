@@ -164,6 +164,7 @@ db.createConnection().then(function (connection) {
     app.get("/staffSignIn/:id", visitors.staffSignIn());
     app.get("/staffSignOut/:id", visitors.staffSignOut());
     app.get("/staffSignedIn/:id", visitors.staffSignedIn());
+    app.get("/staffSignedOut/:id", visitors.staffSignedOut());
     app.post("/captureStaffImage/", visitors.captureStaffImage());
     app.get("/allVisitorsPrintOut", visitors.allPrintOut());
     app.get("/allPrintOut/:id", visitors.allPrintOut());

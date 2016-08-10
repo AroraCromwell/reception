@@ -515,7 +515,7 @@ var VisitorStore = exports.VisitorStore = function () {
         value: function staffSignedIn(id) {
             var _this5 = this;
 
-            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date OR signin_time IS NULL and signout_time > now()::date";
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date and signout_time IS NULL";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -530,10 +530,33 @@ var VisitorStore = exports.VisitorStore = function () {
                 return response;
             });
         }
+
+        //All Staff Signed out
+
+    }, {
+        key: "staffSignedOut",
+        value: function staffSignedOut(id) {
+            var _this6 = this;
+
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where  signout_time > now()::date";
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                _lodash._.each(response.rows, function (val, key) {
+                    if (val.signin_time != null) {
+                        response.rows[key]['signin_time'] = _this6.timeConverter(val.signin_time);
+                    }
+                    if (val.signout_time != null) {
+                        response.rows[key]['signout_time'] = _this6.timeConverter(val.signout_time);
+                    }
+                });
+                return response;
+            });
+        }
     }, {
         key: "allPrintOut",
         value: function allPrintOut() {
-            var _this6 = this;
+            var _this7 = this;
 
             var data = new Date();
             var month = data.getMonth() + 1;
@@ -551,7 +574,7 @@ var VisitorStore = exports.VisitorStore = function () {
                 var selectQuery = "SELECT staff.*, u.employee_number,u.first_name,u.surname FROM reception_handler.building_signin staff\n                                    LEFT JOIN human_resource.employees u ON staff.staff_id::character varying = u.employee_number\n                                    WHERE   staff.signin_time > now()::date and signout_time IS NULL ORDER BY u.first_name asc";
                 var args = [];
 
-                return _this6._resource.query(selectQuery, args).then(function (staffResponse) {
+                return _this7._resource.query(selectQuery, args).then(function (staffResponse) {
                     staffResponse.visitors = visitorResponse.rows;
                     return staffResponse;
                 });
@@ -585,7 +608,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity(id) {
-            var _this7 = this;
+            var _this8 = this;
 
             console.log("User ID going to sign in" + id);
             var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
@@ -599,16 +622,16 @@ var VisitorStore = exports.VisitorStore = function () {
                 if (result.rowCount == 1) {
                     var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2 RETURNING id";
 
-                    var _args5 = [_this7.getTime(""), result.rows[0].id];
+                    var _args5 = [_this8.getTime(""), result.rows[0].id];
 
-                    return _this7._resource.query(updateQuery, _args5).then(function (response) {
+                    return _this8._resource.query(updateQuery, _args5).then(function (response) {
                         return response;
                     });
                 } else {
                     var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 ) RETURNING id';
                     var _args6 = [id, 'P103'];
 
-                    return _this7._resource.query(insertQuery, _args6).then(function (response) {
+                    return _this8._resource.query(insertQuery, _args6).then(function (response) {
                         return response;
                     });
                 }
@@ -618,7 +641,7 @@ var VisitorStore = exports.VisitorStore = function () {
 
                 var args = [id];
 
-                return _this7._resource.query(selectQuery, args).then(function (response) {
+                return _this8._resource.query(selectQuery, args).then(function (response) {
                     // console.log("NFC activity result" + JSON.stringify(response));
                     response.activity = activity;
                     return response;

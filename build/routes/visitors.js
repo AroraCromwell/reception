@@ -493,16 +493,32 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "staffSignOut",
-        value: function staffSignOut() {
+        key: "staffSignedOut",
+        value: function staffSignedOut() {
             var _this27 = this;
 
             return [function (req, res) {
 
-                _this27._visitorService.staffSignOut(req.params.id).then(function (result) {
+                _this27._visitorService.staffSignedOut(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_staffsignedout', { data: row });
+                }).catch(function (err) {
+                    _this27._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut() {
+            var _this28 = this;
+
+            return [function (req, res) {
+
+                _this28._visitorService.staffSignOut(req.params.id).then(function (result) {
                     res.send({ success: 1, message: "completed", data: JSON.stringify(result.rows) });
                 }).catch(function (err) {
-                    _this27._logger.error(err.message);
+                    _this28._logger.error(err.message);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err.message), retry: 1 });
                 });
             }];
@@ -533,18 +549,18 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "allPrintOut",
         value: function allPrintOut() {
-            var _this28 = this;
+            var _this29 = this;
 
             return [function (req, res) {
 
                 var id = req.params.id == null ? 1 : req.params.id;
 
-                _this28._visitorService.allPrintOut(id).then(function (result) {
+                _this29._visitorService.allPrintOut(id).then(function (result) {
                     return result;
                 }).then(function (response) {
                     var combineData = response;
                     console.log(combineData.rows);
-                    _this28._visitorService.fireMarshallMail().then(function (res) {
+                    _this29._visitorService.fireMarshallMail().then(function (res) {
 
                         var emailReceiver = [];
                         _lodash._.each(res.rows, function (value, key) {
@@ -577,7 +593,7 @@ var Visitors = exports.Visitors = function () {
                         res.render('allVisitorsPrintOutWithPrint', { data: combineData });
                     }
                 }).catch(function (err) {
-                    _this28._logger.error(err);
+                    _this29._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -592,10 +608,10 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "addFiremarshall",
         value: function addFiremarshall() {
-            var _this29 = this;
+            var _this30 = this;
 
             return [function (req, res) {
-                _this29._visitorService.addFiremarshall(req.body).then(function (result) {
+                _this30._visitorService.addFiremarshall(req.body).then(function (result) {
 
                     if (req.body.another != "undefined") {
                         res.redirect("/fireMarshall");
@@ -603,7 +619,7 @@ var Visitors = exports.Visitors = function () {
                         res.redirect("/allFireMarshall");
                     }
                 }).catch(function (err) {
-                    _this29._logger.error(err);
+                    _this30._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -611,27 +627,11 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "updateFiremarshall",
         value: function updateFiremarshall() {
-            var _this30 = this;
-
-            return [function (req, res) {
-                _this30._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
-                    res.redirect("/allFireMarshall");
-                }).catch(function (err) {
-                    _this30._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
-                });
-            }];
-        }
-    }, {
-        key: "allFireMarshall",
-        value: function allFireMarshall() {
             var _this31 = this;
 
             return [function (req, res) {
-                _this31._visitorService.allFireMarshall().then(function (result) {
-                    var row = result.rows;
-                    //res.render("/allVisitorsPrintOut", {data: row});
-                    res.render('all_firemarshall', { data: row });
+                _this31._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
+                    res.redirect("/allFireMarshall");
                 }).catch(function (err) {
                     _this31._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -639,16 +639,32 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "deleteFireMarshall",
-        value: function deleteFireMarshall() {
+        key: "allFireMarshall",
+        value: function allFireMarshall() {
             var _this32 = this;
 
             return [function (req, res) {
-                _this32._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                _this32._visitorService.allFireMarshall().then(function (result) {
                     var row = result.rows;
+                    //res.render("/allVisitorsPrintOut", {data: row});
                     res.render('all_firemarshall', { data: row });
                 }).catch(function (err) {
                     _this32._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "deleteFireMarshall",
+        value: function deleteFireMarshall() {
+            var _this33 = this;
+
+            return [function (req, res) {
+                _this33._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_firemarshall', { data: row });
+                }).catch(function (err) {
+                    _this33._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -659,15 +675,15 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity() {
-            var _this33 = this;
+            var _this34 = this;
 
             return [function (req, res) {
 
-                _this33._visitorService.nfcActivity(req.params.id).then(function (result) {
+                _this34._visitorService.nfcActivity(req.params.id).then(function (result) {
                     var status = result.activity == "UPDATE" ? "sign_out" : "sign_in";
                     res.send({ message: "Success", activity: status, name: result.rows[0].first_name + " " + result.rows[0].surname });
                 }).catch(function (err) {
-                    _this33._logger.error(err);
+                    _this34._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
             }];
