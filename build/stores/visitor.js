@@ -350,7 +350,7 @@ var VisitorStore = exports.VisitorStore = function () {
 
                         result.rows[key]['signinTime'] = '';
                         result.rows[key]['signoutTime'] = '';
-                        result.rows[key]['lastActivity'] = 'Never';
+                        result.rows[key]['lastActivity'] = 'No Activity Today';
                         result.rows[key]['status'] = 'Not in the Building';
                         result.rows[key]['primaryId'] = 0;
 
@@ -539,7 +539,7 @@ var VisitorStore = exports.VisitorStore = function () {
             var month = data.getMonth() + 1;
             var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month < 10 ? '0' + month : month, data.getFullYear()].join('-');
 
-            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and id >392";
+            var selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1  and id >392";
             var args = [
             //this.getTimeforsettime("midnight")
             myDate + ' 00:0:00'];

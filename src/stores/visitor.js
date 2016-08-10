@@ -461,7 +461,7 @@ export class VisitorStore {
 
                             result.rows[key]['signinTime'] = '';
                             result.rows[key]['signoutTime'] = '';
-                            result.rows[key]['lastActivity'] = 'Never';
+                            result.rows[key]['lastActivity'] = 'No Activity Today';
                             result.rows[key]['status'] = 'Not in the Building';
                             result.rows[key]['primaryId'] = 0;
 
@@ -694,7 +694,7 @@ export class VisitorStore {
         var month = data.getMonth()+1;
         var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
 
-        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and id >392`;
+        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1  and id >392`;
         let args = [
             //this.getTimeforsettime("midnight")
             myDate + ' 00:0:00'
