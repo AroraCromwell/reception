@@ -330,6 +330,25 @@ var VisitorService = exports.VisitorService = function () {
         key: "staffSignedIn",
         value: function staffSignedIn(id) {
             return this._visitorStore.staffSignedIn(id).then(function (res) {
+                _lodash._.each(res.rows, function (value, key) {
+                    value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                });
+                return res;
+            });
+        }
+
+        // All staff signed Out
+
+    }, {
+        key: "staffSignedOut",
+        value: function staffSignedOut(id) {
+            return this._visitorStore.staffSignedOut(id).then(function (res) {
+
+                _lodash._.each(res.rows, function (value, key) {
+                    value.signout_time = dateFormat(value.signout_time, "dd-mm-yyyy HH:MM:ss");
+                    value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                });
+
                 return res;
             });
         }
@@ -342,6 +361,13 @@ var VisitorService = exports.VisitorService = function () {
             var _this6 = this;
 
             return this._visitorStore.allPrintOut().then(function (res) {
+
+                _lodash._.each(res.rows, function (value, key) {
+                    if (value.signin_time != "undefined") {
+                        value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                    }
+                });
+
                 return res;
             }).then(function (result) {
 

@@ -535,6 +535,23 @@ export class Visitors {
         ];
     }
 
+    staffSignedOut(){
+        return [
+            (req, res) => {
+
+                this._visitorService.staffSignedOut(req.params.id)
+                    .then(result => {
+                        let row = result.rows;
+                        res.render('all_staffsignedout', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
     staffSignOut(){
         return [
             (req, res) => {

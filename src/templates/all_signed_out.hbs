@@ -2,6 +2,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
+                    <div class="col-md-5"> </div>
+                    <div class="col-md-5"> <span> All Visitors Signed Out </span> </div>
+                    <div class="col-md-2"> </div>
                     <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
                         <thead>
                         <tr>
@@ -23,7 +26,8 @@
                                 <td>{{accountname}}</td>
                                 <td>{{employeename}}</td>
                                 <td>{{vehiclereg}}</td>
-                                <td><img src="https://reception.cromwell-tools.co.uk/images/{{imagepath}}?thumb=200x150" style="width: 125px;length:100px;"/></td>
+                                <td><img src="https://reception.cromwell-tools.co.uk/images/{{imagepath}}?thumb=200x150" onerror="this.src='https://reception.cromwell-tools.co.uk/images/noimage.jpg?thumb=125x100'"
+                                         style="width: 125px;length:100px;"/></td>
                                 <td>{{signout}}</td>
                             </tr>
                         {{/each}}

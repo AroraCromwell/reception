@@ -311,6 +311,23 @@ export class VisitorService {
     staffSignedIn(id){
         return this._visitorStore.staffSignedIn(id)
             .then((res) => {
+                _.each(res.rows , function (value, key) {
+                    value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                });
+                return res;
+            })
+    }
+
+    // All staff signed Out
+    staffSignedOut(id){
+        return this._visitorStore.staffSignedOut(id)
+            .then((res) => {
+
+                _.each(res.rows , function (value, key) {
+                    value.signout_time = dateFormat(value.signout_time, "dd-mm-yyyy HH:MM:ss");
+                    value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                });
+
                 return res;
             })
     }
@@ -319,6 +336,13 @@ export class VisitorService {
     allPrintOut(id){
         return this._visitorStore.allPrintOut()
             .then((res) => {
+
+                _.each(res.rows , function (value, key) {
+                    if(value.signin_time != "undefined"){
+                        value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                    }
+                });
+
                 return res;
             })
             .then(result => {

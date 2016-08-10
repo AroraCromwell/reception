@@ -671,7 +671,31 @@ export class VisitorStore {
         let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname
                            FROM reception_handler.building_signin a
                            LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying
-                           where signin_time > now()::date OR signin_time IS NULL and signout_time > now()::date`;
+                           where signin_time > now()::date and signout_time IS NULL`;
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                _.each(response.rows , (val, key) => {
+                    if(val.signin_time != null) {
+                        response.rows[key]['signin_time'] = this.timeConverter(val.signin_time);
+                    }
+                    if(val.signout_time != null){
+                        response.rows[key]['signout_time'] = this.timeConverter(val.signout_time);
+                    }
+                })
+                return response;
+            });
+    }
+
+    //All Staff Signed out
+    staffSignedOut(id) {
+
+        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname
+                           FROM reception_handler.building_signin a
+                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying
+                           where  signout_time > now()::date`;
         let args = [
         ];
 

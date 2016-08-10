@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="col-md-5"> </div>
-            <div class="col-md-5"> <span> All Staff Signed In </span> </div>
+            <div class="col-md-5"> <span> All Staff Signed Out </span> </div>
             <div class="col-md-2"> </div>
             <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
                 <thead>
@@ -10,9 +10,8 @@
                     <th>UserId</th>
                     <th>Name</th>
                     <th>Sign In</th>
-                    <th>Status</th>
+                    <th>Sign Out</th>
                     <th>image</th>
-                    <th>Action</th>
                 </tr>
                 </thead>
 
@@ -22,11 +21,8 @@
                         <td>{{staff_id}}</td>
                         <td>{{first_name}} {{surname}}</td>
                         <td id="signout_time">{{signin_time}}</td>
-                        <td style="font-weight: bold; color: #337ab7">In The Building</td>
-                        <td><img src="https://reception.cromwell-tools.co.uk/images/{{staff_id}}.jpg?thumb=200x150" onerror="this.src='https://reception.cromwell-tools.co.uk/images/noimage.jpg?thumb=125x100'"  style="width: 125px;length:100px;"/></td>
-                        <td  class ="target btn btn-primary btn-sm btn-space"    id="{{staff_id}}" href="" style="margin-top: 36px;margin-right: 10px;">
-                            Sign Me Out!
-                        </td>
+                        <td >{{signout_time}}</td>
+                        <td><img src="https://reception.cromwell-tools.co.uk/images/{{staff_id}}.jpg?thumb=125x100"  onerror="this.src='https://reception.cromwell-tools.co.uk/images/noimage.jpg?thumb=125x100'" style="width: 125px;length:100px;"/></td>
                     </tr>
                 {{/each}}
 

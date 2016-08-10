@@ -39,12 +39,16 @@
                     </ul>
                 </li>
 
-                <li id="staff">
-                    <a href="/staffSignedIn/2" data-toggle="dropdown">Staff
-                        <span class="caret"></span></a>
+
+                <li class="menu-item dropdown" id="Staff"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Staff <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="/staffSignedIn/2">BRC</a></li>
-                        <!--<li><a href="#">WDC</a></li>-->
+
+                        <li class="menu-item dropdown dropdown-submenu"><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">BRC</a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/staffSignedIn/2">Staff Signed In</a></li>
+                                <li><a href="/staffSignedOut/2">Staff Signed Out</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
 
@@ -57,7 +61,7 @@
                     </ul>
                 </li>
 
-                <li class="menu-item dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Config <b class="caret"></b></a>
+                <li class="menu-item dropdown" id="Config"><a href="#" class="dropdown-toggle" data-toggle="dropdown" >Config <b class="caret"></b></a>
                     <ul class="dropdown-menu">
 
                                 <li class="menu-item dropdown dropdown-submenu"><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">Auto Complete</a>
