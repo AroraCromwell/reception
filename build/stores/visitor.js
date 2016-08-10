@@ -350,7 +350,7 @@ var VisitorStore = exports.VisitorStore = function () {
 
                         result.rows[key]['signinTime'] = '';
                         result.rows[key]['signoutTime'] = '';
-                        result.rows[key]['lastActivity'] = 'Never';
+                        result.rows[key]['lastActivity'] = 'No Activity Today';
                         result.rows[key]['status'] = 'Outside of Building';
                         result.rows[key]['primaryId'] = 0;
 
