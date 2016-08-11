@@ -15,31 +15,34 @@
         background-color: #bbf4fb;
         border: 1px solid #dddddd;
     }
+
+    @media print{thead{display:table-header-group; margin-bottom:2px;}}
+    @page{margin-top:1cm;margin-left:1cm;margin-right:1cm;margin-bottom:1.5cm;}
 </style>
-<span> Date : {{data.todayDate}}</span>
+<!--<span><b>Date :</b> {{data.todayDate}}</span>-->
 <table id="datatable" width="100%">
     <thead>
     <tr>
-        <th>StaffId</th>
-        <th>Name</th>
-        <th>Sign In</th>
-        <th>Status</th>
+        <!--<th>StaffId</th>-->
+        <!--<th>Name</th>-->
+        <!--<th>Signed In</th>-->
+        <!--<th>Status</th>-->
     </tr>
     </thead>
 
     <tbody>
     {{#each data}}
         <tr>
-            <td>{{staff_id}}</td>
-            <td>{{first_name}} {{surname}}</td>
-            <td>{{signin_time}}</td>
-            <td></td>
+            <td style="width: 75px;float: left;">{{staff_id}}</td>
+            <td style="width: 200px;float: left;">{{first_name}} {{surname}}</td>
+            <td style="width: 85px;float: left;">{{signin_time}}</td>
+            <td style="width: 69px;float: left;"></td>
         </tr>
     {{/each}}
 
     </tbody>
 </table>
-        
+
 
 <script src="/js/jquery-1.12.3.min.js" ></script>
 <script>

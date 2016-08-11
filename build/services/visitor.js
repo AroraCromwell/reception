@@ -380,8 +380,8 @@ var VisitorService = exports.VisitorService = function () {
                         format: 'A5',
                         orientation: 'landscape',
                         header: {
-                            "height": "15mm",
-                            "contents": '<div style="text-align: center;">BRC Staff</div>'
+                            "height": "23mm",
+                            "contents": '<div style="text-align: center;"><b>BRC Staff</b></div>' + '<div><b>Date :</b>' + result.rows.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 90px;float: left;">StaffId</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 234px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 100px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 83px;float: left;">Status</div>' + '</div>'
                         },
                         footer: {
                             "height": "10mm",
@@ -421,8 +421,8 @@ var VisitorService = exports.VisitorService = function () {
                             format: 'A5',
                             orientation: 'landscape',
                             header: {
-                                "height": "15mm",
-                                "contents": '<div style="text-align: center;">BRC Site Visitors</div>'
+                                "height": "23mm",
+                                "contents": '<div style="text-align: center;"><b>BRC Site Visitors</b></div>' + '<div><b>Date :</b>' + result.visitors.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 47px;float: left;">Id</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 141px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 147px;float: left;">Company</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 85px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 69px;float: left;">Status</div>' + '</div>'
                             },
                             footer: {
                                 "height": "10mm",
