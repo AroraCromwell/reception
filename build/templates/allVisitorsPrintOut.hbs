@@ -16,26 +16,26 @@
         border: 1px solid #dddddd;
     }
 </style>
-<span> Date : {{data.todayDate}}</span>
+<!--<span><b>Date :</b>{{data.todayDate}}</span>-->
 <table id="datatable" width="100%">
         <thead>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Company</th>
-            <th>Signed Ins</th>
-            <th>Status</th>
-        </tr>
+        <!--<tr>-->
+            <!--<th>Id</th>-->
+            <!--<th>Name</th>-->
+            <!--<th>Company</th>-->
+            <!--<th>Signed In</th>-->
+            <!--<th>Status</th>-->
+        <!--</tr>-->
         </thead>
 
-        <tbody>
+        <tbody style="margin-top: 15px;">
         {{#each data}}
             <tr>
-                <td>{{id}}</td>
-                <td>{{contactname}}</td>
-                <td>{{employeename}}</td>
-                <td>{{settime}}</td>
-                <td></td>
+                <td style="width: 58px;">{{id}}</td>
+                <td style="width: 188px;">{{contactname}}</td>
+                <td style="width: 200px;">{{employeename}}</td>
+                <td style="width: 95px;">{{settime}}</td>
+                <td style="width: 100px;"></td>
             </tr>
         {{/each}}
 
