@@ -361,10 +361,9 @@ var VisitorService = exports.VisitorService = function () {
             var _this6 = this;
 
             return this._visitorStore.allPrintOut().then(function (res) {
-
                 _lodash._.each(res.rows, function (value, key) {
                     if (value.signin_time != "undefined") {
-                        value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                        value.signin_time = dateFormat(value.signin_time, "HH:MM:ss");
                     }
                 });
 
@@ -372,6 +371,7 @@ var VisitorService = exports.VisitorService = function () {
             }).then(function (result) {
 
                 if (id == 1) {
+                    result.rows.todayDate = dateFormat(result.rows.todayDate, "dd-mm-yyyy");
 
                     //render the Staff
                     var html = _this6._templateManager.render('allStaffPrintOut', { data: result.rows });
@@ -405,6 +405,15 @@ var VisitorService = exports.VisitorService = function () {
                     });
 
                     if (result.visitors != null) {
+
+                        result.visitors.todayDate = dateFormat(result.visitors.todayDate, "dd-mm-yyyy");
+
+                        _lodash._.each(result.visitors, function (value, key) {
+                            if (value.settime != "undefined") {
+                                value.settime = dateFormat(value.settime, "HH:MM:ss");
+                            }
+                        });
+
                         //render the Visitors
                         var html = _this6._templateManager.render('allVisitorsPrintOut', { data: result.visitors });
 

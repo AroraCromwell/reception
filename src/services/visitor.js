@@ -336,10 +336,9 @@ export class VisitorService {
     allPrintOut(id){
         return this._visitorStore.allPrintOut()
             .then((res) => {
-
                 _.each(res.rows , function (value, key) {
                     if(value.signin_time != "undefined"){
-                        value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
+                        value.signin_time = dateFormat(value.signin_time, "HH:MM:ss");
                     }
                 });
 
@@ -348,6 +347,7 @@ export class VisitorService {
             .then(result => {
 
                 if(id == 1) {
+                    result.rows.todayDate = dateFormat(result.rows.todayDate, "dd-mm-yyyy");
 
                     //render the Staff
                     var html = this._templateManager.render('allStaffPrintOut', {data: result.rows});
@@ -382,6 +382,19 @@ export class VisitorService {
 
 
                     if(result.visitors != null) {
+
+
+                        result.visitors.todayDate = dateFormat(result.visitors.todayDate, "dd-mm-yyyy");
+                        
+                        
+                        _.each(result.visitors , function (value, key) {
+                            if(value.settime != "undefined"){
+                                value.settime = dateFormat(value.settime, "HH:MM:ss");
+                            }
+                        });
+
+
+
                         //render the Visitors
                         var html = this._templateManager.render('allVisitorsPrintOut', {data: result.visitors});
 

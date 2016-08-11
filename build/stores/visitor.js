@@ -575,7 +575,9 @@ var VisitorStore = exports.VisitorStore = function () {
                 var args = [];
 
                 return _this7._resource.query(selectQuery, args).then(function (staffResponse) {
+                    visitorResponse.rows.todayDate = Date.now();
                     staffResponse.visitors = visitorResponse.rows;
+                    staffResponse.rows.todayDate = Date.now();
                     return staffResponse;
                 });
             });
