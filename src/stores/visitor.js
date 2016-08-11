@@ -739,7 +739,9 @@ export class VisitorStore {
 
                 return this._resource.query(selectQuery, args)
                     .then(staffResponse => {
+                        visitorResponse.rows.todayDate = Date.now();
                         staffResponse.visitors = visitorResponse.rows;
+                        staffResponse.rows.todayDate = Date.now();
                         return staffResponse;
                     });
             })
