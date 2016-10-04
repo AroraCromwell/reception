@@ -362,7 +362,7 @@ export class VisitorService {
                             '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 160px;float: left;">StaffId</div>'+
                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 407px;float: left;">Name</div>'+
                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 183px;float: left;">Signed In</div>'+
-                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 148px;float: left;">Status</div>'+
+                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 150px;float: left;">Status</div>'+
                             '</div>'
                         },
                         footer: {
