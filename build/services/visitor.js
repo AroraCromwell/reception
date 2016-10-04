@@ -380,7 +380,7 @@ var VisitorService = exports.VisitorService = function () {
                         format: 'A5',
                         orientation: 'landscape',
                         header: {
-                            "height": "24mm",
+                            "height": "22mm",
                             "contents": '<div style="text-align: center;"><b>BRC Staff</b></div>' + '<div><b>Date :</b>' + result.rows.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 160px;float: left;">StaffId</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 407px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 183px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 150px;float: left;">Status</div>' + '</div>'
                         },
                         footer: {
