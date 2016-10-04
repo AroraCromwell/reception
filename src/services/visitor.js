@@ -406,7 +406,7 @@ export class VisitorService {
                             format: 'A5',
                             orientation: 'landscape',
                             header: {
-                                "height": "25mm",
+                                "height": "24mm",
                                 "contents": '<div style="text-align: center;font-size:20px;"><b>BRC Site Visitors</b></div>' +
                                             '<div><b>Date :</b>'+ result.visitors.todayDate +'</div>'+
                                             '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 82px;float: left;">Id</div>'+
