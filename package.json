@@ -38,6 +38,7 @@
     "mkdirp": "^0.5.1",
     "node-base64-image": "^0.1.2",
     "nodemailer": "^0.7.1",
+    "normalize.css": "^5.0.0",
     "path": "^0.12.7",
     "pg": "4.4.6",
     "restify": "4.0.4",
