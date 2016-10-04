@@ -360,8 +360,8 @@ export class VisitorService {
                             "contents": '<div style="text-align: center;"><b>BRC Staff</b></div>' +
                             '<div><b>Date :</b>'+ result.rows.todayDate +'</div>'+
                             '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 125px;float: left;">StaffId</div>'+
-                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 330px;float: left;">Name</div>'+
-                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 130px;float: left;">Signed In</div>'+
+                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 325px;float: left;">Name</div>'+
+                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 135px;float: left;">Signed In</div>'+
                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 120px;float: left;">Status</div>'+
                             '</div>'
                         },
