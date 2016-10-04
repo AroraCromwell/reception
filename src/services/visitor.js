@@ -407,13 +407,13 @@ export class VisitorService {
                             orientation: 'landscape',
                             header: {
                                 "height": "23mm",
-                                "contents": '<div style="text-align: center;"><b>BRC Site Visitors</b></div>' +
+                                "contents": '<div style="text-align: center;font-size:20px;"><b>BRC Site Visitors</b></div>' +
                                             '<div><b>Date :</b>'+ result.visitors.todayDate +'</div>'+
                                             '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 82px;float: left;">Id</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 255px;float: left;">Name</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 272px;float: left;">Company</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 133px;float: left;">Signed In</div>'+
-                                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 135px;float: left;">Status</div>'+
+                                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 138px;float: left;">Status</div>'+
                                             '</div>'
                             },
                             footer: {
