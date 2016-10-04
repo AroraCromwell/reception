@@ -351,7 +351,6 @@ export class VisitorService {
 
                     //render the Staff
                     var html = this._templateManager.render('allStaffPrintOut', {data: result.rows});
-
                     var options = {
                         format: 'A5',
                         orientation: 'landscape',
