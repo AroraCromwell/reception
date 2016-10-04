@@ -381,7 +381,7 @@ var VisitorService = exports.VisitorService = function () {
                         orientation: 'landscape',
                         header: {
                             "height": "23mm",
-                            "contents": '<div style="text-align: center;"><b>BRC Staff</b></div>' + '<div><b>Date :</b>' + result.rows.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 185px;float: left;">StaffId</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 468px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 195px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 155px;float: left;">Status</div>' + '</div>'
+                            "contents": '<div style="text-align: center;"><b>BRC Staff</b></div>' + '<div><b>Date :</b>' + result.rows.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 185px;float: left;">StaffId</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 468px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 205px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 160px;float: left;">Status</div>' + '</div>'
                         },
                         footer: {
                             "height": "10mm",
