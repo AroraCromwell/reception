@@ -380,7 +380,7 @@ var VisitorService = exports.VisitorService = function () {
                         format: 'A5',
                         orientation: 'landscape',
                         header: {
-                            "height": "23mm",
+                            "height": "24mm",
                             "contents": '<div style="text-align: center;"><b>BRC Staff</b></div>' + '<div><b>Date :</b>' + result.rows.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 160px;float: left;">StaffId</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 407px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 183px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 150px;float: left;">Status</div>' + '</div>'
                         },
                         footer: {
@@ -420,7 +420,7 @@ var VisitorService = exports.VisitorService = function () {
                             orientation: 'landscape',
                             header: {
                                 "height": "24mm",
-                                "contents": '<div style="text-align: center;font-size:20px;"><b>BRC Site Visitors</b></div>' + '<div><b>Date :</b>' + result.visitors.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 82px;float: left;">Id</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 255px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 272px;float: left;">Company</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 133px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 138px;float: left;">Status</div>' + '</div>'
+                                "contents": '<div style="text-align: center;font-size:20px;"><b>BRC Site Visitors</b></div>' + '<div><b>Date :</b>' + result.visitors.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 82px;float: left;">Id</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 255px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 272px;float: left;">Company</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 133px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 139px;float: left;">Status</div>' + '</div>'
                             },
                             footer: {
                                 "height": "10mm",
