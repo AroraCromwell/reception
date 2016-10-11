@@ -131,6 +131,14 @@ db.createConnection()
         app.post("/autoComplete/:id", visitors.updateAutoComplete());
         app.delete("/autoComplete/:id", visitors.deleteAutoComplete());
 
+        //request for Tablets
+
+        app.get("/addTablet", visitors.addTablet());
+        app.post("/tabletPost", visitors.tabletPost());
+        app.get("/allTablet", visitors.allTablet());
+        app.get("/fetchDataForTablet", visitors.fetchDataForTablet());
+        app.post("/tablet/:id", visitors.updateTablet());
+        app.delete("/tablet/:id", visitors.deleteTabletDept());
 
         // request for staff
         app.get("/allStaff", visitors.allStaff());
@@ -155,15 +163,30 @@ db.createConnection()
 
         app.get("/searchAllSignIn/:id", search.searchAllSignIn());
 
-
-
         nodeSchedule.scheduleJob(config.runTime, function () {
             visitors.allSignOut()
                 .then(done => {
                     logger.info("All Signed Out");
+                    return true;
+                })
+                .then(res => {
+                    logger.info("Removing images and Pdfs");
+                    /*
+                    *  Remove images for visitors
+                    * */
+
+                    var cmd = 'rm  public/images/visitors/*';
+
+                    exec(cmd, function (error, stdout, stderr) {
+                        console.log(stdout);
+
+                        if (error !== null) {
+                            console.log('exec error: ' + error);
+                        }
+                    });
                 })
                 .catch(err => {
-                    logger.error("Error occurred while Signing Out All using cron job: " + JSON.stringify(err));
+                    logger.error("Error occurred while running cron job: " + JSON.stringify(err));
                 });
 
             visitors.cleanStatus()

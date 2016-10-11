@@ -279,8 +279,8 @@ export class VisitorService {
 
     //Staff information
 
-    allStaff(){
-        return this._visitorStore.allStaff()
+    allStaff(tabId){
+        return this._visitorStore.allStaff(tabId)
             .then((res) => {
                 return res;
             })
@@ -499,4 +499,41 @@ export class VisitorService {
                 return res;
             })
     }
+
+    //Functionality for Tablets
+    addTablet () {
+        return this._visitorStore.addTablet()
+            .then((res) => {
+                return res;
+            })
+    }
+
+    tabletPost(data) {
+        return this._visitorStore.tabletPost(data)
+            .then((res) => {
+                return res;
+            })
+    }
+
+    allTablet() {
+        return this._visitorStore.allTablet()
+            .then((res) => {
+                return res;
+            })
+    }
+
+    updateTablet(id, data){
+        return this._visitorStore.updateTablet(id, data)
+            .then((res) => {
+                return res;
+            })
+    }
+
+    deleteTabletDept(id){
+        return this._visitorStore.deleteTabletDept(id)
+            .then((res) => {
+                return res;
+            })
+    }
+
 }

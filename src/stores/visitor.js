@@ -34,18 +34,21 @@ export class VisitorStore {
     }
 
     saveCustomer(customer) {
-        // if(customer.paramImagePath != ''){
+        var dir = "./public/images/visitors/";
+
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+
         var unix = Math.round(+new Date()/1000);
-        var imageName = customer.paramAccountName +'_'+ unix;
-        var options = {filename: './public/images/' + imageName};
-        //var options = {filename: './src/reception_handler/images/' + imageName};
+        var imageName = customer.paramContactName +'_'+ unix;
+        var options = {filename: dir  + imageName};
         var imageData = new Buffer(customer.paramImagePath, 'base64');
 
         base64.base64decoder(imageData, options, function (err, saved) {
             if (err) { console.log(err); }
             console.log(saved);
         });
-        //}
 
         let insertQuery = `
                     INSERT INTO
@@ -116,10 +119,8 @@ export class VisitorStore {
     }
 
     updateCustomer(id, customer) {
-
         console.log(id);
         console.log(customer.signout);
-
 
         let updateQuery = `
                     UPDATE
@@ -166,11 +167,9 @@ export class VisitorStore {
     }
 
     getAllSignIns(){
-
         var data = new Date();
         var month = data.getMonth()+1;
         var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
-
 
         let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
         let args = [
@@ -200,13 +199,8 @@ export class VisitorStore {
             ];
         }
 
-
-
         return this._resource.query(selectQuery, args)
             .then(response => {
-
-                //console.log(response);
-                //process.exit();
                 return response;
             });
     }
@@ -418,18 +412,54 @@ export class VisitorStore {
                 return response;
             });
     }
-    allStaff() {
+    allStaff(tabId) {
+        //Fetch Location and all corresponding Departments  and pass it to fetch regarding data from
+        //human_resource schema.
+        let selectTabQuery = `SELECT
+                                td.*,t.location_id,t.location_name, t.id as primary_tabid
+                            FROM 
+                                reception_handler.tablets t
+                            INNER JOIN 
+                                reception_handler.tablets_dept td on t.id = td.tablet_id and t.id= $1 `;
+        let tabArgs = [
+            tabId
+        ];
 
+        return this._resource.query(selectTabQuery, tabArgs)
+            .then(tabResponse => {
+                return tabResponse;
+            })
+            .then( tabResult => {
+                let allDepts = [];
+                let seprator = "";
+                let tabLocation = "";
 
-        let selectQuery = `select * from reception_handler.buildings b
-                           inner join reception_handler.building_departments bd using(building_id)
-                           inner join human_resource.employees e on bd.department_id = e.department_id
-                           where b.building_name = $1
-                           and b.building_active is true
-                           and bd.active is true`;
+                if(tabResult.rowCount > 1){
+                    seprator = ",";
+                }
+                _.each (tabResult.rows, function (value, key) {
+                    tabLocation = value.location_name;
+                    allDepts [key] =  "'" + value.department_name + "'";
+                });
 
+                let selectQuery = `select 
+                                    employees.employee_number,	
+                                    employees.first_name,
+                                    employees.surname,
+                                    departments.department
+                                from human_resource.employees
+                                    join human_resource.location
+                                        using (location_id)
+                                    join human_resource.departments
+                                        using (department_id)
+                                where
+                                    location_name = $1
+                                    and department = ANY($2::character varying[])`;
+
+        // Pass Location and Departments
         let args = [
-            'BRC'
+            tabLocation,
+            ['IT', 'Programme Mgt Office']
         ];
 
         return this._resource.query(selectQuery, args)
@@ -440,20 +470,18 @@ export class VisitorStore {
 
                 var result = result;
                 let staffSelectQuery = `select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id 
-                from reception_handler.building_signin 
-                where id in
-                        (
-                            SELECT max(id)
-                              FROM reception_handler.building_signin
-                              where signin_time > now()::date OR 
-                              signout_time > now()::date
-                              group by
-                              staff_id
-                      )
-                    `;
-                let args = [
-
-                ];
+                        from reception_handler.building_signin 
+                        where id in
+                                (
+                                    SELECT max(id)
+                                      FROM reception_handler.building_signin
+                                      where signin_time > now()::date OR 
+                                      signout_time > now()::date
+                                      group by
+                                      staff_id
+                              )
+                            `;
+                let args = [];
 
                 return this._resource.query(staffSelectQuery, args)
                     .then(staffResponse => {
@@ -465,18 +493,18 @@ export class VisitorStore {
                             result.rows[key]['status'] = 'Outside of Building';
                             result.rows[key]['primaryId'] = 0;
 
-                            _.forEach(staffResponse.rows, ( staffValue,staffKey ) => {
-                                if(staffValue.staff_id == value.employee_number){
+                            _.forEach(staffResponse.rows, (staffValue, staffKey) => {
+                                if (staffValue.staff_id == value.employee_number) {
 
                                     console.log("ID matched" + staffValue.staff_id);
 
-                                    if(staffValue.signin_time != null){
+                                    if (staffValue.signin_time != null) {
                                         result.rows[key]['status'] = 'Inside Building';
                                         result.rows[key]['lastActivity'] = 'Signed In';
                                         result.rows[key]['signinTime'] = this.timeConverter(staffValue.signin_time);
                                     }
 
-                                    if(staffValue.signout_time != null){
+                                    if (staffValue.signout_time != null) {
                                         result.rows[key]['status'] = 'Outside of Building';
                                         result.rows[key]['lastActivity'] = 'Signed Out';
                                         result.rows[key]['signoutTime'] = this.timeConverter(staffValue.signout_time);
@@ -489,6 +517,7 @@ export class VisitorStore {
                         return result;
                     })
             })
+        })
     }
 
     customizer(objValue, srcValue) {
@@ -834,6 +863,206 @@ export class VisitorStore {
                     return response;
                 })
         })
+    }
 
+    //Functionality for Tablets
+
+    addTablet(){
+        let selectQuery = "SELECT * FROM human_resource.location ";
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            })
+            .then(locations => {
+                let deptSelectQuery = "SELECT * FROM human_resource.departments";
+                let args = [
+                ];
+                return this._resource.query(deptSelectQuery, args)
+                    .then(finalData => {
+                        finalData.locations = locations.rows;
+                        finalData.departments = finalData.rows;
+                        return finalData;
+                    });
+            })
+    }
+
+    tabletPost(data) {
+        let location;
+        let location_id;
+        let location_name;
+
+        location = _.split(data.location, '_');
+        location_id = location[0];
+        location_name = location[1];
+
+        let selectQuery = 'SELECT id FROM reception_handler.tablets WHERE location_id = $1';
+        let args = [
+            location_id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                if(response.rowCount == 0){
+                    let insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name) VALUES ( $1, $2) RETURNING id';
+                    let insertArgs = [
+                        location_id,
+                        location_name,
+                    ];
+
+                    return this._resource.query(insertQuery, insertArgs)
+                        .then(response => {
+                            return response;
+                        })
+                }
+                    // response = response.rows[0].id;
+                return response;
+            })
+            .then(result => {
+                let department;
+                let department_id;
+                let department_name;
+                let tablet_id = result.rows[0].id;
+                let deptToProcess = _.map(data.department, deptData => {
+
+                    department = _.split(deptData, '_');
+                    department_id = department[0];
+                    department_name = department[1];
+                    console.log(deptData);
+                    let deptInsertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
+                    let deptInsertArgs = [
+                        tablet_id,
+                        department_id,
+                        department_name
+                    ];
+
+                    return this._resource.query(deptInsertQuery, deptInsertArgs)
+                        .then(deptResponse => {
+                            return deptResponse;
+                        })
+                        .catch((err) => {
+                            this._logger.error(">>> Error! " + err.message);
+                        });
+                });
+
+                return Promise.all(deptToProcess)
+                    .then(() => {
+                        this._logger.info("All Dept has been processed");
+                        return true;
+                    });
+            });
+    }
+
+    allTablet(){
+
+        let selectQuery = `SELECT
+                                td.*,t.location_id,t.location_name, t.id as primary_tabid
+                            FROM 
+                                reception_handler.tablets t
+                            LEFT JOIN 
+                                reception_handler.tablets_dept td on t.id = td.tablet_id`;
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    updateTablet(tabId, data) {
+        let location;
+        let location_id;
+        let location_name;
+
+        location = _.split(data.location, '_');
+        location_id = parseInt(location[0]);
+        location_name = location[1];
+
+        let updateQuery = 'UPDATE reception_handler.tablets SET  location_id = $1, location_name= $2 WHERE id = $3 ';
+        let args = [
+            location_id,
+            location_name,
+            tabId
+        ];
+
+        return this._resource.query(updateQuery, args)
+            .then(response => {
+                return response;
+            })
+            .then(result => {
+
+                if(typeof data.department != "undefined") {
+                    let department;
+                    let department_id;
+                    let department_name;
+                    let deptToProcess = _.map(data.department, deptData => {
+
+                        department = _.split(deptData, '_');
+                        department_id = department[0];
+                        department_name = department[1];
+
+                        let selectQuery = 'SELECT id FROM reception_handler.tablets_dept WHERE tablet_id = $1 and department_id =$2';
+                        let args = [
+                            tabId,
+                            department_id
+                        ];
+                        return this._resource.query(selectQuery, args)
+                            .then(response => {
+                                return response;
+                            })
+                            .then(rowResult => {
+
+                                if (rowResult.rowCount == 0) {
+                                    let insertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
+                                    let insertArgs = [
+                                        tabId,
+                                        department_id,
+                                        department_name,
+                                    ];
+
+                                    return this._resource.query(insertQuery, insertArgs)
+                                        .then(response => {
+                                            return response;
+                                        })
+                                }
+                                else {
+                                    let updateDeptQuery = 'UPDATE reception_handler.tablets_dept SET  department_id = $1, department_name= $2 WHERE tablet_id = $3 and department_id= $4';
+                                    let args = [
+                                        department_id,
+                                        department_name,
+                                        tabId,
+                                        department_id
+                                    ];
+
+                                    return this._resource.query(updateDeptQuery, args)
+                                        .then(response => {
+                                            return response;
+                                        })
+                                }
+                            })
+                        });
+                        return Promise.all(deptToProcess)
+                            .then(() => {
+                                this._logger.info("All Dept has been processed");
+                                return true;
+                            });
+                    }
+                return true;
+            })
+    }
+
+    deleteTabletDept(id) {
+        let selectQuery = 'DELETE from reception_handler.tablets_dept WHERE id = $1 ';
+        let args = [
+            id
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
     }
 }

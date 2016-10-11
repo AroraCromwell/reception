@@ -99,7 +99,6 @@ export class Visitors {
                         .catch(err => {
                             this._logger.error(err);
                             return err;
-
                         });
     }
 
@@ -376,8 +375,11 @@ export class Visitors {
                 this._visitorService.autoCompletePost(req.body)
                 .then(result => {
 
+                    // set up json data to emit which includes location Id and data
+                    // check how to receive this data on android side
+
                     if(result.rows[0].location =='BRC'){
-                            this._io.emit('brcSuggestionAdd', result.rows[0]);
+                            this._io.emit('SuggestionLoc-'+result.rows[0].tablet_id, result.rows[0]);
                     }
 
                     if(req.body.another != "undefined"){
@@ -401,7 +403,7 @@ export class Visitors {
                 this._visitorService.updateAutoComplete(req.params.id, req.body)
                 .then(result => {
                     if(result.rows[0].location =='BRC'){
-                        this._io.emit('brcSuggestionUpdate', result.rows[0]);
+                        this._io.emit('SuggestionLocUpdate-'+result.rows[0].tablet_id, result.rows[0]);
                     }
                     res.redirect("/autoComplete");
                 })
@@ -420,7 +422,8 @@ export class Visitors {
                 .then(result => {
                     //Fire delete message, So Device will delete it from Android App
                     var myString = {"id":req.params.id,"type":req.body.type} ;
-                    this._io.emit('brcSuggestionDelete', myString);
+                    //this._io.emit('brcSuggestionDelete', myString);
+                    this._io.emit('SuggestionLocDelete-'+result.rows[0].tablet_id, myString);
                     res.send({success : 1, message : "completed", data : {result} });
                 })
                 .catch(err => {
@@ -473,7 +476,8 @@ export class Visitors {
     allStaff(){
         return [
             (req, res) => {
-                this._visitorService.allStaff()
+                this._logger.info("Staff for Tab Id" + req.query.tabId);
+                this._visitorService.allStaff(req.query.tabId)
                     .then(result => {
                         let row = result.rows;
                         res.send({status: 'ok', count: '20' , count_total: result.rowCount, data: row});
@@ -574,10 +578,14 @@ export class Visitors {
                 console.log("this is staff id" + req.body.paramStaffId);
                 console.log("this is staff image path" + req.body.paramLocalImagePath);
 
+                var dir = "./public/images/staff/";
+
+                if (!fs.existsSync(dir)){
+                    fs.mkdirSync(dir);
+                }
 
                 var imageName = req.body.paramStaffId ;
-                var options = {filename: './public/images/' + imageName};
-                //var options = {filename: './src/reception_handler/images/' + imageName};
+                var options = {filename: dir + imageName};
                 var imageData = new Buffer(req.body.paramImagePath, 'base64');
 
                 base64.base64decoder(imageData, options, function (err, saved) {
@@ -586,7 +594,6 @@ export class Visitors {
                         res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
                     }
                     console.log(saved);
-
                     res.send({success: 1, message: "Completed"});
                 });
             }
@@ -749,4 +756,115 @@ export class Visitors {
         ];
     }
 
+
+    //Functionality for Tablets
+    addTablet(){
+        return [
+            (req, res) => {
+                this._visitorService.addTablet()
+                    .then(result => {
+                        res.render('add_tablet', {data: result});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({ message: "Error", data: JSON.stringify(err)});
+                    });
+            }
+        ]
+    }
+
+    tabletPost(){
+        return [
+            (req, res) => {
+                this._visitorService.tabletPost(req.body)
+                    .then(result => {
+
+                        if(req.body.another != "undefined"){
+                            res.redirect("/addTablet/?location=" + req.body.location);
+                        }else {
+                            res.redirect("/allTablet");
+                        }
+
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
+            }
+        ]
+    }
+
+
+    allTablet(){
+        return [
+            (req, res) => {
+                this._visitorService.allTablet()
+                    .then(result => {
+                        let row = result.rows;
+                        res.render('all_tablet', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    fetchDataForTablet(){
+        return [
+            (req, res) => {
+                this._visitorService.addTablet()
+                    .then(result => {
+
+                        var allOptions = '';
+                        var allDept = '';
+                        _.each(result.locations, function(value) {
+                               allOptions  += '<option value="' + value.location_id +'_'+ value.location_name +'">'+ value.location_name + '</option>';
+                            });
+                        _.each(result.departments, function(val) {
+                            allDept  += '<input type="checkbox" name="department" ' +
+                                        'id="' + val.department_id + '" value="' + val.department_id +'_' + val.department +'_'+ val.id +'" >'  + val.department + '<br>';
+                        });
+                        result.options  = allOptions;
+                        result.depts  = allDept;
+                        res.send({message: "success", data: result});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({ message: "Error", data: JSON.stringify(err)});
+                    });
+            }
+        ]
+    }
+
+    updateTablet(){
+        return [
+            (req, res) => {
+                this._visitorService.updateTablet(req.params.id, req.body)
+                    .then(result => {
+                        res.redirect("/allTablet");
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
+            }
+        ]
+    }
+
+    deleteTabletDept(){
+        return [
+            (req, res) => {
+                this._visitorService.deleteTabletDept(req.params.id)
+                    .then(result => {
+                        res.send({success : 1, message : "completed", data : {result} });
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
+            }
+        ]
+    }
 }
