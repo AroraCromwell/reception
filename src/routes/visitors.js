@@ -74,9 +74,8 @@ export class Visitors {
         return [
             (req, res) => {
 
-                console.log("Node service data" + req.body);
+                this._logger.info("Visitor for Tab Id" + req.query.tabId);
                 this._visitorService.processRequest(req.body)
-
                     .then(result => {
                         res.send({success : 1, message : "completed", id : result, retry: 0});
                     })
@@ -363,7 +362,17 @@ export class Visitors {
     autoCompleteAdd(){
         return [
             (req, res) => {
-                res.render('autoComplete_add');
+                //res.render('autoComplete_add');
+                //We actually need all the tablets to be listed while adding suggestion.
+                this._visitorService.allTabletLocations()
+                    .then(result => {
+                        console.log(result.rows);
+                        res.render('autoComplete_add', {"data": result.rows});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
             }
         ]
     }
@@ -374,13 +383,9 @@ export class Visitors {
 
                 this._visitorService.autoCompletePost(req.body)
                 .then(result => {
-
                     // set up json data to emit which includes location Id and data
                     // check how to receive this data on android side
-
-                    if(result.rows[0].location =='BRC'){
-                            this._io.emit('SuggestionLoc-'+result.rows[0].tablet_id, result.rows[0]);
-                    }
+                    this._io.emit('AddSuggestion-'+result.rows[0].tablet_id, result.rows[0]);
 
                     if(req.body.another != "undefined"){
                         res.redirect("/autoCompleteAdd/?type=" + req.body.type);
@@ -403,7 +408,8 @@ export class Visitors {
                 this._visitorService.updateAutoComplete(req.params.id, req.body)
                 .then(result => {
                     if(result.rows[0].location =='BRC'){
-                        this._io.emit('SuggestionLocUpdate-'+result.rows[0].tablet_id, result.rows[0]);
+                        console.log( "Suggestion will be updated on TabletID" + result.rows[0].tablet_id );
+                        this._io.emit( "UpdateSuggestion-"+result.rows[0].tablet_id, result.rows[0]);
                     }
                     res.redirect("/autoComplete");
                 })
@@ -423,7 +429,7 @@ export class Visitors {
                     //Fire delete message, So Device will delete it from Android App
                     var myString = {"id":req.params.id,"type":req.body.type} ;
                     //this._io.emit('brcSuggestionDelete', myString);
-                    this._io.emit('SuggestionLocDelete-'+result.rows[0].tablet_id, myString);
+                    this._io.emit('DeleteSuggestion-'+result.rows[0].tablet_id, myString);
                     res.send({success : 1, message : "completed", data : {result} });
                 })
                 .catch(err => {

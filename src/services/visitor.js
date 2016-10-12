@@ -279,8 +279,8 @@ export class VisitorService {
 
     //Staff information
 
-    allStaff(tabId){
-        return this._visitorStore.allStaff(tabId)
+    allStaff(tbaI){
+        return this._visitorStore.allStaff()
             .then((res) => {
                 return res;
             })
@@ -522,6 +522,13 @@ export class VisitorService {
             })
     }
 
+    allTabletLocations() {
+        return this._visitorStore.allTabletLocations()
+            .then((res) => {
+                return res;
+            })
+    }
+
     updateTablet(id, data){
         return this._visitorStore.updateTablet(id, data)
             .then((res) => {
@@ -535,5 +542,4 @@ export class VisitorService {
                 return res;
             })
     }
-
 }

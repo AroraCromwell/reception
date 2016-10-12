@@ -351,7 +351,7 @@ export class VisitorStore {
 
     autoCompletePost(data) {
 
-        let insertQuery = 'INSERT INTO reception_handler.autoComplete (location, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
+        let insertQuery = 'INSERT INTO reception_handler.autoComplete (tablet_id, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
         let args = [
             data.location,
             data.type,
@@ -376,7 +376,12 @@ export class VisitorStore {
             });
     }
     autoComplete() {
-        let selectQuery = 'SELECT * FROM reception_handler.autoComplete ORDER BY location DESC;';
+        let selectQuery = `SELECT 
+                                ac.*,t.location_id,t.location_name 
+                            FROM 
+                                reception_handler.autoComplete ac 
+                            LEFT JOIN 
+                                reception_handler.tablets t on ac.tablet_id = t.id ORDER BY ac.id DESC`;
         let args = [
         ];
 
@@ -866,7 +871,6 @@ export class VisitorStore {
     }
 
     //Functionality for Tablets
-
     addTablet(){
         let selectQuery = "SELECT * FROM human_resource.location ";
         let args = [
@@ -954,6 +958,16 @@ export class VisitorStore {
                     });
             });
     }
+
+    allTabletLocations(){
+        let selectQuery = `SELECT * FROM reception_handler.tablets`;
+        let args = [
+        ];
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    };
 
     allTablet(){
 

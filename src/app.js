@@ -104,13 +104,18 @@ db.createConnection()
             extended: true
         }));
 
+        //Visitors
         app.post("/visitors", visitors.post());
         app.get("/allSignOut", visitors.allSignOutToday());
         app.get("/allVisitors", visitors.allSignIns());
         app.get("/visitors/:id", visitors.get());
         app.put("/visitors/:id", visitors.put());
+
+        //Admin
         app.get("/", visitors.loginView());
         app.post("/adminLogin", visitors.adminLogin());
+
+        //Terms and Conditions
         app.get("/templateTerms", visitors.templateTerms());
         app.get("/terms", visitors.getTerms());
         app.get("/terms/:id", visitors.getTerms());
@@ -118,6 +123,8 @@ db.createConnection()
         app.put("/terms/:id", visitors.updateTerms());
         app.get("/allTerms", visitors.allTerms());
         app.get("/test", visitors.test());
+
+        //App status and Graph
         app.post("/appStatus", visitors.status());
         app.get("/graph", visitors.graph());
         app.get("/graph/getData", visitors.currentStatus());
@@ -135,7 +142,7 @@ db.createConnection()
 
         app.get("/addTablet", visitors.addTablet());
         app.post("/tabletPost", visitors.tabletPost());
-        app.get("/allTablet", visitors.allTablet());
+        app.get("/getAllTablet", visitors.allTablet());
         app.get("/fetchDataForTablet", visitors.fetchDataForTablet());
         app.post("/tablet/:id", visitors.updateTablet());
         app.delete("/tablet/:id", visitors.deleteTabletDept());
@@ -148,15 +155,19 @@ db.createConnection()
         app.get("/staffSignedIn/:id", visitors.staffSignedIn());
         app.get("/staffSignedOut/:id", visitors.staffSignedOut());
         app.post("/captureStaffImage/", visitors.captureStaffImage());
+
+        //Print Outs
         app.get("/allVisitorsPrintOut", visitors.allPrintOut());
         app.get("/allPrintOut/:id", visitors.allPrintOut());
+
+        //FireMarshall
         app.post("/fireMarshall", visitors.addFiremarshall());
         app.get("/fireMarshall", visitors.showFiremarshall());
         app.post("/fireMarshall/:id", visitors.updateFiremarshall());
         app.get("/allFireMarshall", visitors.allFireMarshall());
         app.delete("/fireMarshall/:id", visitors.deleteFireMarshall());
 
-        //staff signin and signout from the NFC card
+        //Staff Signin and Signout from the NFC card
         app.get("/nfcActivity/:id", visitors.nfcActivity());
 
         //request for search

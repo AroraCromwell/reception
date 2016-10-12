@@ -23,7 +23,7 @@
                 <tbody>
                 {{#each data}}
                     <tr>
-                        <td name="location">{{location}}</td>
+                        <td name="location">{{location_name}}</td>
                         <td name="type" id="type">{{type}}</td>
                         <td name="suggestion">{{suggestion}}</td>
                         <td>
@@ -59,7 +59,9 @@
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company">Location</label>
                             <div class="col-sm-8 col-md-8">
                                 <select name="location" class="form-control" id="locationId">
-                                    <option value="BRC">BRC</option>
+                                {{#each data}}
+                                    <option value="{{location_id}}">{{location_name}}</option>
+                                {{/each}}
                                     <!--<option value="WDC">WDC</option>-->
                                     </select>
                             </div>
