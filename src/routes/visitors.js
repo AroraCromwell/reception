@@ -31,7 +31,6 @@ export class Visitors {
             (req, res) => {
 
                 this._visitorService.processGetRequest(req.params.id)
-
                     .then(result => {
                         let row = result.rows;
                         res.send({success : 1, message : "completed", data : {row}, retry: 0});
@@ -50,18 +49,24 @@ export class Visitors {
         return [
             (req, res) => {
                 if(this._localStorage.getItem('email')) {
-                    this._visitorService.allSignIns()
+                    if(typeof(req.query.tabId) == 'undefined' || req.query.tabId ==0){
+                        let err = "Tablet Id cannot be null or 0";
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : (err)});
+                        return;
+                    }
 
-                        .then(result => {
-                                let row = result.rows;
-                            res.render('all_visitors', {data: row});
-                            // res.send({success : 1, message : "completed", row, retry: 0});
-
+                    this._visitorService.allTabletLocations()
+                        .then(locations => {
+                              this._visitorService.allSignIns(req.query.tabId)
+                                .then(result => {
+                                    result.locations = locations.rows;
+                                    res.render('all_visitors', {data: result});
+                            })
                         })
                         .catch(err => {
                             this._logger.error(err);
                             res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
-
                         });
                 }else {
                     res.redirect("/");
@@ -73,45 +78,57 @@ export class Visitors {
     post () {
         return [
             (req, res) => {
-
                 this._logger.info("Visitor for Tab Id" + req.query.tabId);
-                this._visitorService.processRequest(req.body)
+
+                if(typeof(req.query.tabId) == 'undefined' || req.query.tabId ==0){
+                    let err = "Tablet Id cannot be null or 0";
+                    this._logger.error(err);
+                    res.send({success : 0, message : "Error!", data : (err)});
+                    return;
+                }
+
+                this._visitorService.processRequest(req.query.tabId, req.body)
                     .then(result => {
                         res.send({success : 1, message : "completed", id : result, retry: 0});
                     })
                     .catch(err => {
                         this._logger.error(err);
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
                     });
             }
         ];
     }
 
      allSignOut() {
-
-                    return this._visitorService.allSignOut()
-                        .then(result => {
-                            return {success : 1, message : "completed", data : {}, retry: 0};
-
-                        })
-                        .catch(err => {
-                            this._logger.error(err);
-                            return err;
-                        });
+        return this._visitorService.allSignOut()
+        .then(result => {
+            return {success : 1, message : "completed", data : {}, retry: 0};
+        })
+        .catch(err => {
+            this._logger.error(err);
+            return err;
+        });
     }
 
     allSignOutToday() {
         return [
             (req, res) => {
                 if(this._localStorage.getItem('email')) {
-                    this._visitorService.allSignOutToday()
 
-                        .then(result => {
-                            let row = result.rows;
-                            res.render('all_signed_out', {data: row});
-                            //res.send({success : 1, message : "completed", data : {}, retry: 0});
+                    if(typeof(req.query.tabId) == 'undefined' || req.query.tabId ==0){
+                        let err = "Tablet Id cannot be null or 0";
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : (err)});
+                        return;
+                    }
 
+                    this._visitorService.allTabletLocations()
+                        .then(locations => {
+                            this._visitorService.allSignOutToday()
+                                .then(result => {
+                                    result.locations = locations.rows;
+                                    res.render('all_signed_out', {data: result});
+                                })
                         })
                         .catch(err => {
                             this._logger.error(err);
@@ -134,17 +151,13 @@ export class Visitors {
                     res.send({success : 0, message : "Error", data : "", retry: 1});
                 }
                 else {
-
                     this._visitorService.processPutRequest(req.params.id, req.body)
                         .then(result => {
-
                             res.send({success: 1, message: "completed", data: {}, retry: 0});
-
                         })
                         .catch(err => {
                             this._logger.error(err);
                             res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
-
                         });
                 }
             }
@@ -178,7 +191,7 @@ export class Visitors {
             (req, res) => {
                 if( req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "Lewis@3524"){
                         this._localStorage.setItem("email", req.body.inputEmail);
-                        res.redirect("allVisitors");
+                        res.redirect("allVisitors?tabId=1");
                 }else{
                     this._localStorage.setItem("error", "Please Check Username and Password");
                     res.redirect("/");
@@ -187,31 +200,29 @@ export class Visitors {
         ]
     }
     getTerms(){
-
         return [
             (req,res) => {
                 var id = req.params.id;
-
-                this._visitorService.getTermsRequest(id)
-                .then(result => {
-
-                    res.render(result, { title: 'my other page', layout: '' });
-                })
-                .catch(err => {
-                    this._logger.error(err);
-                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
-                });
+                this._visitorService.allTabletLocations()
+                    .then(locations => {
+                        this._visitorService.getTermsRequest(id)
+                            .then(result => {
+                                result.locations = locations.rows;
+                                res.render(result, {title: 'my other page', layout: ''});
+                            })
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+                    });
             }
         ]
     }
 
 
     postTerms(){
-
         return [
             (req,res) => {
-
                 this._visitorService.postTermsRequest(req.body)
                 .then(result => {
                     res.redirect('allTerms');
@@ -219,7 +230,6 @@ export class Visitors {
                 .catch(err => {
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
                 });
             }
         ]
@@ -228,64 +238,62 @@ export class Visitors {
     updateTerms() {
         return [
             (req,res) => {
-
                 this._visitorService.updateTermsRequest(req.params.id)
                 .then(result => {
-                    //res.render("allTerms",{"data": result.rows});
                     res.send({success : 1, message : "Success!", data : " ", retry: 0});
                 })
                 .catch(err => {
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
                 });
             }
         ]
     }
 
     allTerms(){
-
         return [
             (req,res) => {
-
-                this._visitorService.allTermsRequest()
-
-                .then(result => {
-                    res.render("allTerms",{"data": result.rows, helpers:{
-                        checkStatus: function (status) {
-                            if(status == 1){
-                                return 'checked';
-                            }
-
-                        }
-                    }});
-                })
+                this._visitorService.allTabletLocations()
+                    .then(locations => {
+                        this._visitorService.allTermsRequest()
+                            .then(result => {
+                                result.lcoations = locations.rows;
+                                res.render("allTerms", {
+                                    "data": result, helpers: {
+                                        checkStatus: function (status) {
+                                            if (status == 1) {
+                                                return 'checked';
+                                            }
+                                        }
+                                    }
+                                });
+                            })
+                    })
                 .catch(err => {
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
                 });
             }
         ]
     }
 
     templateTerms(){
-
         return [
             (req,res) => {
-                 res.render('addTerms');
+                this._visitorService.allTabletLocations()
+                    .then(locations => {
+                        res.render('addTerms', {data: locations.rows});
+                    })
             }
         ]
     }
     test(){
-
         return [
             (req,res) => {
                 res.render('crom_visitor');
             }
         ]
     }
-
 
     status () {
         return [
@@ -303,42 +311,43 @@ export class Visitors {
     }
 
     cleanStatus() {
-
         return this._visitorService.cleanStatus()
             .then(result => {
                 return {success : 1, message : "completed", data : {}, retry: 0};
-
             })
             .catch(err => {
                 this._logger.error(err);
                 return err;
-
             });
     }
 
     deviceStatus (data) {
         console.log("device status");
         this._visitorService.processStatus(data)
-        .then(result => {
-            //res.send({success : 1, message : "completed", data : {}, retry: 0});
-        })
-        .catch(err => {
-            this._logger.error(err);
-            //res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-        });
+            .then(result => {
+                //res.send({success : 1, message : "completed", data : {}, retry: 0});
+            })
+            .catch(err => {
+                this._logger.error(err);
+                //res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+            });
     }
 
     graph(){
         return [
             (req, res) => {
-                this._visitorService.processGraphData()
-                .then(result => {
-                    res.render('graph_data', {"data": result});
-                })
-                .catch(err => {
-                    this._logger.error(err);
-                    res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-                });
+                 this._visitorService.allTabletLocations()
+                    .then(locations => {
+                        this._visitorService.processGraphData()
+                        .then(result => {
+                            result.locations = locations.rows;
+                            res.render('graph_data', {"data": result});
+                        })
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
+                    });
             }
         ]
     }
@@ -348,13 +357,13 @@ export class Visitors {
         return [
             (req, res) => {
                 this._visitorService.currentStatus()
-                .then(result => {
-                    res.send({success : 1, message : "completed", data : {result} });
-                })
-                .catch(err => {
-                    this._logger.error(err);
-                    res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
-                });
+                    .then(result => {
+                        res.send({success : 1, message : "completed", data : {result} });
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
             }
         ]
     }
@@ -366,8 +375,24 @@ export class Visitors {
                 //We actually need all the tablets to be listed while adding suggestion.
                 this._visitorService.allTabletLocations()
                     .then(result => {
-                        console.log(result.rows);
                         res.render('autoComplete_add', {"data": result.rows});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
+            }
+        ]
+    }
+
+    allTabletLocations() {
+        return [
+            (req, res) => {
+                //res.render('autoComplete_add');
+                //We actually need all the tablets to be listed while adding suggestion.
+                this._visitorService.allTabletLocations()
+                    .then(result => {
+                        res.send(result.rows);
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -444,10 +469,14 @@ export class Visitors {
         return [
             (req, res) => {
                 if(this._localStorage.getItem('email')) {
-                    this._visitorService.autoComplete()
-                        .then(result => {
-                            let row = result.rows;
-                            res.render('auto_Complete', {data: row});
+                    this._visitorService.allTabletLocations()
+                        .then(locations => {
+                            this._visitorService.autoComplete()
+                                .then(result => {
+                                    //console.log(result);
+                                    result.locations = locations.rows;
+                                    res.render('auto_Complete', {data: result});
+                                })
                         })
                         .catch(err => {
                             this._logger.error(err);
@@ -549,10 +578,15 @@ export class Visitors {
         return [
             (req, res) => {
 
-                this._visitorService.staffSignedOut(req.params.id)
-                    .then(result => {
-                        let row = result.rows;
-                        res.render('all_staffsignedout', {data: row});
+                this._visitorService.allTabletLocations()
+                    .then(locations => {
+                        this._visitorService.staffSignedOut(req.params.id)
+                            .then(result => {
+                                result.locations = locations.rows;
+                                //console.log(locations.rows);
+                                //result.locations = JSON.parse(req.locations);
+                                res.render('all_staffsignedout', {data: result});
+                            })
                     })
                     .catch(err => {
                         this._logger.error(err);

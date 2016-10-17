@@ -33,7 +33,7 @@ export class VisitorStore {
             });
     }
 
-    saveCustomer(customer) {
+    saveCustomer(tabId, customer) {
         var dir = "./public/images/visitors/";
 
         if (!fs.existsSync(dir)){
@@ -65,7 +65,8 @@ export class VisitorStore {
                         reclogid,
                         logid,
                         pendingid,
-                        imagepath
+                        imagepath,
+                        tablet_id
                     )
                     VALUES (
                         $1,
@@ -80,7 +81,8 @@ export class VisitorStore {
                         $10,
                         $11,
                         $12,
-                        $13
+                        $13,
+                        $14
                     )
                     RETURNING id
                 `;
@@ -98,7 +100,8 @@ export class VisitorStore {
             customer.paramRecLogId,
             customer.paramLogId,
             customer.paramPendingId,
-            imageName +'.jpg'
+            imageName +'.jpg',
+            tabId
         ];
         return this._resource.query(insertQuery, args)
             .then(response => {
@@ -166,14 +169,16 @@ export class VisitorStore {
             });
     }
 
-    getAllSignIns(){
+    getAllSignIns(tabId){
+        console.log("All Visitors for tabId " + tabId );
         var data = new Date();
         var month = data.getMonth()+1;
         var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
 
-        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL ";
+        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL and tablet_id = $2";
         let args = [
-            myDate + " 00:00:00"
+            myDate + " 00:00:00",
+            tabId
         ];
 
         return this._resource.query(selectQuery, args)
@@ -420,6 +425,7 @@ export class VisitorStore {
     allStaff(tabId) {
         //Fetch Location and all corresponding Departments  and pass it to fetch regarding data from
         //human_resource schema.
+        console.log("AllStaff For TabID " + tabId);
         let selectTabQuery = `SELECT
                                 td.*,t.location_id,t.location_name, t.id as primary_tabid
                             FROM 
@@ -432,6 +438,7 @@ export class VisitorStore {
 
         return this._resource.query(selectTabQuery, tabArgs)
             .then(tabResponse => {
+                console.log(tabResponse.rows);
                 return tabResponse;
             })
             .then( tabResult => {

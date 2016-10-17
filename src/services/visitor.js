@@ -17,13 +17,13 @@ export class VisitorService {
         this._logger = logger;
     }
 
-    processRequest (data) {
+    processRequest (tabId, data) {
 
         this._logger.info("New Customer!");
         this._logger.info(JSON.stringify(data));
         this._logger.info("Saving Data");
 
-                return this._visitorStore.saveCustomer(data)
+                return this._visitorStore.saveCustomer(tabId, data)
                     .then((res) => {
                         return res;
                     })
@@ -72,11 +72,11 @@ export class VisitorService {
 
     }
 
-    allSignIns () {
+    allSignIns (tabId) {
 
         this._logger.info("Getting All Visitors!");
         this._logger.info("Getting Data");
-        return this._visitorStore.getAllSignIns()
+        return this._visitorStore.getAllSignIns(tabId)
             .then((data) => {
                 return data;
             })
@@ -279,10 +279,10 @@ export class VisitorService {
 
     //Staff information
 
-    allStaff(tbaI){
-        return this._visitorStore.allStaff()
+    allStaff(tabId){
+        return this._visitorStore.allStaff(tabId)
             .then((res) => {
-                return res;
+                return res;``
             })
     }
 

@@ -33,22 +33,36 @@
                     <a href="/allVisitors" data-toggle="dropdown">Visitors
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li id="VisitorsIn"><a href="/allVisitors" >Visitors In</a></li>
-                        <li id="VisitorsOut"><a href="/allSignOut" >Visitors Out</a></li>
-
+                    {{#if data.locations}}
+                        {{#each data.locations}}
+                        <li class="menu-item dropdown dropdown-submenu"><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">{{location_name}}</a>
+                            <ul class="dropdown-menu">
+                                <li id="VisitorsIn"><a href="/allVisitors?tabId={{id}}" >Visitors In</a></li>
+                                <li id="VisitorsOut"><a href="/allSignOut?tabId={{id}}" >Visitors Out</a></li>
+                            </ul>
+                        </li>
+                        {{/each}}
+                    {{else}}
+                        <li class="menu-item dropdown "><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">No Location Found</a></li>
+                    {{/if}}
                     </ul>
                 </li>
 
 
                 <li class="menu-item dropdown" id="Staff"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Staff <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-
-                        <li class="menu-item dropdown dropdown-submenu"><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">BRC</a>
+                    {{#if data.locations}}
+                        {{#each data.locations}}
+                        <li class="menu-item dropdown dropdown-submenu"><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">{{location_name}}</a>
                             <ul class="dropdown-menu">
-                                <li><a href="/staffSignedIn/2">Staff Signed In</a></li>
-                                <li><a href="/staffSignedOut/2">Staff Signed Out</a></li>
+                                <li><a href="/staffSignedIn/{{id}}">Staff Signed In</a></li>
+                                <li><a href="/staffSignedOut/{{id}}">Staff Signed Out</a></li>
                             </ul>
                         </li>
+                        {{/each}}
+                    {{else}}
+                            <li class="menu-item dropdown "><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">No Location Found</a></li>
+                    {{/if}}
                     </ul>
                 </li>
 

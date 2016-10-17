@@ -4,7 +4,7 @@
         <div class="col-md-12">
             <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
                 <thead>
-                {{#if data}}
+                {{#if data.rows}}
                 <tr>
                     <th>Select</th>
                     <th>Version</th>
@@ -16,7 +16,7 @@
 
                 <tbody>
 
-                {{#each data}}
+                {{#each data.rows}}
                     <tr>
 
                         <td>

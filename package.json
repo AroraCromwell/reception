@@ -41,8 +41,10 @@
     "normalize.css": "^5.0.0",
     "path": "^0.12.7",
     "pg": "4.4.6",
+    "request": "^2.75.0",
     "restify": "4.0.4",
-    "socket.io": "^1.4.8"
+    "socket.io": "^1.4.8",
+    "when": "^3.7.7"
   },
   "devDependencies": {
     "babel-cli": "^6.5.1",

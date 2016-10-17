@@ -20,6 +20,8 @@ var app = express();
 var expressThumbnail = require('express-thumbnail');
 var exphbs  = require('express-handlebars');
 var qt = require('quickthumb');
+var request = require('request');
+import when from 'when';
 
 app.set('views', path.join(__dirname, 'templates'));
 app.engine('.hbs', exphbs({extname: '.hbs', defaultLayout: 'main_layout',layoutsDir: path.join(__dirname, 'templates/layouts')}));
@@ -27,12 +29,6 @@ app.set('view engine', '.hbs');
 app.use(expressThumbnail.register(path.join(__dirname , 'public')));
 app.use(qt.static(path.join(__dirname, 'public')));
 
-
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
 
 /* Files */
 import {Logger} from "./lib/logger";
@@ -46,11 +42,11 @@ import {EventListener} from "./services/eventListener";
 import {VisitorService} from "./services/visitor";
 import {TemplateManager} from "./services/templateManager";
 import {SendMail} from "./lib/sendMail";
+var middelWare = require('./middelware/middelware').authentication;
 
 let logger = new Logger();
 let sendMail = new SendMail();
 let db = new DbConnect(config.db.postgres.string);
-
 
 db.createConnection()
     .then((connection) => {
@@ -104,6 +100,13 @@ db.createConnection()
             extended: true
         }));
 
+        //MiddelWare
+        app.use(function(req, res, next) {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
+        });
+
         //Visitors
         app.post("/visitors", visitors.post());
         app.get("/allSignOut", visitors.allSignOutToday());
@@ -141,6 +144,8 @@ db.createConnection()
         //request for Tablets
 
         app.get("/addTablet", visitors.addTablet());
+        app.get("/allTabletLocations", visitors.allTabletLocations());
+
         app.post("/tabletPost", visitors.tabletPost());
         app.get("/getAllTablet", visitors.allTablet());
         app.get("/fetchDataForTablet", visitors.fetchDataForTablet());
