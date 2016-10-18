@@ -387,6 +387,13 @@ export class VisitorService {
 
                     if(result.visitors != null) {
 
+                        _.each(result.visitors , function (value, key) {
+                            if(value.settime != "undefined"){
+                                var s = value.settime.substr(0,value.settime.indexOf(' '));
+                                var b = s.split(/\D/);
+                                value.settime = b.reverse().join('-') + " " + value.settime.substr(value.settime.indexOf(' ')+1);
+                            }
+                        });
 
                         result.visitors.todayDate = dateFormat(result.visitors.todayDate, "dd-mm-yyyy");
 
