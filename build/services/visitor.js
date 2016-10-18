@@ -404,6 +404,14 @@ var VisitorService = exports.VisitorService = function () {
 
                     if (result.visitors != null) {
 
+                        _lodash._.each(result.visitors, function (value, key) {
+                            if (value.settime != "undefined") {
+                                var s = value.settime.substr(0, value.settime.indexOf(' '));
+                                var b = s.split(/\D/);
+                                value.settime = b.reverse().join('-') + " " + value.settime.substr(value.settime.indexOf(' ') + 1);
+                            }
+                        });
+
                         result.visitors.todayDate = dateFormat(result.visitors.todayDate, "dd-mm-yyyy");
 
                         _lodash._.each(result.visitors, function (value, key) {
