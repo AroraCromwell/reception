@@ -632,7 +632,7 @@ export class Visitors {
                                 };
 
                                 console.log("Sending Email ");
-                                this._sendMail.mail(mailOptions);
+                                //this._sendMail.mail(mailOptions);
                             })
 
                         if(id == 1 ){
