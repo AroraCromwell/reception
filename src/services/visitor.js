@@ -358,9 +358,9 @@ export class VisitorService {
                             "height": "24mm",
                             "contents": '<div style="text-align: center;font-size: 20px;"><b>BRC Staff</b></div>' +
                             '<div><b>Date :</b>'+ result.rows.todayDate +'</div>'+
-                            '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 537px;float: left;">Name</div>'+
-                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 195px;float: left;">Signed In</div>'+
-                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 170px;float: left;">Status</div>'+
+                            '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 500px;float: left;">Name</div>'+
+                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 232px;float: left;">Signed In</div>'+
+                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 190px;float: left;">Status</div>'+
                             '</div>'
                         },
                         footer: {
