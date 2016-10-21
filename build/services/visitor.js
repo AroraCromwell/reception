@@ -380,7 +380,7 @@ var VisitorService = exports.VisitorService = function () {
                         orientation: 'landscape',
                         header: {
                             "height": "24mm",
-                            "contents": '<div style="text-align: center;font-size: 20px;"><b>BRC Staff</b></div>' + '<div><b>Date :</b>' + result.rows.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 160px;float: left;">StaffId</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 407px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 183px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 150px;float: left;">Status</div>' + '</div>'
+                            "contents": '<div style="text-align: center;font-size: 20px;"><b>BRC Staff</b></div>' + '<div><b>Date :</b>' + result.rows.todayDate + '</div>' + '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 400px;float: left;">Name</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 183px;float: left;">Signed In</div>' + '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 150px;float: left;">Status</div>' + '</div>'
                         },
                         footer: {
                             "height": "10mm",
@@ -392,13 +392,13 @@ var VisitorService = exports.VisitorService = function () {
 
                         var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allStaff.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
-                        exec(cmd, function (error, stdout, stderr) {
-                            console.log(stdout);
-
-                            if (error !== null) {
-                                console.log('exec error: ' + error);
-                            }
-                        });
+                        // exec(cmd, function (error, stdout, stderr) {
+                        //     console.log(stdout);
+                        //
+                        //     if (error !== null) {
+                        //         console.log('exec error: ' + error);
+                        //     }
+                        // });
                     });
 
                     if (result.visitors != null) {
@@ -440,13 +440,13 @@ var VisitorService = exports.VisitorService = function () {
 
                             var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
-                            exec(cmd, function (error, stdout, stderr) {
-                                console.log(stdout);
-
-                                if (error !== null) {
-                                    console.log('exec error: ' + error);
-                                }
-                            });
+                            // exec(cmd, function (error, stdout, stderr) {
+                            //     console.log(stdout);
+                            //
+                            //     if (error !== null) {
+                            //         console.log('exec error: ' + error);
+                            //     }
+                            // });
                         });
                     }
                 }

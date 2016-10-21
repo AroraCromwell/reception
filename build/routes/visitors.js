@@ -582,7 +582,7 @@ var Visitors = exports.Visitors = function () {
                         };
 
                         console.log("Sending Email ");
-                        _this29._sendMail.mail(mailOptions);
+                        //this._sendMail.mail(mailOptions);
                     });
 
                     if (id == 1) {
