@@ -28,6 +28,10 @@ var _fs = require("fs");
 
 var _fs2 = _interopRequireDefault(_fs);
 
+var _when = require("when");
+
+var _when2 = _interopRequireDefault(_when);
+
 var _logger = require("./lib/logger");
 
 var _dataCleaner = require("./services/dataCleaner");
@@ -63,6 +67,8 @@ var app = (0, _express2.default)();
 var expressThumbnail = require('express-thumbnail');
 var exphbs = require('express-handlebars');
 var qt = require('quickthumb');
+var request = require('request');
+
 
 app.set('views', _path2.default.join(__dirname, 'templates'));
 app.engine('.hbs', exphbs({ extname: '.hbs', defaultLayout: 'main_layout', layoutsDir: _path2.default.join(__dirname, 'templates/layouts') }));
@@ -70,14 +76,9 @@ app.set('view engine', '.hbs');
 app.use(expressThumbnail.register(_path2.default.join(__dirname, 'public')));
 app.use(qt.static(_path2.default.join(__dirname, 'public')));
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
-
 /* Files */
 
+//var middelWare = require('./middelware/middelware').authentication;
 
 var logger = new _logger.Logger();
 var sendMail = new _sendMail.SendMail();
@@ -131,13 +132,25 @@ db.createConnection().then(function (connection) {
         extended: true
     }));
 
+    //MiddelWare
+    app.use(function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    });
+
+    //Visitors
     app.post("/visitors", visitors.post());
     app.get("/allSignOut", visitors.allSignOutToday());
     app.get("/allVisitors", visitors.allSignIns());
     app.get("/visitors/:id", visitors.get());
     app.put("/visitors/:id", visitors.put());
+
+    //Admin
     app.get("/", visitors.loginView());
     app.post("/adminLogin", visitors.adminLogin());
+
+    //Terms and Conditions
     app.get("/templateTerms", visitors.templateTerms());
     app.get("/terms", visitors.getTerms());
     app.get("/terms/:id", visitors.getTerms());
@@ -145,6 +158,8 @@ db.createConnection().then(function (connection) {
     app.put("/terms/:id", visitors.updateTerms());
     app.get("/allTerms", visitors.allTerms());
     app.get("/test", visitors.test());
+
+    //App status and Graph
     app.post("/appStatus", visitors.status());
     app.get("/graph", visitors.graph());
     app.get("/graph/getData", visitors.currentStatus());
@@ -158,6 +173,18 @@ db.createConnection().then(function (connection) {
     app.post("/autoComplete/:id", visitors.updateAutoComplete());
     app.delete("/autoComplete/:id", visitors.deleteAutoComplete());
 
+    app.get("/getPrinters", visitors.getPrinters());
+    //request for Tablets
+
+    app.get("/addTablet", visitors.addTablet());
+    app.get("/allTabletLocations", visitors.allTabletLocations());
+
+    app.post("/tabletPost", visitors.tabletPost());
+    app.get("/getAllTablet", visitors.allTablet());
+    app.get("/fetchDataForTablet", visitors.fetchDataForTablet());
+    app.post("/tablet/:id", visitors.updateTablet());
+    app.delete("/tablet/:id", visitors.deleteTabletDept());
+
     // request for staff
     app.get("/allStaff", visitors.allStaff());
     app.get("/staffData/:id", visitors.staffData());
@@ -166,15 +193,19 @@ db.createConnection().then(function (connection) {
     app.get("/staffSignedIn/:id", visitors.staffSignedIn());
     app.get("/staffSignedOut/:id", visitors.staffSignedOut());
     app.post("/captureStaffImage/", visitors.captureStaffImage());
+
+    //Print Outs
     app.get("/allVisitorsPrintOut", visitors.allPrintOut());
     app.get("/allPrintOut/:id", visitors.allPrintOut());
+
+    //FireMarshall
     app.post("/fireMarshall", visitors.addFiremarshall());
     app.get("/fireMarshall", visitors.showFiremarshall());
     app.post("/fireMarshall/:id", visitors.updateFiremarshall());
     app.get("/allFireMarshall", visitors.allFireMarshall());
     app.delete("/fireMarshall/:id", visitors.deleteFireMarshall());
 
-    //staff signin and signout from the NFC card
+    //Staff Signin and Signout from the NFC card
     app.get("/nfcActivity/:id", visitors.nfcActivity());
 
     //request for search
@@ -184,8 +215,24 @@ db.createConnection().then(function (connection) {
     _nodeSchedule2.default.scheduleJob(_config2.default.runTime, function () {
         visitors.allSignOut().then(function (done) {
             logger.info("All Signed Out");
+            return true;
+        }).then(function (res) {
+            logger.info("Removing images and Pdfs");
+            /*
+            *  Remove images for visitors
+            * */
+
+            var cmd = 'rm  public/images/visitors/*';
+
+            exec(cmd, function (error, stdout, stderr) {
+                console.log(stdout);
+
+                if (error !== null) {
+                    console.log('exec error: ' + error);
+                }
+            });
         }).catch(function (err) {
-            logger.error("Error occurred while Signing Out All using cron job: " + JSON.stringify(err));
+            logger.error("Error occurred while running cron job: " + JSON.stringify(err));
         });
 
         visitors.cleanStatus().then(function (done) {
@@ -251,6 +298,7 @@ db.createConnection().then(function (connection) {
     // app.listen(config.server.port, () => {
     //     logger.info("System Listen on port " + config.server.port);
     // });
+
 }).catch(function (err) {
     logger.fatal("Database Failure:  " + err);
     process.exit();

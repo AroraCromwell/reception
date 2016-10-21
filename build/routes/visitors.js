@@ -23,6 +23,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
+var Print = require('pliigo-cups-agent');
+var PrintManager = new Print();
+var exec = require('child_process').exec;
 
 var Visitors = exports.Visitors = function () {
     function Visitors(visitorService, logger, localStorage, io, sendMail) {
@@ -58,10 +61,18 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
                 if (_this2._localStorage.getItem('email')) {
-                    _this2._visitorService.allSignIns().then(function (result) {
-                        var row = result.rows;
-                        res.render('all_visitors', { data: row });
-                        // res.send({success : 1, message : "completed", row, retry: 0});
+                    if (typeof req.query.tabId == 'undefined' || req.query.tabId == 0) {
+                        var err = "Tablet Id cannot be null or 0";
+                        _this2._logger.error(err);
+                        res.send({ success: 0, message: "Error!", data: err });
+                        return;
+                    }
+
+                    _this2._visitorService.allTabletLocations().then(function (locations) {
+                        _this2._visitorService.allSignIns(req.query.tabId).then(function (result) {
+                            result.locations = locations.rows;
+                            res.render('all_visitors', { data: result });
+                        });
                     }).catch(function (err) {
                         _this2._logger.error(err);
                         res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -77,9 +88,16 @@ var Visitors = exports.Visitors = function () {
             var _this3 = this;
 
             return [function (req, res) {
+                _this3._logger.info("Visitor for Tab Id" + req.query.tabId);
 
-                console.log("Node service data" + req.body);
-                _this3._visitorService.processRequest(req.body).then(function (result) {
+                if (typeof req.query.tabId == 'undefined' || req.query.tabId == 0) {
+                    var err = "Tablet Id cannot be null or 0";
+                    _this3._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: err });
+                    return;
+                }
+
+                _this3._visitorService.processRequest(req.query.tabId, req.body).then(function (result) {
                     res.send({ success: 1, message: "completed", id: result, retry: 0 });
                 }).catch(function (err) {
                     _this3._logger.error(err);
@@ -106,10 +124,19 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
                 if (_this5._localStorage.getItem('email')) {
-                    _this5._visitorService.allSignOutToday().then(function (result) {
-                        var row = result.rows;
-                        res.render('all_signed_out', { data: row });
-                        //res.send({success : 1, message : "completed", data : {}, retry: 0});
+
+                    if (typeof req.query.tabId == 'undefined' || req.query.tabId == 0) {
+                        var err = "Tablet Id cannot be null or 0";
+                        _this5._logger.error(err);
+                        res.send({ success: 0, message: "Error!", data: err });
+                        return;
+                    }
+
+                    _this5._visitorService.allTabletLocations().then(function (locations) {
+                        _this5._visitorService.allSignOutToday().then(function (result) {
+                            result.locations = locations.rows;
+                            res.render('all_signed_out', { data: result });
+                        });
                     }).catch(function (err) {
                         _this5._logger.error(err);
                         res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -130,9 +157,7 @@ var Visitors = exports.Visitors = function () {
                     console.log("No value given");
                     res.send({ success: 0, message: "Error", data: "", retry: 1 });
                 } else {
-
                     _this6._visitorService.processPutRequest(req.params.id, req.body).then(function (result) {
-
                         res.send({ success: 1, message: "completed", data: {}, retry: 0 });
                     }).catch(function (err) {
                         _this6._logger.error(err);
@@ -170,7 +195,7 @@ var Visitors = exports.Visitors = function () {
             return [function (req, res) {
                 if (req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "Lewis@3524") {
                     _this8._localStorage.setItem("email", req.body.inputEmail);
-                    res.redirect("allVisitors");
+                    res.redirect("allVisitors?tabId=1");
                 } else {
                     _this8._localStorage.setItem("error", "Please Check Username and Password");
                     res.redirect("/");
@@ -184,10 +209,11 @@ var Visitors = exports.Visitors = function () {
 
             return [function (req, res) {
                 var id = req.params.id;
-
-                _this9._visitorService.getTermsRequest(id).then(function (result) {
-
-                    res.render(result, { title: 'my other page', layout: '' });
+                _this9._visitorService.allTabletLocations().then(function (locations) {
+                    _this9._visitorService.getTermsRequest(id).then(function (result) {
+                        result.locations = locations.rows;
+                        res.render(result, { title: 'my other page', layout: '' });
+                    });
                 }).catch(function (err) {
                     _this9._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -200,7 +226,6 @@ var Visitors = exports.Visitors = function () {
             var _this10 = this;
 
             return [function (req, res) {
-
                 _this10._visitorService.postTermsRequest(req.body).then(function (result) {
                     res.redirect('allTerms');
                 }).catch(function (err) {
@@ -215,9 +240,7 @@ var Visitors = exports.Visitors = function () {
             var _this11 = this;
 
             return [function (req, res) {
-
                 _this11._visitorService.updateTermsRequest(req.params.id).then(function (result) {
-                    //res.render("allTerms",{"data": result.rows});
                     res.send({ success: 1, message: "Success!", data: " ", retry: 0 });
                 }).catch(function (err) {
                     _this11._logger.error(err);
@@ -231,15 +254,19 @@ var Visitors = exports.Visitors = function () {
             var _this12 = this;
 
             return [function (req, res) {
-
-                _this12._visitorService.allTermsRequest().then(function (result) {
-                    res.render("allTerms", { "data": result.rows, helpers: {
-                            checkStatus: function checkStatus(status) {
-                                if (status == 1) {
-                                    return 'checked';
+                _this12._visitorService.allTabletLocations().then(function (locations) {
+                    _this12._visitorService.allTermsRequest().then(function (result) {
+                        result.lcoations = locations.rows;
+                        res.render("allTerms", {
+                            "data": result, helpers: {
+                                checkStatus: function checkStatus(status) {
+                                    if (status == 1) {
+                                        return 'checked';
+                                    }
                                 }
                             }
-                        } });
+                        });
+                    });
                 }).catch(function (err) {
                     _this12._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -249,15 +276,17 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "templateTerms",
         value: function templateTerms() {
+            var _this13 = this;
 
             return [function (req, res) {
-                res.render('addTerms');
+                _this13._visitorService.allTabletLocations().then(function (locations) {
+                    res.render('addTerms', { data: locations.rows });
+                });
             }];
         }
     }, {
         key: "test",
         value: function test() {
-
             return [function (req, res) {
                 res.render('crom_visitor');
             }];
@@ -265,13 +294,13 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "status",
         value: function status() {
-            var _this13 = this;
+            var _this14 = this;
 
             return [function (req, res) {
-                _this13._visitorService.processStatus(req.body).then(function (result) {
+                _this14._visitorService.processStatus(req.body).then(function (result) {
                     res.send({ success: 1, message: "completed", data: {}, retry: 0 });
                 }).catch(function (err) {
-                    _this13._logger.error(err);
+                    _this14._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -279,38 +308,41 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "cleanStatus",
         value: function cleanStatus() {
-            var _this14 = this;
+            var _this15 = this;
 
             return this._visitorService.cleanStatus().then(function (result) {
                 return { success: 1, message: "completed", data: {}, retry: 0 };
             }).catch(function (err) {
-                _this14._logger.error(err);
+                _this15._logger.error(err);
                 return err;
             });
         }
     }, {
         key: "deviceStatus",
         value: function deviceStatus(data) {
-            var _this15 = this;
+            var _this16 = this;
 
             console.log("device status");
             this._visitorService.processStatus(data).then(function (result) {
                 //res.send({success : 1, message : "completed", data : {}, retry: 0});
             }).catch(function (err) {
-                _this15._logger.error(err);
+                _this16._logger.error(err);
                 //res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
             });
         }
     }, {
         key: "graph",
         value: function graph() {
-            var _this16 = this;
+            var _this17 = this;
 
             return [function (req, res) {
-                _this16._visitorService.processGraphData().then(function (result) {
-                    res.render('graph_data', { "data": result });
+                _this17._visitorService.allTabletLocations().then(function (locations) {
+                    _this17._visitorService.processGraphData().then(function (result) {
+                        result.locations = locations.rows;
+                        res.render('graph_data', { "data": result });
+                    });
                 }).catch(function (err) {
-                    _this16._logger.error(err);
+                    _this17._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -318,42 +350,11 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "currentStatus",
         value: function currentStatus() {
-            var _this17 = this;
-
-            return [function (req, res) {
-                _this17._visitorService.currentStatus().then(function (result) {
-                    res.send({ success: 1, message: "completed", data: { result: result } });
-                }).catch(function (err) {
-                    _this17._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
-                });
-            }];
-        }
-    }, {
-        key: "autoCompleteAdd",
-        value: function autoCompleteAdd() {
-            return [function (req, res) {
-                res.render('autoComplete_add');
-            }];
-        }
-    }, {
-        key: "autoCompletePost",
-        value: function autoCompletePost() {
             var _this18 = this;
 
             return [function (req, res) {
-
-                _this18._visitorService.autoCompletePost(req.body).then(function (result) {
-
-                    if (result.rows[0].location == 'BRC') {
-                        _this18._io.emit('brcSuggestionAdd', result.rows[0]);
-                    }
-
-                    if (req.body.another != "undefined") {
-                        res.redirect("/autoCompleteAdd/?type=" + req.body.type);
-                    } else {
-                        res.redirect("/autoComplete");
-                    }
+                _this18._visitorService.currentStatus().then(function (result) {
+                    res.send({ success: 1, message: "completed", data: { result: result } });
                 }).catch(function (err) {
                     _this18._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
@@ -361,16 +362,15 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "updateAutoComplete",
-        value: function updateAutoComplete() {
+        key: "autoCompleteAdd",
+        value: function autoCompleteAdd() {
             var _this19 = this;
 
             return [function (req, res) {
-                _this19._visitorService.updateAutoComplete(req.params.id, req.body).then(function (result) {
-                    if (result.rows[0].location == 'BRC') {
-                        _this19._io.emit('brcSuggestionUpdate', result.rows[0]);
-                    }
-                    res.redirect("/autoComplete");
+                //res.render('autoComplete_add');
+                //We actually need all the tablets to be listed while adding suggestion.
+                _this19._visitorService.allTabletLocations().then(function (result) {
+                    res.render('autoComplete_add', { "data": result.rows });
                 }).catch(function (err) {
                     _this19._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
@@ -378,16 +378,15 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "deleteAutoComplete",
-        value: function deleteAutoComplete() {
+        key: "allTabletLocations",
+        value: function allTabletLocations() {
             var _this20 = this;
 
             return [function (req, res) {
-                _this20._visitorService.deleteAutoComplete(req.params.id).then(function (result) {
-                    //Fire delete message, So Device will delete it from Android App
-                    var myString = { "id": req.params.id, "type": req.body.type };
-                    _this20._io.emit('brcSuggestionDelete', myString);
-                    res.send({ success: 1, message: "completed", data: { result: result } });
+                //res.render('autoComplete_add');
+                //We actually need all the tablets to be listed while adding suggestion.
+                _this20._visitorService.allTabletLocations().then(function (result) {
+                    res.send(result.rows);
                 }).catch(function (err) {
                     _this20._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
@@ -395,17 +394,78 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "autoComplete",
-        value: function autoComplete() {
+        key: "autoCompletePost",
+        value: function autoCompletePost() {
             var _this21 = this;
 
             return [function (req, res) {
-                if (_this21._localStorage.getItem('email')) {
-                    _this21._visitorService.autoComplete().then(function (result) {
-                        var row = result.rows;
-                        res.render('auto_Complete', { data: row });
+
+                _this21._visitorService.autoCompletePost(req.body).then(function (result) {
+                    // set up json data to emit which includes location Id and data
+                    // check how to receive this data on android side
+                    _this21._io.emit('AddSuggestion-' + result.rows[0].tablet_id, result.rows[0]);
+
+                    if (req.body.another != "undefined") {
+                        res.redirect("/autoCompleteAdd/?type=" + req.body.type);
+                    } else {
+                        res.redirect("/autoComplete");
+                    }
+                }).catch(function (err) {
+                    _this21._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "updateAutoComplete",
+        value: function updateAutoComplete() {
+            var _this22 = this;
+
+            return [function (req, res) {
+                _this22._visitorService.updateAutoComplete(req.params.id, req.body).then(function (result) {
+                    if (result.rows[0].location == 'BRC') {
+                        console.log("Suggestion will be updated on TabletID" + result.rows[0].tablet_id);
+                        _this22._io.emit("UpdateSuggestion-" + result.rows[0].tablet_id, result.rows[0]);
+                    }
+                    res.redirect("/autoComplete");
+                }).catch(function (err) {
+                    _this22._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "deleteAutoComplete",
+        value: function deleteAutoComplete() {
+            var _this23 = this;
+
+            return [function (req, res) {
+                _this23._visitorService.deleteAutoComplete(req.params.id).then(function (result) {
+                    //Fire delete message, So Device will delete it from Android App
+                    var myString = { "id": req.params.id, "type": req.body.type };
+                    //this._io.emit('brcSuggestionDelete', myString);
+                    _this23._io.emit('DeleteSuggestion-' + result.rows[0].tablet_id, myString);
+                    res.send({ success: 1, message: "completed", data: { result: result } });
+                }).catch(function (err) {
+                    _this23._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "autoComplete",
+        value: function autoComplete() {
+            var _this24 = this;
+
+            return [function (req, res) {
+                if (_this24._localStorage.getItem('email')) {
+                    _this24._visitorService.allTabletLocations().then(function (locations) {
+                        _this24._visitorService.autoComplete().then(function (result) {
+                            result.locations = locations.rows;
+                            res.render('auto_Complete', { data: result });
+                        });
                     }).catch(function (err) {
-                        _this21._logger.error(err);
+                        _this24._logger.error(err);
                         res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                     });
                 } else {
@@ -416,14 +476,14 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "autoCompleteId",
         value: function autoCompleteId() {
-            var _this22 = this;
+            var _this25 = this;
 
             return [function (req, res) {
-                _this22._visitorService.autoCompleteId(req.params.id).then(function (result) {
+                _this25._visitorService.autoCompleteId(req.params.id).then(function (result) {
                     var row = result.rows;
                     res.render('auto_Complete', { data: row });
                 }).catch(function (err) {
-                    _this22._logger.error(err);
+                    _this25._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -434,58 +494,13 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "allStaff",
         value: function allStaff() {
-            var _this23 = this;
-
-            return [function (req, res) {
-                _this23._visitorService.allStaff().then(function (result) {
-                    var row = result.rows;
-                    res.send({ status: 'ok', count: '20', count_total: result.rowCount, data: row });
-                }).catch(function (err) {
-                    _this23._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
-                });
-            }];
-        }
-    }, {
-        key: "staffData",
-        value: function staffData() {
-            var _this24 = this;
-
-            return [function (req, res) {
-                _this24._visitorService.staffData(req.params.id).then(function (result) {
-                    var row = result.rows;
-                    res.send({ status: 'ok', count: '20', count_total: result.rowCount, data: row });
-                }).catch(function (err) {
-                    _this24._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
-                });
-            }];
-        }
-    }, {
-        key: "staffSignIn",
-        value: function staffSignIn() {
-            var _this25 = this;
-
-            return [function (req, res) {
-
-                _this25._visitorService.staffSignIn(req.params.id).then(function (result) {
-                    res.send({ success: 1, message: "completed" });
-                }).catch(function (err) {
-                    _this25._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
-                });
-            }];
-        }
-    }, {
-        key: "staffSignedIn",
-        value: function staffSignedIn() {
             var _this26 = this;
 
             return [function (req, res) {
-
-                _this26._visitorService.staffSignedIn(req.params.id).then(function (result) {
+                _this26._logger.info("Staff for Tab Id" + req.query.tabId);
+                _this26._visitorService.allStaff(req.query.tabId).then(function (result) {
                     var row = result.rows;
-                    res.render('all_staffsignedin', { data: row });
+                    res.send({ status: 'ok', count: '20', count_total: result.rowCount, data: row });
                 }).catch(function (err) {
                     _this26._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -493,15 +508,14 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "staffSignedOut",
-        value: function staffSignedOut() {
+        key: "staffData",
+        value: function staffData() {
             var _this27 = this;
 
             return [function (req, res) {
-
-                _this27._visitorService.staffSignedOut(req.params.id).then(function (result) {
+                _this27._visitorService.staffData(req.params.id).then(function (result) {
                     var row = result.rows;
-                    res.render('all_staffsignedout', { data: row });
+                    res.send({ status: 'ok', count: '20', count_total: result.rowCount, data: row });
                 }).catch(function (err) {
                     _this27._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -509,16 +523,67 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "staffSignOut",
-        value: function staffSignOut() {
+        key: "staffSignIn",
+        value: function staffSignIn() {
             var _this28 = this;
 
             return [function (req, res) {
 
-                _this28._visitorService.staffSignOut(req.params.id).then(function (result) {
+                _this28._visitorService.staffSignIn(req.params.id).then(function (result) {
+                    res.send({ success: 1, message: "completed" });
+                }).catch(function (err) {
+                    _this28._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignedIn",
+        value: function staffSignedIn() {
+            var _this29 = this;
+
+            return [function (req, res) {
+
+                _this29._visitorService.staffSignedIn(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_staffsignedin', { data: row });
+                }).catch(function (err) {
+                    _this29._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignedOut",
+        value: function staffSignedOut() {
+            var _this30 = this;
+
+            return [function (req, res) {
+
+                _this30._visitorService.allTabletLocations().then(function (locations) {
+                    _this30._visitorService.staffSignedOut(req.params.id).then(function (result) {
+                        result.locations = locations.rows;
+                        //console.log(locations.rows);
+                        //result.locations = JSON.parse(req.locations);
+                        res.render('all_staffsignedout', { data: result });
+                    });
+                }).catch(function (err) {
+                    _this30._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "staffSignOut",
+        value: function staffSignOut() {
+            var _this31 = this;
+
+            return [function (req, res) {
+
+                _this31._visitorService.staffSignOut(req.params.id).then(function (result) {
                     res.send({ success: 1, message: "completed", data: JSON.stringify(result.rows) });
                 }).catch(function (err) {
-                    _this28._logger.error(err.message);
+                    _this31._logger.error(err.message);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err.message), retry: 1 });
                 });
             }];
@@ -530,9 +595,14 @@ var Visitors = exports.Visitors = function () {
                 console.log("this is staff id" + req.body.paramStaffId);
                 console.log("this is staff image path" + req.body.paramLocalImagePath);
 
+                var dir = "./public/images/staff/";
+
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir);
+                }
+
                 var imageName = req.body.paramStaffId;
-                var options = { filename: './public/images/' + imageName };
-                //var options = {filename: './src/reception_handler/images/' + imageName};
+                var options = { filename: dir + imageName };
                 var imageData = new Buffer(req.body.paramImagePath, 'base64');
 
                 base64.base64decoder(imageData, options, function (err, saved) {
@@ -541,7 +611,6 @@ var Visitors = exports.Visitors = function () {
                         res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                     }
                     console.log(saved);
-
                     res.send({ success: 1, message: "Completed" });
                 });
             }];
@@ -549,18 +618,18 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "allPrintOut",
         value: function allPrintOut() {
-            var _this29 = this;
+            var _this32 = this;
 
             return [function (req, res) {
 
                 var id = req.params.id == null ? 1 : req.params.id;
 
-                _this29._visitorService.allPrintOut(id).then(function (result) {
+                _this32._visitorService.allPrintOut(id).then(function (result) {
                     return result;
                 }).then(function (response) {
                     var combineData = response;
                     console.log(combineData.rows);
-                    _this29._visitorService.fireMarshallMail().then(function (res) {
+                    _this32._visitorService.fireMarshallMail().then(function (res) {
 
                         var emailReceiver = [];
                         _lodash._.each(res.rows, function (value, key) {
@@ -593,7 +662,7 @@ var Visitors = exports.Visitors = function () {
                         res.render('allVisitorsPrintOutWithPrint', { data: combineData });
                     }
                 }).catch(function (err) {
-                    _this29._logger.error(err);
+                    _this32._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -608,10 +677,10 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "addFiremarshall",
         value: function addFiremarshall() {
-            var _this30 = this;
+            var _this33 = this;
 
             return [function (req, res) {
-                _this30._visitorService.addFiremarshall(req.body).then(function (result) {
+                _this33._visitorService.addFiremarshall(req.body).then(function (result) {
 
                     if (req.body.another != "undefined") {
                         res.redirect("/fireMarshall");
@@ -619,7 +688,7 @@ var Visitors = exports.Visitors = function () {
                         res.redirect("/allFireMarshall");
                     }
                 }).catch(function (err) {
-                    _this30._logger.error(err);
+                    _this33._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -627,13 +696,13 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "updateFiremarshall",
         value: function updateFiremarshall() {
-            var _this31 = this;
+            var _this34 = this;
 
             return [function (req, res) {
-                _this31._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
+                _this34._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
                     res.redirect("/allFireMarshall");
                 }).catch(function (err) {
-                    _this31._logger.error(err);
+                    _this34._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -641,15 +710,15 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "allFireMarshall",
         value: function allFireMarshall() {
-            var _this32 = this;
+            var _this35 = this;
 
             return [function (req, res) {
-                _this32._visitorService.allFireMarshall().then(function (result) {
+                _this35._visitorService.allFireMarshall().then(function (result) {
                     var row = result.rows;
                     //res.render("/allVisitorsPrintOut", {data: row});
                     res.render('all_firemarshall', { data: row });
                 }).catch(function (err) {
-                    _this32._logger.error(err);
+                    _this35._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -657,14 +726,14 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "deleteFireMarshall",
         value: function deleteFireMarshall() {
-            var _this33 = this;
+            var _this36 = this;
 
             return [function (req, res) {
-                _this33._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                _this36._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
                     var row = result.rows;
                     res.render('all_firemarshall', { data: row });
                 }).catch(function (err) {
-                    _this33._logger.error(err);
+                    _this36._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -675,18 +744,149 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity() {
-            var _this34 = this;
+            var _this37 = this;
 
             return [function (req, res) {
 
-                _this34._visitorService.nfcActivity(req.params.id).then(function (result) {
+                _this37._visitorService.nfcActivity(req.params.id).then(function (result) {
                     var status = result.activity == "UPDATE" ? "sign_out" : "sign_in";
                     res.send({ message: "Success", activity: status, name: result.rows[0].first_name + " " + result.rows[0].surname });
                 }).catch(function (err) {
-                    _this34._logger.error(err);
+                    _this37._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
             }];
+        }
+
+        //Functionality for Tablets
+
+    }, {
+        key: "addTablet",
+        value: function addTablet() {
+            var _this38 = this;
+
+            return [function (req, res) {
+                _this38.getAllPrinters().then(function (printerResult) {
+                    _this38._visitorService.addTablet().then(function (result) {
+                        result.allPrinters = printerResult.printersArray;
+                        res.render('add_tablet', { data: result });
+                    });
+                }).catch(function (err) {
+                    _this38._logger.error(err);
+                    res.send({ message: "Error", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "tabletPost",
+        value: function tabletPost() {
+            var _this39 = this;
+
+            return [function (req, res) {
+                _this39._visitorService.tabletPost(req.body).then(function (result) {
+                    if (req.body.another != "undefined") {
+                        res.redirect("/addTablet/?location=" + req.body.location);
+                    } else {
+                        res.redirect("/allTablet");
+                    }
+                }).catch(function (err) {
+                    _this39._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "allTablet",
+        value: function allTablet() {
+            var _this40 = this;
+
+            return [function (req, res) {
+                _this40._visitorService.allTablet().then(function (result) {
+                    var row = result.rows;
+                    res.render('all_tablet', { data: row });
+                }).catch(function (err) {
+                    _this40._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "fetchDataForTablet",
+        value: function fetchDataForTablet() {
+            var _this41 = this;
+
+            return [function (req, res) {
+                _this41._visitorService.addTablet().then(function (result) {
+
+                    var allOptions = '';
+                    var allDept = '';
+                    _lodash._.each(result.locations, function (value) {
+                        allOptions += '<option value="' + value.location_id + '_' + value.location_name + '">' + value.location_name + '</option>';
+                    });
+                    _lodash._.each(result.departments, function (val) {
+                        allDept += '<input type="checkbox" name="department" ' + 'id="' + val.department_id + '" value="' + val.department_id + '_' + val.department + '_' + val.id + '" >' + val.department + '<br>';
+                    });
+                    result.options = allOptions;
+                    result.depts = allDept;
+                    res.send({ message: "success", data: result });
+                }).catch(function (err) {
+                    _this41._logger.error(err);
+                    res.send({ message: "Error", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "updateTablet",
+        value: function updateTablet() {
+            var _this42 = this;
+
+            return [function (req, res) {
+                _this42._visitorService.updateTablet(req.params.id, req.body).then(function (result) {
+                    res.redirect("/allTablet");
+                }).catch(function (err) {
+                    _this42._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "deleteTabletDept",
+        value: function deleteTabletDept() {
+            var _this43 = this;
+
+            return [function (req, res) {
+                _this43._visitorService.deleteTabletDept(req.params.id).then(function (result) {
+                    res.send({ success: 1, message: "completed", data: { result: result } });
+                }).catch(function (err) {
+                    _this43._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
+            }];
+        }
+    }, {
+        key: "getPrinters",
+        value: function getPrinters() {
+            return [function (req, res) {
+                var printersArray = PrintManager.getPrinters();
+                var finalArray = [];
+                _lodash._.each(printersArray, function (value, key) {
+                    console.log(value.name);
+                    finalArray[key] = value.name;
+                });
+                res.send({ success: 1, message: "completed", data: { finalArray: finalArray } });
+            }];
+        }
+    }, {
+        key: "getAllPrinters",
+        value: function getAllPrinters() {
+            return new Promise(function (resolve, reject) {
+                try {
+                    var printersArray = PrintManager.getPrinters();
+                    resolve({ printersArray: printersArray });
+                } catch (e) {
+                    reject(e);
+                }
+            });
         }
     }]);
 

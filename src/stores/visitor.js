@@ -382,7 +382,7 @@ export class VisitorStore {
     }
     autoComplete() {
         let selectQuery = `SELECT 
-                                ac.*,t.location_id,t.location_name 
+                                ac.*,t.location_id,t.tablet_name 
                             FROM 
                                 reception_handler.autoComplete ac 
                             LEFT JOIN 
@@ -917,10 +917,11 @@ export class VisitorStore {
         return this._resource.query(selectQuery, args)
             .then(response => {
                 if(response.rowCount == 0){
-                    let insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name) VALUES ( $1, $2) RETURNING id';
+                    let insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name, tablet_name) VALUES ( $1, $2, $3) RETURNING id';
                     let insertArgs = [
                         location_id,
                         location_name,
+                        data.tablet_name
                     ];
 
                     return this._resource.query(insertQuery, insertArgs)
@@ -979,7 +980,7 @@ export class VisitorStore {
     allTablet(){
 
         let selectQuery = `SELECT
-                                td.*,t.location_id,t.location_name, t.id as primary_tabid
+                                td.*,t.location_id,t.location_name,t.tablet_name, t.id as primary_tabid
                             FROM 
                                 reception_handler.tablets t
                             LEFT JOIN 

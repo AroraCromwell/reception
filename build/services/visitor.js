@@ -37,14 +37,14 @@ var VisitorService = exports.VisitorService = function () {
 
     _createClass(VisitorService, [{
         key: "processRequest",
-        value: function processRequest(data) {
+        value: function processRequest(tabId, data) {
             var _this = this;
 
             this._logger.info("New Customer!");
             this._logger.info(JSON.stringify(data));
             this._logger.info("Saving Data");
 
-            return this._visitorStore.saveCustomer(data).then(function (res) {
+            return this._visitorStore.saveCustomer(tabId, data).then(function (res) {
                 return res;
             }).then(function (result) {
                 //render the template
@@ -90,11 +90,11 @@ var VisitorService = exports.VisitorService = function () {
         }
     }, {
         key: "allSignIns",
-        value: function allSignIns() {
+        value: function allSignIns(tabId) {
 
             this._logger.info("Getting All Visitors!");
             this._logger.info("Getting Data");
-            return this._visitorStore.getAllSignIns().then(function (data) {
+            return this._visitorStore.getAllSignIns(tabId).then(function (data) {
                 return data;
             });
         }
@@ -297,9 +297,9 @@ var VisitorService = exports.VisitorService = function () {
 
     }, {
         key: "allStaff",
-        value: function allStaff() {
-            return this._visitorStore.allStaff().then(function (res) {
-                return res;
+        value: function allStaff(tabId) {
+            return this._visitorStore.allStaff(tabId).then(function (res) {
+                return res;"";
             });
         }
     }, {
@@ -510,6 +510,51 @@ var VisitorService = exports.VisitorService = function () {
         key: "nfcActivity",
         value: function nfcActivity(id) {
             return this._visitorStore.nfcActivity(id).then(function (res) {
+                return res;
+            });
+        }
+
+        //Functionality for Tablets
+
+    }, {
+        key: "addTablet",
+        value: function addTablet() {
+            return this._visitorStore.addTablet().then(function (res) {
+                return res;
+            });
+        }
+    }, {
+        key: "tabletPost",
+        value: function tabletPost(data) {
+            return this._visitorStore.tabletPost(data).then(function (res) {
+                return res;
+            });
+        }
+    }, {
+        key: "allTablet",
+        value: function allTablet() {
+            return this._visitorStore.allTablet().then(function (res) {
+                return res;
+            });
+        }
+    }, {
+        key: "allTabletLocations",
+        value: function allTabletLocations() {
+            return this._visitorStore.allTabletLocations().then(function (res) {
+                return res;
+            });
+        }
+    }, {
+        key: "updateTablet",
+        value: function updateTablet(id, data) {
+            return this._visitorStore.updateTablet(id, data).then(function (res) {
+                return res;
+            });
+        }
+    }, {
+        key: "deleteTabletDept",
+        value: function deleteTabletDept(id) {
+            return this._visitorStore.deleteTabletDept(id).then(function (res) {
                 return res;
             });
         }

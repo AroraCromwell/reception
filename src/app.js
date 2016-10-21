@@ -42,7 +42,7 @@ import {EventListener} from "./services/eventListener";
 import {VisitorService} from "./services/visitor";
 import {TemplateManager} from "./services/templateManager";
 import {SendMail} from "./lib/sendMail";
-var middelWare = require('./middelware/middelware').authentication;
+//var middelWare = require('./middelware/middelware').authentication;
 
 let logger = new Logger();
 let sendMail = new SendMail();
@@ -141,6 +141,7 @@ db.createConnection()
         app.post("/autoComplete/:id", visitors.updateAutoComplete());
         app.delete("/autoComplete/:id", visitors.deleteAutoComplete());
 
+        app.get("/getPrinters", visitors.getPrinters());
         //request for Tablets
 
         app.get("/addTablet", visitors.addTablet());

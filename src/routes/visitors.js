@@ -16,6 +16,10 @@
 import {_} from "lodash";
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
+var Print = require('pliigo-cups-agent');
+var PrintManager = new Print();
+var exec = require('child_process').exec;
+
 export class Visitors {
 
     constructor (visitorService, logger, localStorage, io, sendMail ) {
@@ -473,7 +477,6 @@ export class Visitors {
                         .then(locations => {
                             this._visitorService.autoComplete()
                                 .then(result => {
-                                    //console.log(result);
                                     result.locations = locations.rows;
                                     res.render('auto_Complete', {data: result});
                                 })
@@ -801,9 +804,13 @@ export class Visitors {
     addTablet(){
         return [
             (req, res) => {
-                this._visitorService.addTablet()
-                    .then(result => {
-                        res.render('add_tablet', {data: result});
+                this.getAllPrinters()
+                    .then(printerResult => {
+                        this._visitorService.addTablet()
+                            .then(result => {
+                                result.allPrinters = printerResult.printersArray;
+                                res.render('add_tablet', {data: result});
+                            })
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -818,7 +825,6 @@ export class Visitors {
             (req, res) => {
                 this._visitorService.tabletPost(req.body)
                     .then(result => {
-
                         if(req.body.another != "undefined"){
                             res.redirect("/addTablet/?location=" + req.body.location);
                         }else {
@@ -906,5 +912,31 @@ export class Visitors {
                     });
             }
         ]
+    }
+
+
+    getPrinters(){
+        return [
+            (req, res) => {
+                var printersArray = PrintManager.getPrinters();
+                var  finalArray = [];
+                _.each(printersArray, function(value, key) {
+                    console.log(value.name);
+                    finalArray[key] = value.name;
+                });
+                res.send({success : 1, message : "completed", data : {finalArray} });
+            }
+        ];
+    }
+
+    getAllPrinters(){
+        return new Promise(function (resolve, reject) {
+            try{
+                var printersArray = PrintManager.getPrinters();
+                resolve({printersArray});
+            }catch (e){
+                reject(e);
+            }
+        })
     }
 }
