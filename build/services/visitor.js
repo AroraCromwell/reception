@@ -366,7 +366,6 @@ var VisitorService = exports.VisitorService = function () {
                         value.signin_time = dateFormat(value.signin_time, "HH:MM:ss");
                     }
                 });
-
                 return res;
             }).then(function (result) {
 

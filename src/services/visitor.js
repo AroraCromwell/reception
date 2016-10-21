@@ -341,7 +341,6 @@ export class VisitorService {
                         value.signin_time = dateFormat(value.signin_time, "HH:MM:ss");
                     }
                 });
-
                 return res;
             })
             .then(result => {

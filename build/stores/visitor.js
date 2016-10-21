@@ -471,7 +471,7 @@ var VisitorStore = exports.VisitorStore = function () {
         key: "fireMarshallMail",
         value: function fireMarshallMail() {
 
-            var selectQuery = "SELECT * FROM reception_handler.fire_marshall";
+            var selectQuery = "SELECT * FROM reception_handler.fire_marshall where id = 11";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {

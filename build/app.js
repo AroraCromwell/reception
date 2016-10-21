@@ -251,6 +251,7 @@ db.createConnection().then(function (connection) {
     // app.listen(config.server.port, () => {
     //     logger.info("System Listen on port " + config.server.port);
     // });
+
 }).catch(function (err) {
     logger.fatal("Database Failure:  " + err);
     process.exit();

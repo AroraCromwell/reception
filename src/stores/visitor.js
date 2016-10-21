@@ -611,7 +611,7 @@ export class VisitorStore {
 
     fireMarshallMail () {
 
-        let selectQuery = `SELECT * FROM reception_handler.fire_marshall`;
+        let selectQuery = `SELECT * FROM reception_handler.fire_marshall where id = 11`;
         let args = [
         ];
 

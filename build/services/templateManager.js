@@ -35,7 +35,6 @@ var TemplateManager = exports.TemplateManager = function () {
     /**
      * Initializes by loading the handlebar templates from the `templates` folder.
      */
-
     function TemplateManager() {
         _classCallCheck(this, TemplateManager);
 
