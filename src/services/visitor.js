@@ -360,7 +360,7 @@ export class VisitorService {
                             '<div><b>Date :</b>'+ result.rows.todayDate +'</div>'+
                             '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 505px;float: left;">Name</div>'+
                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 227px;float: left;">Signed In</div>'+
-                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 185px;float: left;">Status</div>'+
+                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 188px;float: left;">Status</div>'+
                             '</div>'
                         },
                         footer: {
