@@ -373,13 +373,13 @@ export class VisitorService {
 
                         var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allStaff.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
-                        // exec(cmd, function (error, stdout, stderr) {
-                        //     console.log(stdout);
-                        //
-                        //     if (error !== null) {
-                        //         console.log('exec error: ' + error);
-                        //     }
-                        // });
+                        exec(cmd, function (error, stdout, stderr) {
+                            console.log(stdout);
+
+                            if (error !== null) {
+                                console.log('exec error: ' + error);
+                            }
+                        });
                     })
 
 
@@ -432,13 +432,13 @@ export class VisitorService {
 
                             var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
 
-                            // exec(cmd, function (error, stdout, stderr) {
-                            //     console.log(stdout);
-                            //
-                            //     if (error !== null) {
-                            //         console.log('exec error: ' + error);
-                            //     }
-                            // });
+                            exec(cmd, function (error, stdout, stderr) {
+                                console.log(stdout);
+
+                                if (error !== null) {
+                                    console.log('exec error: ' + error);
+                                }
+                            });
                         })
                     }
 
