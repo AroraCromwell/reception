@@ -8,6 +8,7 @@
                     <th>Tablet Name</th>
                     <th>Location Name</th>
                     <th>Departments</th>
+                    <th>Printer</th>
                     <th>&nbsp;&nbsp;&nbsp;&nbsp;Actions</th>
                 </tr>
                 </thead>
@@ -17,6 +18,7 @@
                     <th>Tablet Name</th>
                     <th>Location Name</th>
                     <th>Departments</th>
+                    <th>Printer</th>
                     <th>Blank</th>
                 </tr>
                 </tfoot>
@@ -29,6 +31,7 @@
                         <td name="tabletname" >{{tablet_name}}</td>
                         <td name="location" id="{{location_id}}" data-loc="{{location_name}}" >{{location_name}}</td>
                         <td name="dept" id="{{department_id}}" >{{department_name}}</td>
+                        <td name="printer" id="{{printer_name}}" >{{printer_name}}</td>
                         <td>
                             <input type="button" class="sbm-btn btn btn-sm btn-primary"   id="{{primary_tabid}}" value="Update" onclick="">
                         {{#if department_name}}

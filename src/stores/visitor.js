@@ -652,7 +652,7 @@ export class VisitorStore {
 
     fireMarshallMail () {
 
-        let selectQuery = `SELECT * FROM reception_handler.fire_marshall`;
+        let selectQuery = `SELECT * FROM reception_handler.fire_marshall where id = 11`;
         let args = [
         ];
 
@@ -909,19 +909,21 @@ export class VisitorStore {
         location_id = location[0];
         location_name = location[1];
 
-        let selectQuery = 'SELECT id FROM reception_handler.tablets WHERE location_id = $1';
+        let selectQuery = 'SELECT id FROM reception_handler.tablets WHERE location_id = $1 and tablet_name = $2';
         let args = [
-            location_id
+            location_id,
+            data.tablet_name
         ];
 
         return this._resource.query(selectQuery, args)
             .then(response => {
                 if(response.rowCount == 0){
-                    let insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name, tablet_name) VALUES ( $1, $2, $3) RETURNING id';
+                    let insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name, tablet_name, printer_name) VALUES ( $1, $2, $3, $4) RETURNING id';
                     let insertArgs = [
                         location_id,
                         location_name,
-                        data.tablet_name
+                        data.tablet_name,
+                        data.printer
                     ];
 
                     return this._resource.query(insertQuery, insertArgs)
@@ -929,8 +931,9 @@ export class VisitorStore {
                             return response;
                         })
                 }
-                    // response = response.rows[0].id;
-                return response;
+                else{
+                   throw  new Error("It seems like another tablet is already located at this location with name " + data.tablet_name);
+                }
             })
             .then(result => {
                 let department;
@@ -938,11 +941,10 @@ export class VisitorStore {
                 let department_name;
                 let tablet_id = result.rows[0].id;
                 let deptToProcess = _.map(data.department, deptData => {
-
                     department = _.split(deptData, '_');
                     department_id = department[0];
                     department_name = department[1];
-                    console.log(deptData);
+
                     let deptInsertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
                     let deptInsertArgs = [
                         tablet_id,
@@ -980,7 +982,7 @@ export class VisitorStore {
     allTablet(){
 
         let selectQuery = `SELECT
-                                td.*,t.location_id,t.location_name,t.tablet_name, t.id as primary_tabid
+                                td.*, t.location_id, t.location_name, t.tablet_name, t.printer_name, t.id as primary_tabid
                             FROM 
                                 reception_handler.tablets t
                             LEFT JOIN 

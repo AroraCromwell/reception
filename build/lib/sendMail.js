@@ -17,13 +17,15 @@ var SendMail = exports.SendMail = function () {
         _classCallCheck(this, SendMail);
 
         // create reusable transport method (opens pool of SMTP connections)
-        this._smtpTransport = nodemailer.createTransport("SMTP", {
-            service: "Gmail",
-            auth: {
-                user: "shibi.arora@gmail.com",
-                pass: "Leicester@195"
-            }
-        });
+        // this._smtpTransport = nodemailer.createTransport("SMTP",{
+        //     service: "Gmail",
+        //     auth: {
+        //         user: "shibi.arora@gmail.com",
+        //         pass: "Leicester@195"
+        //     }
+        // });
+
+        this._smtpTransport = nodemailer.createTransport('smtps://aroras%40cromwell.co.uk:ar0ra@mail.cromwell.co.uk');
     }
 
     _createClass(SendMail, [{

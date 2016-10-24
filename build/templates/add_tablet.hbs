@@ -13,6 +13,7 @@
                     <label class="control-label col-sm-2" for="location">Printer: </label>
                     <div class="col-sm-10">
                         <select name="printer" class="form-control" id="printer">
+                            <option  value="">Select</option>
                             {{#each data.allPrinters}}
                                 <option  value="{{name}}">{{name}}</option>
                             {{/each}}
@@ -24,6 +25,7 @@
                     <label class="control-label col-sm-2" for="location">Location: </label>
                     <div class="col-sm-10">
                         <select name="location" class="form-control" id="location">
+                            <option  value="">Select</option>
                             {{#each data.locations}}
                                 <option  value="{{location_id}}_{{location_name}}">{{location_name}}</option>
                             {{/each}}
@@ -36,7 +38,7 @@
                     <label class="control-label col-sm-2" for="type">Departments: </label>
                     <div class="col-sm-10">
                         {{#each data.departments}}
-                            <input type="checkbox" name="department" id="{{department_id}}" value="{{department_id}}_{{department}}" >    {{department}}<br>
+                            <input type="checkbox" name="department[]" id="{{department_id}}" value="{{department_id}}_{{department}}" >    {{department}}<br>
                         {{/each}}
                     </div>
                 </div>

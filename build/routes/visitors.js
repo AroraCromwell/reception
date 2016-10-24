@@ -628,16 +628,14 @@ var Visitors = exports.Visitors = function () {
                     return result;
                 }).then(function (response) {
                     var combineData = response;
-                    console.log(combineData.rows);
                     _this32._visitorService.fireMarshallMail().then(function (res) {
-
                         var emailReceiver = [];
                         _lodash._.each(res.rows, function (value, key) {
                             emailReceiver.push(value.email_adds);
                         });
 
                         var emailR = emailReceiver.toString();
-
+                        console.log(emailR);
                         var mailOptions = {
                             from: "IT Services<aroras@cromwell.co.uk>", // sender address
                             to: emailR, // list of receivers
@@ -791,7 +789,7 @@ var Visitors = exports.Visitors = function () {
                     }
                 }).catch(function (err) {
                     _this39._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                    res.send({ success: 0, message: "Error!", data: err.toString() });
                 });
             }];
         }

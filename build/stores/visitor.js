@@ -496,7 +496,7 @@ var VisitorStore = exports.VisitorStore = function () {
         key: "fireMarshallMail",
         value: function fireMarshallMail() {
 
-            var selectQuery = "SELECT * FROM reception_handler.fire_marshall";
+            var selectQuery = "SELECT * FROM reception_handler.fire_marshall where id = 11";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -711,31 +711,30 @@ var VisitorStore = exports.VisitorStore = function () {
             location_id = location[0];
             location_name = location[1];
 
-            var selectQuery = 'SELECT id FROM reception_handler.tablets WHERE location_id = $1';
-            var args = [location_id];
+            var selectQuery = 'SELECT id FROM reception_handler.tablets WHERE location_id = $1 and tablet_name = $2';
+            var args = [location_id, data.tablet_name];
 
             return this._resource.query(selectQuery, args).then(function (response) {
                 if (response.rowCount == 0) {
-                    var insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name, tablet_name) VALUES ( $1, $2, $3) RETURNING id';
-                    var insertArgs = [location_id, location_name, data.tablet_name];
+                    var insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name, tablet_name, printer_name) VALUES ( $1, $2, $3, $4) RETURNING id';
+                    var insertArgs = [location_id, location_name, data.tablet_name, data.printer];
 
                     return _this10._resource.query(insertQuery, insertArgs).then(function (response) {
                         return response;
                     });
+                } else {
+                    throw new Error("It seems like another tablet is already located at this location with name " + data.tablet_name);
                 }
-                // response = response.rows[0].id;
-                return response;
             }).then(function (result) {
                 var department = void 0;
                 var department_id = void 0;
                 var department_name = void 0;
                 var tablet_id = result.rows[0].id;
                 var deptToProcess = _lodash._.map(data.department, function (deptData) {
-
                     department = _lodash._.split(deptData, '_');
                     department_id = department[0];
                     department_name = department[1];
-                    console.log(deptData);
+
                     var deptInsertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
                     var deptInsertArgs = [tablet_id, department_id, department_name];
 
@@ -765,7 +764,7 @@ var VisitorStore = exports.VisitorStore = function () {
         key: "allTablet",
         value: function allTablet() {
 
-            var selectQuery = "SELECT\n                                td.*,t.location_id,t.location_name,t.tablet_name, t.id as primary_tabid\n                            FROM \n                                reception_handler.tablets t\n                            LEFT JOIN \n                                reception_handler.tablets_dept td on t.id = td.tablet_id";
+            var selectQuery = "SELECT\n                                td.*, t.location_id, t.location_name, t.tablet_name, t.printer_name, t.id as primary_tabid\n                            FROM \n                                reception_handler.tablets t\n                            LEFT JOIN \n                                reception_handler.tablets_dept td on t.id = td.tablet_id";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
