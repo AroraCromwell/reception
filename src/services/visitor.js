@@ -416,7 +416,7 @@ export class VisitorService {
                                             '<div><b>Date :</b>'+ result.visitors.todayDate +'</div>'+
                                             '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 82px;float: left;">Id</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 255px;float: left;">Name</div>'+
-                                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 272px;float: left;">Company</div>'+
+                                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 272px;float: left;">Visiting</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 133px;float: left;">Signed In</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 139px;float: left;">Status</div>'+
                                             '</div>'
