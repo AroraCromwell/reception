@@ -16,6 +16,10 @@
 import {_} from "lodash";
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
+
+var Cryptr = require('cryptr'),
+    cryptr = new Cryptr('Cr0mwellTools');
+
 export class Visitors {
 
     constructor (visitorService, logger, localStorage, io, sendMail ) {
@@ -73,8 +77,8 @@ export class Visitors {
     post () {
         return [
             (req, res) => {
+                console.log(" >>> New Visitor with name " + req.body.paramContactName);
 
-                console.log("Node service data" + req.body);
                 this._visitorService.processRequest(req.body)
 
                     .then(result => {
@@ -744,6 +748,18 @@ export class Visitors {
                 });
             }
         ];
+    }
+
+
+    nfcWrite() {
+        return [
+            (req, res) => {
+                var textToWrite = req.params.id;
+                var textToWrite = cryptr.encrypt(textToWrite);
+                console.log(">>>This is the text to write " + textToWrite);
+                res.send({message: "Success", data: textToWrite});
+            }
+        ]
     }
 
 }

@@ -24,6 +24,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
 
+var Cryptr = require('cryptr'),
+    cryptr = new Cryptr('Cr0mwellTools');
+
 var Visitors = exports.Visitors = function () {
     function Visitors(visitorService, logger, localStorage, io, sendMail) {
         _classCallCheck(this, Visitors);
@@ -77,8 +80,8 @@ var Visitors = exports.Visitors = function () {
             var _this3 = this;
 
             return [function (req, res) {
+                console.log(" >>> New Visitor with name " + req.body.paramContactName);
 
-                console.log("Node service data" + req.body);
                 _this3._visitorService.processRequest(req.body).then(function (result) {
                     res.send({ success: 1, message: "completed", id: result, retry: 0 });
                 }).catch(function (err) {
@@ -684,6 +687,16 @@ var Visitors = exports.Visitors = function () {
                     _this34._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
+            }];
+        }
+    }, {
+        key: "nfcWrite",
+        value: function nfcWrite() {
+            return [function (req, res) {
+                var textToWrite = req.params.id;
+                var textToWrite = cryptr.encrypt(textToWrite);
+                console.log(">>>This is the text to write " + textToWrite);
+                res.send({ message: "Success", data: textToWrite });
             }];
         }
     }]);

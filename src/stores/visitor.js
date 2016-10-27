@@ -468,7 +468,7 @@ export class VisitorStore {
                             _.forEach(staffResponse.rows, ( staffValue,staffKey ) => {
                                 if(staffValue.staff_id == value.employee_number){
 
-                                    console.log("ID matched" + staffValue.staff_id);
+                                   // console.log("ID matched" + staffValue.staff_id);
 
                                     if(staffValue.signin_time != null){
                                         result.rows[key]['status'] = 'Inside Building';

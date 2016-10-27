@@ -150,12 +150,11 @@ db.createConnection()
 
         //staff signin and signout from the NFC card
         app.get("/nfcActivity/:id", visitors.nfcActivity());
+        app.get('/write/:id',  visitors.nfcWrite());
 
         //request for search
 
         app.get("/searchAllSignIn/:id", search.searchAllSignIn());
-
-
 
         nodeSchedule.scheduleJob(config.runTime, function () {
             visitors.allSignOut()

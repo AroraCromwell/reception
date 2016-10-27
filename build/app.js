@@ -176,6 +176,7 @@ db.createConnection().then(function (connection) {
 
     //staff signin and signout from the NFC card
     app.get("/nfcActivity/:id", visitors.nfcActivity());
+    app.get('/write/:id', visitors.nfcWrite());
 
     //request for search
 
