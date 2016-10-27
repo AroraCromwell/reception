@@ -40,8 +40,6 @@ var VisitorService = exports.VisitorService = function () {
         value: function processRequest(data) {
             var _this = this;
 
-            this._logger.info("New Customer!");
-            this._logger.info(JSON.stringify(data));
             this._logger.info("Saving Data");
 
             return this._visitorStore.saveCustomer(data).then(function (res) {

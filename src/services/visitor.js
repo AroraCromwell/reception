@@ -18,9 +18,6 @@ export class VisitorService {
     }
 
     processRequest (data) {
-
-        this._logger.info("New Customer!");
-        this._logger.info(JSON.stringify(data));
         this._logger.info("Saving Data");
 
                 return this._visitorStore.saveCustomer(data)
