@@ -39,8 +39,8 @@ export class VisitorService {
 
                             //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
 
-                            var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\'+ visitorId +'.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
-
+                            //var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\'+ visitorId +'.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                            var cmd = '"lp -d brc-reception  ./pdf/' + visitorId + '.pdf"';
                             exec(cmd, function(error, stdout, stderr) {
                                 // command output is in stdout
                                 console.log(stdout);
@@ -368,7 +368,9 @@ export class VisitorService {
 
                     pdf.create(html, options).toFile('./pdf/allStaff.pdf', function (err, pdfRes) {
 
-                        var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allStaff.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                        //var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allStaff.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+
+                        var cmd = 'lp -d brc-reception ./pdf/allStaff.pdf';
 
                         exec(cmd, function (error, stdout, stderr) {
                             console.log(stdout);
@@ -427,8 +429,8 @@ export class VisitorService {
 
                         pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
 
-                            var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
-
+                           // var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                            var cmd = 'lp -d brc-reception ./pdf/allVisitors.pdf';
                             exec(cmd, function (error, stdout, stderr) {
                                 console.log(stdout);
 
