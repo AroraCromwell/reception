@@ -16,7 +16,7 @@
 import {_} from "lodash";
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
-
+import config from "./config.json";
 var Cryptr = require('cryptr'),
     cryptr = new Cryptr('Cr0mwellTools');
 
@@ -577,7 +577,7 @@ export class Visitors {
                 console.log("this is staff image path" + req.body.paramLocalImagePath);
 
                 var imageName = req.body.paramStaffId ;
-                var options = {filename: './public/images/staff/' + imageName};
+                var options = {filename: config.staffImagePath + imageName};
                 var imageData = new Buffer(req.body.paramImagePath, 'base64');
 
                 base64.base64decoder(imageData, options, function (err, saved) {

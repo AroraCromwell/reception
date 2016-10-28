@@ -37,7 +37,7 @@ export class VisitorStore {
 
         var unix = Math.round(+new Date()/1000);
         var imageName = customer.paramAccountName +'_'+ unix;
-        var options = {filename: './public/images/visitors/' + imageName};
+        var options = {filename: config.visitorImagePath + imageName};
         var imageData = new Buffer(customer.paramImagePath, 'base64');
 
         base64.base64decoder(imageData, options, function (err, saved) {
