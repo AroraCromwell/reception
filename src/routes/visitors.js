@@ -16,7 +16,7 @@
 import {_} from "lodash";
 var base64 = require('node-base64-image');
 var thumb = require('node-thumbnail').thumb;
-import config from "./config.json";
+import config from "../config.json";
 var Cryptr = require('cryptr'),
     cryptr = new Cryptr('Cr0mwellTools');
 
