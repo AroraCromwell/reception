@@ -34,13 +34,10 @@ export class VisitorService {
                             orientation: 'landscape'
                         };
 
-                        pdf.create(html, options).toFile('./pdf/' + visitorId + '.pdf', function(err, pdfRes) {
+                        pdf.create(html, options).toFile( config.pdfPath + visitorId + '.pdf', function(err, pdfRes) {
                             if (err) return console.log(err);
 
-                            //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
-
-                            //var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\'+ visitorId +'.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
-                            var cmd = '"lp -d brc-reception  ./pdf/' + visitorId + '.pdf"';
+                            var cmd = '"lp -d brc-reception ' + config.pdfPath +  visitorId + '.pdf"';
                             exec(cmd, function(error, stdout, stderr) {
                                 // command output is in stdout
                                 console.log(stdout);
@@ -48,7 +45,6 @@ export class VisitorService {
                                 if (error !== null) {
                                     console.log('exec error: ' + error);
                                 }
-                                //process.exit();
                             });
                         })
 
@@ -366,11 +362,9 @@ export class VisitorService {
                         }
                     };
 
-                    pdf.create(html, options).toFile('./pdf/allStaff.pdf', function (err, pdfRes) {
+                    pdf.create(html, options).toFile( config.pdfPath + 'allStaff.pdf', function (err, pdfRes) {
 
-                        //var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allStaff.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
-
-                        var cmd = 'lp -d brc-reception ./pdf/allStaff.pdf';
+                        var cmd = '"lp -d brc-reception' +  config.pdfPath + 'allStaff.pdf"';
 
                         exec(cmd, function (error, stdout, stderr) {
                             console.log(stdout);
@@ -427,10 +421,9 @@ export class VisitorService {
 
                         };
 
-                        pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
+                        pdf.create(html, options).toFile( config.pdfPath + 'allVisitors.pdf', function (err, pdfRes) {
 
-                           // var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
-                            var cmd = 'lp -d brc-reception ./pdf/allVisitors.pdf';
+                            var cmd = '"lp -d brc-reception' +  config.pdfPath +'allVisitors.pdf"';
                             exec(cmd, function (error, stdout, stderr) {
                                 console.log(stdout);
 

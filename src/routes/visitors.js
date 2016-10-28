@@ -80,14 +80,12 @@ export class Visitors {
                 console.log(" >>> New Visitor with name " + req.body.paramContactName);
 
                 this._visitorService.processRequest(req.body)
-
                     .then(result => {
                         res.send({success : 1, message : "completed", id : result, retry: 0});
                     })
                     .catch(err => {
                         this._logger.error(err);
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
-
                     });
             }
         ];
@@ -578,10 +576,8 @@ export class Visitors {
                 console.log("this is staff id" + req.body.paramStaffId);
                 console.log("this is staff image path" + req.body.paramLocalImagePath);
 
-
                 var imageName = req.body.paramStaffId ;
-                var options = {filename: './public/images/' + imageName};
-                //var options = {filename: './src/reception_handler/images/' + imageName};
+                var options = {filename: './public/images/staff/' + imageName};
                 var imageData = new Buffer(req.body.paramImagePath, 'base64');
 
                 base64.base64decoder(imageData, options, function (err, saved) {
@@ -590,7 +586,6 @@ export class Visitors {
                         res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
                     }
                     console.log(saved);
-
                     res.send({success: 1, message: "Completed"});
                 });
             }

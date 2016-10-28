@@ -34,18 +34,16 @@ export class VisitorStore {
     }
 
     saveCustomer(customer) {
-        // if(customer.paramImagePath != ''){
+
         var unix = Math.round(+new Date()/1000);
         var imageName = customer.paramAccountName +'_'+ unix;
-        var options = {filename: './public/images/' + imageName};
-        //var options = {filename: './src/reception_handler/images/' + imageName};
+        var options = {filename: './public/images/visitors/' + imageName};
         var imageData = new Buffer(customer.paramImagePath, 'base64');
 
         base64.base64decoder(imageData, options, function (err, saved) {
             if (err) { console.log(err); }
             console.log(saved);
         });
-        //}
 
         let insertQuery = `
                     INSERT INTO
