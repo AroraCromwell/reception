@@ -299,7 +299,7 @@ var VisitorService = exports.VisitorService = function () {
         key: "allStaff",
         value: function allStaff(tabId) {
             return this._visitorStore.allStaff(tabId).then(function (res) {
-                return res;"";
+                return res;
             });
         }
     }, {

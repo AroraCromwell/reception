@@ -412,15 +412,28 @@ export class VisitorStore {
     }
 
     deleteAutoComplete(id) {
-        let selectQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+
+        let selectQuery = 'SELECT *  from reception_handler.autoComplete WHERE id = $1 ';
         let args = [
             id
         ];
 
         return this._resource.query(selectQuery, args)
             .then(response => {
-                return response;
+                //return response;
+                let delQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+                let args = [
+                    id
+                ];
+
+                return this._resource.query(delQuery, args)
+                    .then(() => {
+                        //Wonder why we are returning select response, because, we need tablet_id to fire an event. Which we cannot get after deleting the row.
+                        return response;
+                    });
             });
+
+
     }
     allStaff(tabId) {
         //Fetch Location and all corresponding Departments  and pass it to fetch regarding data from

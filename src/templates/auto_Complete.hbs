@@ -134,34 +134,33 @@
         $('#myModal').modal('show');
     });
 
-    $(document).ready(function(){
+
+    $(".btn-secondary").click(function(){
         var table = $('#datatable').DataTable();
-        $(".btn-secondary").click(function(){
-            var line = this;
-            var contentPanelId = jQuery(this).attr("id");
-            var data = table.row( $(this).parents('tr') ).data();
-            //alert(contentPanelId);
-            $.ajax({
-                url: '/autoComplete/'+contentPanelId,
-                type: 'DELETE',
-                data: JSON.stringify({ "type": data[1]}),
-                contentType: 'application/json; charset=utf-8',
-                success: function(response) {
-                    //...
-                    console.log(response.message);
+        var line = this;
+        var contentPanelId = jQuery(this).attr("id");
+        var data = table.row( $(this).parents('tr') ).data();
+        //alert(contentPanelId);
+        $.ajax({
+            url: '/autoComplete/'+contentPanelId,
+            type: 'DELETE',
+            data: JSON.stringify({ "type": data[1]}),
+            contentType: 'application/json; charset=utf-8',
+            success: function(response) {
+                //...
+                console.log(response.message);
 
-
-                    table
-                            .row( $(line).parents('tr') )
-                            .remove()
-                            .draw();
-                },
-                error: function () {
-                    //your error code
-                }
-            });
+                table
+                        .row( $(line).parents('tr') )
+                        .remove()
+                        .draw();
+            },
+            error: function () {
+                //your error code
+            }
         });
     });
+
 
 
 </script>

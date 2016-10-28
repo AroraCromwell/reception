@@ -322,17 +322,26 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "deleteAutoComplete",
         value: function deleteAutoComplete(id) {
-            var selectQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+            var _this2 = this;
+
+            var selectQuery = 'SELECT *  from reception_handler.autoComplete WHERE id = $1 ';
             var args = [id];
 
             return this._resource.query(selectQuery, args).then(function (response) {
-                return response;
+                //return response;
+                var delQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+                var args = [id];
+
+                return _this2._resource.query(delQuery, args).then(function () {
+                    //Wonder why we are returning select response, because, we need tablet_id to fire an event. Which we cannot get after deleting the row.
+                    return response;
+                });
             });
         }
     }, {
         key: "allStaff",
         value: function allStaff(tabId) {
-            var _this2 = this;
+            var _this3 = this;
 
             //Fetch Location and all corresponding Departments  and pass it to fetch regarding data from
             //human_resource schema.
@@ -361,7 +370,7 @@ var VisitorStore = exports.VisitorStore = function () {
                 // Pass Location and Departments
                 var args = [tabLocation, ['IT', 'Programme Mgt Office']];
 
-                return _this2._resource.query(selectQuery, args).then(function (response) {
+                return _this3._resource.query(selectQuery, args).then(function (response) {
                     return response;
                 }).then(function (result) {
 
@@ -369,7 +378,7 @@ var VisitorStore = exports.VisitorStore = function () {
                     var staffSelectQuery = "select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id \n                        from reception_handler.building_signin \n                        where id in\n                                (\n                                    SELECT max(id)\n                                      FROM reception_handler.building_signin\n                                      where signin_time > now()::date OR \n                                      signout_time > now()::date\n                                      group by\n                                      staff_id\n                              )\n                            ";
                     var args = [];
 
-                    return _this2._resource.query(staffSelectQuery, args).then(function (staffResponse) {
+                    return _this3._resource.query(staffSelectQuery, args).then(function (staffResponse) {
                         _lodash._.forEach(result.rows, function (value, key) {
 
                             result.rows[key]['signinTime'] = '';
@@ -386,13 +395,13 @@ var VisitorStore = exports.VisitorStore = function () {
                                     if (staffValue.signin_time != null) {
                                         result.rows[key]['status'] = 'Inside Building';
                                         result.rows[key]['lastActivity'] = 'Signed In';
-                                        result.rows[key]['signinTime'] = _this2.timeConverter(staffValue.signin_time);
+                                        result.rows[key]['signinTime'] = _this3.timeConverter(staffValue.signin_time);
                                     }
 
                                     if (staffValue.signout_time != null) {
                                         result.rows[key]['status'] = 'Outside of Building';
                                         result.rows[key]['lastActivity'] = 'Signed Out';
-                                        result.rows[key]['signoutTime'] = _this2.timeConverter(staffValue.signout_time);
+                                        result.rows[key]['signoutTime'] = _this3.timeConverter(staffValue.signout_time);
                                     }
                                     result.rows[key]['primaryId'] = staffValue.id;
                                 }
@@ -422,7 +431,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "staffSignIn",
         value: function staffSignIn(id) {
-            var _this3 = this;
+            var _this4 = this;
 
             console.log("User ID going to sign in" + id);
             var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
@@ -435,17 +444,17 @@ var VisitorStore = exports.VisitorStore = function () {
                 if (result.rowCount == 1) {
                     var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
 
-                    var _args = [_this3.getTime(""), result.rows[0].id];
+                    var _args = [_this4.getTime(""), result.rows[0].id];
 
-                    return _this3._resource.query(updateQuery, _args).then(function (response) {
+                    return _this4._resource.query(updateQuery, _args).then(function (response) {
                         return response;
                     }).then(function (updateResult) {
                         var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
                         var args = [id, 'P103'];
 
-                        return _this3._resource.query(insertQuery, args).then(function (response) {
+                        return _this4._resource.query(insertQuery, args).then(function (response) {
                             console.log("emitting new event");
-                            _this3._io.emit("forceLogin");
+                            _this4._io.emit("forceLogin");
                             return response;
                         });
                     });
@@ -453,7 +462,7 @@ var VisitorStore = exports.VisitorStore = function () {
                     var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
                     var _args2 = [id, 'P103'];
 
-                    return _this3._resource.query(insertQuery, _args2).then(function (response) {
+                    return _this4._resource.query(insertQuery, _args2).then(function (response) {
                         return response;
                     });
                 }
@@ -506,7 +515,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "staffSignOut",
         value: function staffSignOut(id) {
-            var _this4 = this;
+            var _this5 = this;
 
             var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date  and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
 
@@ -518,16 +527,16 @@ var VisitorStore = exports.VisitorStore = function () {
                 if (result.rowCount == 1) {
                     var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
 
-                    var _args3 = [_this4.getTime(""), result.rows[0].id];
+                    var _args3 = [_this5.getTime(""), result.rows[0].id];
 
-                    return _this4._resource.query(updateQuery, _args3).then(function (response) {
+                    return _this5._resource.query(updateQuery, _args3).then(function (response) {
                         return response;
                     });
                 } else {
                     var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, signin_time, department_code, signout_time ) VALUES ( $1, $2 , $3, $4)';
-                    var _args4 = [id, null, 'P103', _this4.getTime("")];
+                    var _args4 = [id, null, 'P103', _this5.getTime("")];
 
-                    return _this4._resource.query(insertQuery, _args4).then(function (response) {
+                    return _this5._resource.query(insertQuery, _args4).then(function (response) {
                         return response;
                     });
                 }
@@ -538,32 +547,9 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "staffSignedIn",
         value: function staffSignedIn(id) {
-            var _this5 = this;
-
-            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date and signout_time IS NULL";
-            var args = [];
-
-            return this._resource.query(selectQuery, args).then(function (response) {
-                _lodash._.each(response.rows, function (val, key) {
-                    if (val.signin_time != null) {
-                        response.rows[key]['signin_time'] = _this5.timeConverter(val.signin_time);
-                    }
-                    if (val.signout_time != null) {
-                        response.rows[key]['signout_time'] = _this5.timeConverter(val.signout_time);
-                    }
-                });
-                return response;
-            });
-        }
-
-        //All Staff Signed out
-
-    }, {
-        key: "staffSignedOut",
-        value: function staffSignedOut(id) {
             var _this6 = this;
 
-            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where  signout_time > now()::date";
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where signin_time > now()::date and signout_time IS NULL";
             var args = [];
 
             return this._resource.query(selectQuery, args).then(function (response) {
@@ -578,10 +564,33 @@ var VisitorStore = exports.VisitorStore = function () {
                 return response;
             });
         }
+
+        //All Staff Signed out
+
+    }, {
+        key: "staffSignedOut",
+        value: function staffSignedOut(id) {
+            var _this7 = this;
+
+            var selectQuery = "SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname\n                           FROM reception_handler.building_signin a\n                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying\n                           where  signout_time > now()::date";
+            var args = [];
+
+            return this._resource.query(selectQuery, args).then(function (response) {
+                _lodash._.each(response.rows, function (val, key) {
+                    if (val.signin_time != null) {
+                        response.rows[key]['signin_time'] = _this7.timeConverter(val.signin_time);
+                    }
+                    if (val.signout_time != null) {
+                        response.rows[key]['signout_time'] = _this7.timeConverter(val.signout_time);
+                    }
+                });
+                return response;
+            });
+        }
     }, {
         key: "allPrintOut",
         value: function allPrintOut() {
-            var _this7 = this;
+            var _this8 = this;
 
             var data = new Date();
             var month = data.getMonth() + 1;
@@ -599,7 +608,7 @@ var VisitorStore = exports.VisitorStore = function () {
                 var selectQuery = "SELECT staff.*, u.employee_number,u.first_name,u.surname FROM reception_handler.building_signin staff\n                                    LEFT JOIN human_resource.employees u ON staff.staff_id::character varying = u.employee_number\n                                    WHERE   staff.signin_time > now()::date and signout_time IS NULL ORDER BY u.first_name asc";
                 var args = [];
 
-                return _this7._resource.query(selectQuery, args).then(function (staffResponse) {
+                return _this8._resource.query(selectQuery, args).then(function (staffResponse) {
                     visitorResponse.rows.todayDate = Date.now();
                     staffResponse.visitors = visitorResponse.rows;
                     staffResponse.rows.todayDate = Date.now();
@@ -635,7 +644,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity(id) {
-            var _this8 = this;
+            var _this9 = this;
 
             console.log("User ID going to sign in" + id);
             var selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
@@ -649,16 +658,16 @@ var VisitorStore = exports.VisitorStore = function () {
                 if (result.rowCount == 1) {
                     var updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2 RETURNING id";
 
-                    var _args5 = [_this8.getTime(""), result.rows[0].id];
+                    var _args5 = [_this9.getTime(""), result.rows[0].id];
 
-                    return _this8._resource.query(updateQuery, _args5).then(function (response) {
+                    return _this9._resource.query(updateQuery, _args5).then(function (response) {
                         return response;
                     });
                 } else {
                     var insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 ) RETURNING id';
                     var _args6 = [id, 'P103'];
 
-                    return _this8._resource.query(insertQuery, _args6).then(function (response) {
+                    return _this9._resource.query(insertQuery, _args6).then(function (response) {
                         return response;
                     });
                 }
@@ -668,7 +677,7 @@ var VisitorStore = exports.VisitorStore = function () {
 
                 var args = [id];
 
-                return _this8._resource.query(selectQuery, args).then(function (response) {
+                return _this9._resource.query(selectQuery, args).then(function (response) {
                     // console.log("NFC activity result" + JSON.stringify(response));
                     response.activity = activity;
                     return response;
@@ -681,7 +690,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "addTablet",
         value: function addTablet() {
-            var _this9 = this;
+            var _this10 = this;
 
             var selectQuery = "SELECT * FROM human_resource.location ";
             var args = [];
@@ -691,7 +700,7 @@ var VisitorStore = exports.VisitorStore = function () {
             }).then(function (locations) {
                 var deptSelectQuery = "SELECT * FROM human_resource.departments";
                 var args = [];
-                return _this9._resource.query(deptSelectQuery, args).then(function (finalData) {
+                return _this10._resource.query(deptSelectQuery, args).then(function (finalData) {
                     finalData.locations = locations.rows;
                     finalData.departments = finalData.rows;
                     return finalData;
@@ -701,7 +710,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "tabletPost",
         value: function tabletPost(data) {
-            var _this10 = this;
+            var _this11 = this;
 
             var location = void 0;
             var location_id = void 0;
@@ -719,7 +728,7 @@ var VisitorStore = exports.VisitorStore = function () {
                     var insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name, tablet_name, printer_name) VALUES ( $1, $2, $3, $4) RETURNING id';
                     var insertArgs = [location_id, location_name, data.tablet_name, data.printer];
 
-                    return _this10._resource.query(insertQuery, insertArgs).then(function (response) {
+                    return _this11._resource.query(insertQuery, insertArgs).then(function (response) {
                         return response;
                     });
                 } else {
@@ -738,15 +747,15 @@ var VisitorStore = exports.VisitorStore = function () {
                     var deptInsertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
                     var deptInsertArgs = [tablet_id, department_id, department_name];
 
-                    return _this10._resource.query(deptInsertQuery, deptInsertArgs).then(function (deptResponse) {
+                    return _this11._resource.query(deptInsertQuery, deptInsertArgs).then(function (deptResponse) {
                         return deptResponse;
                     }).catch(function (err) {
-                        _this10._logger.error(">>> Error! " + err.message);
+                        _this11._logger.error(">>> Error! " + err.message);
                     });
                 });
 
                 return Promise.all(deptToProcess).then(function () {
-                    _this10._logger.info("All Dept has been processed");
+                    _this11._logger.info("All Dept has been processed");
                     return true;
                 });
             });
@@ -774,7 +783,7 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "updateTablet",
         value: function updateTablet(tabId, data) {
-            var _this11 = this;
+            var _this12 = this;
 
             var location = void 0;
             var location_id = void 0;
@@ -804,7 +813,7 @@ var VisitorStore = exports.VisitorStore = function () {
 
                             var selectQuery = 'SELECT id FROM reception_handler.tablets_dept WHERE tablet_id = $1 and department_id =$2';
                             var args = [tabId, department_id];
-                            return _this11._resource.query(selectQuery, args).then(function (response) {
+                            return _this12._resource.query(selectQuery, args).then(function (response) {
                                 return response;
                             }).then(function (rowResult) {
 
@@ -812,14 +821,14 @@ var VisitorStore = exports.VisitorStore = function () {
                                     var insertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
                                     var insertArgs = [tabId, department_id, department_name];
 
-                                    return _this11._resource.query(insertQuery, insertArgs).then(function (response) {
+                                    return _this12._resource.query(insertQuery, insertArgs).then(function (response) {
                                         return response;
                                     });
                                 } else {
                                     var updateDeptQuery = 'UPDATE reception_handler.tablets_dept SET  department_id = $1, department_name= $2 WHERE tablet_id = $3 and department_id= $4';
                                     var _args7 = [department_id, department_name, tabId, department_id];
 
-                                    return _this11._resource.query(updateDeptQuery, _args7).then(function (response) {
+                                    return _this12._resource.query(updateDeptQuery, _args7).then(function (response) {
                                         return response;
                                     });
                                 }
@@ -827,7 +836,7 @@ var VisitorStore = exports.VisitorStore = function () {
                         });
                         return {
                             v: Promise.all(deptToProcess).then(function () {
-                                _this11._logger.info("All Dept has been processed");
+                                _this12._logger.info("All Dept has been processed");
                                 return true;
                             })
                         };

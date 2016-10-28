@@ -282,7 +282,7 @@ export class VisitorService {
     allStaff(tabId){
         return this._visitorStore.allStaff(tabId)
             .then((res) => {
-                return res;``
+                return res;
             })
     }
 
