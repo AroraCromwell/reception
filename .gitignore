@@ -47,9 +47,8 @@ node_modules
 .vagrant
 /pdf/
 /images/
-build/pdf/
-build/public/images/
 src/public/images/
 src/public/pdf_images/
 src/config.json
-build/config.json
+build
+test
