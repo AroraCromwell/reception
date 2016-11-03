@@ -70,8 +70,21 @@
                     <a href="#" data-toggle="dropdown">Print
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="/allPrintOut/1">Print At Reception</a></li>
-                        <li><a href="/allPrintOut/2">Print Here</a></li>
+                        {{#if data.locations}}
+                            {{#each data.locations}}
+                                <li class="menu-item dropdown dropdown-submenu"><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">{{location_name}}</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/allPrintOut?tabId={{id}}">Print At Reception</a></li>
+                                        <li><a href="/allPrintOut?tabId={{id}}">Print Here</a></li>
+                                    </ul>
+                                </li>
+                            {{/each}}
+                        {{else}}
+                            <li class="menu-item dropdown "><a href="/autoComplete" class="dropdown-toggle" data-toggle="dropdown">No Location Found</a></li>
+                        {{/if}}
+                        <!---->
+                        <!--<li><a href="/allPrintOut/1">Print At Reception</a></li>-->
+                        <!--<li><a href="/allPrintOut/2">Print Here</a></li>-->
                     </ul>
                 </li>
 

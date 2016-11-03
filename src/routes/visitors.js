@@ -702,7 +702,15 @@ export class Visitors {
     showFiremarshall (){
         return [
             (req,res) => {
-                res.render('show_firemarshall');
+                //We actually need all the tablets to be listed while adding suggestion.
+                this._visitorService.allTabletLocations()
+                    .then(result => {
+                        res.render('show_firemarshall', {"data": result.rows});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
             }
         ]
     }

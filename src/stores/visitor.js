@@ -621,7 +621,7 @@ export class VisitorStore {
 
     addFiremarshall (data){
 
-        let insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, location) VALUES ( $1, $2, $3 ) RETURNING id';
+        let insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, tablet_id) VALUES ( $1, $2, $3 ) RETURNING id';
         let args = [
             data.marshall_name,
             data.marshall_email,
@@ -804,7 +804,14 @@ export class VisitorStore {
     }
 
     allFiremarshall() {
-        let selectQuery = 'SELECT * from reception_handler.fire_marshall ORDER BY id DESC';
+        //let selectQuery = 'SELECT * from reception_handler.fire_marshall ORDER BY id DESC';
+
+        let selectQuery = `SELECT 
+                                m.*,t.location_id,t.tablet_name 
+                            FROM 
+                                reception_handler.fire_marshall m 
+                            LEFT JOIN 
+                                reception_handler.tablets t on m.tablet_id = t.id ORDER BY m.id DESC`;
 
         let args = [
         ];

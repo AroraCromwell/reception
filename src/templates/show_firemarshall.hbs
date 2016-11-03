@@ -6,7 +6,10 @@
                     <label class="control-label col-sm-2" for="location">Location: </label>
                     <div class="col-sm-10">
                         <select name="location" class="form-control" id="location">
-                            <option>BRC</option>
+
+                            {{#each data}}
+                                <option value="{{id}}">{{tablet_name}} - ({{location_name}})</option>
+                            {{/each}}
                             <!--<option>WDC</option>-->
                         </select>
                     </div>
