@@ -174,6 +174,7 @@ export class Visitors {
         var error = "";
         return[
             (req, res) => {
+                req.session.destroy();
                 if(this._localStorage.getItem("email")){
                     this._localStorage.removeItem("email");
                 }
@@ -202,6 +203,7 @@ export class Visitors {
         return [
             (req, res) => {
                 if( req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "Lewis@3524"){
+                        req.session.key = true;
                         this._localStorage.setItem("email", req.body.inputEmail);
                         res.redirect("allVisitors?tabId=1");
                 }else{

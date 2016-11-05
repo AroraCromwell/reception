@@ -15,6 +15,7 @@ var exec = require('child_process').exec;
 var localStorage = require('localStorage');
 var NodeCache = require( "node-cache" );
 var tabletCache = new NodeCache();
+var session = require('client-sessions');
 
 var connections = [];
 
@@ -34,7 +35,6 @@ app.use(qt.static(path.join(__dirname, 'public')));
 
 /* Files */
 import {Logger} from "./lib/logger";
-import {DataCleaner} from "./services/dataCleaner";
 import {VisitorStore} from "./stores/visitor";
 import {Visitors} from "./routes/visitors";
 import {Search} from "./routes/search";
@@ -44,7 +44,7 @@ import {EventListener} from "./services/eventListener";
 import {VisitorService} from "./services/visitor";
 import {TemplateManager} from "./services/templateManager";
 import {SendMail} from "./lib/sendMail";
-//var middelWare = require('./middelware/middelware').authentication;
+var middelWare = require('./middelware/middelware').authentication;
 
 let logger = new Logger();
 let sendMail = new SendMail();
@@ -80,12 +80,11 @@ db.createConnection()
 
         let io = require('socket.io')(server);
         let templateManager = new TemplateManager();
-        let dataCleaner = new DataCleaner();
         //let emitter = new EventEmitter();
         let postgres = new Postgres(connection);
         let eventListener = new EventListener(connection, logger);
         let visitorStore = new VisitorStore(postgres, logger, io, tabletCache);
-        let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger, tabletCache);
+        let visitorService = new VisitorService(visitorStore, templateManager, logger, tabletCache);
         let visitors = new Visitors(visitorService, logger, localStorage, io, sendMail, tabletCache);
         let search = new Search(visitorService, logger, localStorage, io);
 
@@ -103,10 +102,37 @@ db.createConnection()
         }));
 
         //MiddelWare
+        app.use(session({
+            cookieName: 'session',
+            secret: 'random_string_goes_here',
+            duration: 30 * 60 * 1000,
+            activeDuration: 5 * 60 * 1000,
+        }));
+
         app.use(function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-            next();
+            const regex = /^\/api\//g;
+            const  str = req.url;
+            let m;
+            if((m = regex.exec(str)) !== null){
+                console.log("This is  an API Request");
+            }else{
+                if(req.session.key) {
+                    console.log("This is Admin Session Data " + req.session.key);
+                }else{
+                    const adminRegex = /^\/adminLogin/g;
+                    let lMatch;
+                    if((lMatch = adminRegex.exec(str)) !== null){
+                        console.log("Admin login Post request");
+                    }else{
+                        req.session.destroy();
+                        console.log("Show Login Page");
+                        app.get("/", visitors.loginView());
+                    }
+                }
+                next();
+            }
         });
 
         //Visitors

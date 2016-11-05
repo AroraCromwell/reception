@@ -9,10 +9,9 @@ var dateFormat = require('dateformat');
 
 export class VisitorService {
 
-    constructor (visitorStore, templateManager, dataCleaner, logger, tabletCache) {
+    constructor (visitorStore, templateManager, logger, tabletCache) {
         this._visitorStore = visitorStore;
         this._templateManager  = templateManager;
-        this._dataCleaner = dataCleaner;
         this._logger = logger;
         this._tabletCache = tabletCache;
     }
