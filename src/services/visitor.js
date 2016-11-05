@@ -9,12 +9,12 @@ var dateFormat = require('dateformat');
 
 export class VisitorService {
 
-    constructor (visitorStore, templateManager, dataCleaner, logger) {
+    constructor (visitorStore, templateManager, dataCleaner, logger, tabletCache) {
         this._visitorStore = visitorStore;
-       // this._emitter = emitter;
         this._templateManager  = templateManager;
         this._dataCleaner = dataCleaner;
         this._logger = logger;
+        this._tabletCache = tabletCache;
     }
 
     processRequest (tabId, data) {
@@ -448,30 +448,30 @@ export class VisitorService {
             })
     }
 
-
-    addFiremarshall (data) {
-        return this._visitorStore.addFiremarshall(data)
+    //FireMarshall Functionality
+    addFireMarshall (data) {
+        return this._visitorStore.addFireMarshall(data)
             .then((res) => {
                 return res;
             })
     }
 
-    updateFiremarshall (id, data) {
-        return this._visitorStore.updateFiremarshall(id, data)
+    updateFireMarshall (id, data) {
+        return this._visitorStore.updateFireMarshall(id, data)
             .then((res) => {
                 return res;
             })
     }
 
     allFireMarshall () {
-        return this._visitorStore.allFiremarshall()
+        return this._visitorStore.allFireMarshall()
             .then((res) => {
                 return res;
             })
     }
 
     deleteFireMarshall (id) {
-        return this._visitorStore.deleteFiremarshall(id)
+        return this._visitorStore.deleteFireMarshall(id)
             .then((res) => {
                 return res;
             })
@@ -484,9 +484,37 @@ export class VisitorService {
             })
     }
 
+    //FirstAid Functionality
+    postFirstAid (data) {
+        return this._visitorStore.postFirstAid(data)
+            .then((res) => {
+                return res;
+            })
+    }
+
+    updateFirstAid (id, data) {
+        return this._visitorStore.updateFirstAid(id, data)
+            .then((res) => {
+                return res;
+            })
+    }
+
+    allFirstAid () {
+        return this._visitorStore.allFirstAid()
+            .then((res) => {
+                return res;
+            })
+    }
+
+    deleteFirstAid (id) {
+        return this._visitorStore.deleteFirstAid(id)
+            .then((res) => {
+                return res;
+            })
+    }
+
 
     //Search
-
     searchAllSignIns (id) {
 
         this._logger.info("Getting All Visitors!");

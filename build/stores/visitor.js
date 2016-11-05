@@ -472,7 +472,7 @@ var VisitorStore = exports.VisitorStore = function () {
         key: "addFiremarshall",
         value: function addFiremarshall(data) {
 
-            var insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, location) VALUES ( $1, $2, $3 ) RETURNING id';
+            var insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, tablet_id) VALUES ( $1, $2, $3 ) RETURNING id';
             var args = [data.marshall_name, data.marshall_email, data.location];
 
             return this._resource.query(insertQuery, args).then(function (response) {
@@ -619,7 +619,9 @@ var VisitorStore = exports.VisitorStore = function () {
     }, {
         key: "allFiremarshall",
         value: function allFiremarshall() {
-            var selectQuery = 'SELECT * from reception_handler.fire_marshall ORDER BY id DESC';
+            //let selectQuery = 'SELECT * from reception_handler.fire_marshall ORDER BY id DESC';
+
+            var selectQuery = "SELECT \n                                m.*,t.location_id,t.tablet_name \n                            FROM \n                                reception_handler.fire_marshall m \n                            LEFT JOIN \n                                reception_handler.tablets t on m.tablet_id = t.id ORDER BY m.id DESC";
 
             var args = [];
 

@@ -19,15 +19,17 @@ var thumb = require('node-thumbnail').thumb;
 var Print = require('pliigo-cups-agent');
 var PrintManager = new Print();
 var exec = require('child_process').exec;
+var allTablets = "";
 
 export class Visitors {
 
-    constructor (visitorService, logger, localStorage, io, sendMail ) {
+    constructor (visitorService, logger, localStorage, io, sendMail, tabletCache ) {
         this._visitorService = visitorService;
         this._logger = logger;
         this._localStorage = localStorage;
         this._io = io;
         this._sendMail = sendMail;
+        this._tabletCache = tabletCache;
     }
 
     get () {
@@ -176,16 +178,22 @@ export class Visitors {
                     this._localStorage.removeItem("email");
                 }
 
+                this._visitorService.allTabletLocations()
+                    .then(result => {
+                        this._tabletCache.set("allTabs", result.rows,function( err, success ){
+                            if( !err && success ){
+                                console.log( "TabletCache Created " + success);
+                            }
+                        });
+                    });
+
                 if(this._localStorage.getItem("error")) {
                     error = this._localStorage.getItem("error");
-
                     res.render("admin_login",{data:error});
                     this._localStorage.removeItem("error");
                 }else{
                     res.render("admin_login",{data:""});
                 }
-
-
             }
         ]
     }
@@ -392,10 +400,14 @@ export class Visitors {
     allTabletLocations() {
         return [
             (req, res) => {
-                //res.render('autoComplete_add');
                 //We actually need all the tablets to be listed while adding suggestion.
                 this._visitorService.allTabletLocations()
                     .then(result => {
+                        this._tabletCache.set("allTabs", result.rows,function( err, success ){
+                            if( !err && success ){
+                                console.log( success );
+                            }
+                        });
                         res.send(result.rows);
                     })
                     .catch(err => {
@@ -514,11 +526,14 @@ export class Visitors {
     allStaff(){
         return [
             (req, res) => {
-                this._logger.info("Staff for Tab Id" + req.query.tabId);
+                this._logger.info("Staff for Tab Id " + req.query.tabId);
+                if(req.query.tabId == undefined){
+                    return res.send({status: 'ok', message: 'Error!' , count_total: 0, data: ''});
+                }
                 this._visitorService.allStaff(req.query.tabId)
                     .then(result => {
                         let row = result.rows;
-                        res.send({status: 'ok', count: '20' , count_total: result.rowCount, data: row});
+                        res.send({status: 'ok', message: 'Success' , count_total: result.rowCount, data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -534,7 +549,7 @@ export class Visitors {
                 this._visitorService.staffData(req.params.id)
                     .then(result => {
                         let row = result.rows;
-                        res.send({status: 'ok', count: '20' , count_total: result.rowCount, data: row});
+                        res.send({status: 'ok', message: 'Success' , count_total: result.rowCount, data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -699,7 +714,8 @@ export class Visitors {
         ];
     }
 
-    showFiremarshall (){
+    //FireMarshall Functionality
+    showFireMarshall (){
         return [
             (req,res) => {
                 //We actually need all the tablets to be listed while adding suggestion.
@@ -716,13 +732,12 @@ export class Visitors {
     }
 
 
-    addFiremarshall (){
+    addFireMarshall (){
         return [
             (req, res) => {
-                this._visitorService.addFiremarshall(req.body)
+                this._visitorService.addFireMarshall(req.body)
                     .then(result => {
-
-                        if(req.body.another != "undefined"){
+                        if(req.body.another != undefined){
                             res.redirect("/fireMarshall");
                         }else {
                             res.redirect("/allFireMarshall");
@@ -737,10 +752,10 @@ export class Visitors {
         ];
     }
 
-    updateFiremarshall (){
+    updateFireMarshall (){
         return [
             (req, res) => {
-                this._visitorService.updateFiremarshall(req.params.id, req.body)
+                this._visitorService.updateFireMarshall(req.params.id, req.body)
                     .then(result => {
                         res.redirect("/allFireMarshall");
                     })
@@ -758,7 +773,6 @@ export class Visitors {
                 this._visitorService.allFireMarshall()
                     .then(result => {
                         let row = result.rows;
-                        //res.render("/allVisitorsPrintOut", {data: row});
                         res.render('all_firemarshall', {data: row});
                     })
                     .catch(err => {
@@ -785,6 +799,93 @@ export class Visitors {
         ];
     }
 
+
+    //FirstAid Functionality
+    getFirstAid (){
+        return [
+            (req,res) => {
+                //We actually need all the tablets to be listed while adding suggestion.
+                this._visitorService.allTabletLocations()
+                    .then(result => {
+                        res.render('showFirstAid', {"data": result.rows});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
+                    });
+            }
+        ]
+    }
+
+
+    postFirstAid(){
+        return [
+            (req, res) => {
+                this._visitorService.postFirstAid(req.body)
+                    .then(() => {
+                        if(req.body.another != undefined){
+                            res.redirect("/firstAid");
+                        }else {
+                            res.redirect("/allFirstAid");
+                        }
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    updateFirstAid (){
+        return [
+            (req, res) => {
+                console.log(req.params.id);
+                this._visitorService.updateFirstAid(req.params.id, req.body)
+                    .then(result => {
+                        res.redirect("/allFirstAid");
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    allFirstAid (){
+        return [
+            (req, res) => {
+                this._visitorService.allFirstAid()
+                    .then(result => {
+                        let row = result.rows;
+                        allTablets = this._tabletCache.get( "allTabs" );
+                        row.locations = allTablets;
+                        res.render('allFirstAid', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
+
+    deleteFirstAid (){
+        return [
+            (req, res) => {
+                this._visitorService.deleteFirstAid(req.params.id)
+                    .then(result => {
+                        let row = result.rows;
+                        res.render('all_firemarshall', {data: row});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                    });
+            }
+        ];
+    }
 
     //NFC SignIn And SignOut
     nfcActivity(){
@@ -830,7 +931,7 @@ export class Visitors {
             (req, res) => {
                 this._visitorService.tabletPost(req.body)
                     .then(result => {
-                        if(req.body.another != "undefined"){
+                        if(req.body.another != undefined){
                             res.redirect("/addTablet/?location=" + req.body.location);
                         }else {
                             res.redirect("/allTablet");

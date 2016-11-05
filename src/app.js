@@ -9,10 +9,12 @@ import express from "express";
 import path from "path";
 import  bodyParser from "body-parser";
 import nodeSchedule from "node-schedule";
-//import CanvasJS from 'canvasjs';
+import fs from "fs";
+
 var exec = require('child_process').exec;
 var localStorage = require('localStorage');
-import fs from "fs";
+var NodeCache = require( "node-cache" );
+var tabletCache = new NodeCache();
 
 var connections = [];
 
@@ -82,9 +84,9 @@ db.createConnection()
         //let emitter = new EventEmitter();
         let postgres = new Postgres(connection);
         let eventListener = new EventListener(connection, logger);
-        let visitorStore = new VisitorStore(postgres, logger, io);
-        let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger);
-        let visitors = new Visitors(visitorService, logger, localStorage, io, sendMail);
+        let visitorStore = new VisitorStore(postgres, logger, io, tabletCache);
+        let visitorService = new VisitorService(visitorStore, templateManager, dataCleaner, logger, tabletCache);
+        let visitors = new Visitors(visitorService, logger, localStorage, io, sendMail, tabletCache);
         let search = new Search(visitorService, logger, localStorage, io);
 
 
@@ -167,11 +169,19 @@ db.createConnection()
         app.get("/allPrintOut/:id", visitors.allPrintOut());
 
         //FireMarshall
-        app.post("/fireMarshall", visitors.addFiremarshall());
-        app.get("/fireMarshall", visitors.showFiremarshall());
-        app.post("/fireMarshall/:id", visitors.updateFiremarshall());
+        app.post("/fireMarshall", visitors.addFireMarshall());
+        app.get("/fireMarshall", visitors.showFireMarshall());
+        app.post("/fireMarshall/:id", visitors.updateFireMarshall());
         app.get("/allFireMarshall", visitors.allFireMarshall());
         app.delete("/fireMarshall/:id", visitors.deleteFireMarshall());
+
+        //First Aid
+        app.get("/firstAid", visitors.getFirstAid());
+        app.post("/firstAid", visitors.postFirstAid());
+        app.post("/firstAid/:id", visitors.updateFirstAid());
+        app.get("/allFirstAid", visitors.allFirstAid());
+        app.delete("/firstAid/:id", visitors.deleteFirstAid());
+
 
         //Staff Signin and Signout from the NFC card
         app.get("/nfcActivity/:id", visitors.nfcActivity());

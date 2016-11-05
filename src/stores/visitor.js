@@ -14,10 +14,11 @@ var base64 = require('node-base64-image');
 
 export class VisitorStore {
 
-    constructor(resource, logger, io) {
+    constructor(resource, logger, io, tabletCache) {
         this._resource = resource;
         this._logger = logger;
         this._io = io;
+        this._tabletCache = tabletCache;
     }
 
     getCustomer(id) {
@@ -451,7 +452,6 @@ export class VisitorStore {
 
         return this._resource.query(selectTabQuery, tabArgs)
             .then(tabResponse => {
-                console.log(tabResponse.rows);
                 return tabResponse;
             })
             .then( tabResult => {
@@ -521,25 +521,44 @@ export class VisitorStore {
                             _.forEach(staffResponse.rows, (staffValue, staffKey) => {
                                 if (staffValue.staff_id == value.employee_number) {
 
-                                    console.log("ID matched" + staffValue.staff_id);
-
-                                    if (staffValue.signin_time != null) {
-                                        result.rows[key]['status'] = 'Inside Building';
-                                        result.rows[key]['lastActivity'] = 'Signed In';
-                                        result.rows[key]['signinTime'] = this.timeConverter(staffValue.signin_time);
-                                    }
+                                    this._logger.info("User ID matched who are inside building for TabId >>>" + tabId + " with ID >>> "+ staffValue.staff_id);
 
                                     if (staffValue.signout_time != null) {
                                         result.rows[key]['status'] = 'Outside of Building';
                                         result.rows[key]['lastActivity'] = 'Signed Out';
                                         result.rows[key]['signoutTime'] = this.timeConverter(staffValue.signout_time);
+                                    }else if (staffValue.signin_time != null) {
+                                        result.rows[key]['status'] = 'Inside Building';
+                                        result.rows[key]['lastActivity'] = 'Signed In';
+                                        result.rows[key]['signinTime'] = this.timeConverter(staffValue.signin_time);
                                     }
                                     result.rows[key]['primaryId'] = staffValue.id;
                                 }
                             })
-
                         });
                         return result;
+                    })
+                    .then(result => {
+
+                        var allResult = result;
+                        let marshallSelectQuery = 'SELECT * from reception_handler.fire_marshall WHERE tablet_id=$1';
+                        let args = [
+                            tabId
+                        ];
+
+                        return this._resource.query(marshallSelectQuery, args)
+                            .then(marshallResponse => {
+                                _.forEach(allResult.rows, (value, key) => {
+                                    allResult.rows[key]['fireMarshall'] = "no";
+                                    _.forEach(marshallResponse.rows, ( marshallValue, marshallKey) => {
+                                        if ( marshallValue.employee_number == value.employee_number) {
+                                            this._logger.info("User ID matched who are Fire Marshall for TabId >>>" + tabId + " with ID >>> "+  marshallValue.employee_number);
+                                                allResult.rows[key]['fireMarshall'] = "yes";
+                                        }
+                                    })
+                                });
+                                return allResult;
+                            });
                     })
             })
         })
@@ -618,23 +637,31 @@ export class VisitorStore {
             })
     }
 
-
-    addFiremarshall (data){
-
-        let insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, tablet_id) VALUES ( $1, $2, $3 ) RETURNING id';
+//FireMarshall Functionality
+    addFireMarshall (data){
+        let selectQuery = 'SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1';
         let args = [
-            data.marshall_name,
-            data.marshall_email,
-            data.location
+            data.marshall_name
         ];
 
-        return this._resource.query(insertQuery, args)
+        return this._resource.query(selectQuery, args)
             .then(response => {
-                return response;
+                let insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, tablet_id, employee_number) VALUES ( $1, $2, $3, $4 ) RETURNING id';
+                let args = [
+                    response.rows[0].first_name + " " + response.rows[0].surname,
+                    data.marshall_email,
+                    data.location,
+                    data.marshall_name
+                ];
+
+                return this._resource.query(insertQuery, args)
+                    .then(finalResponse => {
+                        return finalResponse;
+                    });
             });
     }
 
-    updateFiremarshall (id, data){
+    updateFireMarshall (id, data){
 
         let insertQuery = 'UPDATE reception_handler.fire_marshall SET name = $1, email_adds = $2, location = $3 WHERE id= $4';
         let args = [
@@ -650,7 +677,7 @@ export class VisitorStore {
             });
     }
 
-    deleteFiremarshall (id){
+    deleteFireMarshall (id){
 
         let insertQuery = 'DELETE FROM reception_handler.fire_marshall  WHERE id= $1';
         let args = [
@@ -663,6 +690,22 @@ export class VisitorStore {
             });
     }
 
+    allFireMarshall() {
+        let selectQuery = `SELECT 
+                                m.*,t.location_id,t.tablet_name 
+                            FROM 
+                                reception_handler.fire_marshall m 
+                            LEFT JOIN 
+                                reception_handler.tablets t on m.tablet_id = t.id ORDER BY m.id DESC`;
+
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
     fireMarshallMail () {
 
         let selectQuery = `SELECT * FROM reception_handler.fire_marshall where id = 11`;
@@ -675,6 +718,98 @@ export class VisitorStore {
             })
 
     }
+
+    //FirstAid Functionality
+    postFirstAid (data){
+        let selectQuery = 'SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1';
+        let args = [
+            data.first_aider
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                let insertQuery = 'INSERT INTO reception_handler.first_aid (tablet_id, employee_name, employee_number, email_adds) VALUES ( $1, $2, $3, $4 ) RETURNING id';
+                let args = [
+                    data.location,
+                    response.rows[0].first_name + " " + response.rows[0].surname,
+                    data.first_aider,
+                    data.first_aider_email,
+                ];
+
+                return this._resource.query(insertQuery, args)
+                    .then(finalResponse => {
+                        return finalResponse;
+                    });
+            });
+    }
+
+    updateFirstAid (id, data){
+
+        let selectQuery = 'SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1';
+        let args = [
+            data.employee_number
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                let insertQuery = 'UPDATE reception_handler.first_aid SET tablet_id = $1, employee_name = $2, employee_number = $3, email_adds = $4 WHERE id= $5';
+                let args = [
+                    data.tablet_id,
+                    response.rows[0].first_name + " " + response.rows[0].surname,
+                    data.employee_number,
+                    data.email_adds,
+                    id
+                ];
+
+                return this._resource.query(insertQuery, args)
+                    .then(response => {
+                        return response;
+                    });
+            })
+    }
+
+    deleteFirstAid (id){
+
+        let insertQuery = 'DELETE FROM reception_handler.fire_marshall  WHERE id= $1';
+        let args = [
+            id
+        ];
+
+        return this._resource.query(insertQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+
+    allFirstAid() {
+        let selectQuery = `SELECT 
+                                fd.*,t.location_id,t.tablet_name 
+                            FROM 
+                                reception_handler.first_aid fd 
+                            LEFT JOIN 
+                                reception_handler.tablets t on fd.tablet_id = t.id`;
+
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            });
+    }
+    firstAidMail () {
+
+        let selectQuery = `SELECT * FROM reception_handler.fire_marshall where id = 11`;
+        let args = [
+        ];
+
+        return this._resource.query(selectQuery, args)
+            .then(response => {
+                return response;
+            })
+
+    }
+
 
     staffSignOut(id) {
         let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date  and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
@@ -802,27 +937,6 @@ export class VisitorStore {
 
 
     }
-
-    allFiremarshall() {
-        //let selectQuery = 'SELECT * from reception_handler.fire_marshall ORDER BY id DESC';
-
-        let selectQuery = `SELECT 
-                                m.*,t.location_id,t.tablet_name 
-                            FROM 
-                                reception_handler.fire_marshall m 
-                            LEFT JOIN 
-                                reception_handler.tablets t on m.tablet_id = t.id ORDER BY m.id DESC`;
-
-        let args = [
-        ];
-
-        return this._resource.query(selectQuery, args)
-            .then(response => {
-                return response;
-            });
-    }
-
-
 
     //search queries
 

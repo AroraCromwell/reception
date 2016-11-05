@@ -668,17 +668,25 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "showFiremarshall",
         value: function showFiremarshall() {
+            var _this33 = this;
+
             return [function (req, res) {
-                res.render('show_firemarshall');
+                //We actually need all the tablets to be listed while adding suggestion.
+                _this33._visitorService.allTabletLocations().then(function (result) {
+                    res.render('show_firemarshall', { "data": result.rows });
+                }).catch(function (err) {
+                    _this33._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
+                });
             }];
         }
     }, {
         key: "addFiremarshall",
         value: function addFiremarshall() {
-            var _this33 = this;
+            var _this34 = this;
 
             return [function (req, res) {
-                _this33._visitorService.addFiremarshall(req.body).then(function (result) {
+                _this34._visitorService.addFiremarshall(req.body).then(function (result) {
 
                     if (req.body.another != "undefined") {
                         res.redirect("/fireMarshall");
@@ -686,7 +694,7 @@ var Visitors = exports.Visitors = function () {
                         res.redirect("/allFireMarshall");
                     }
                 }).catch(function (err) {
-                    _this33._logger.error(err);
+                    _this34._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -694,27 +702,11 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "updateFiremarshall",
         value: function updateFiremarshall() {
-            var _this34 = this;
-
-            return [function (req, res) {
-                _this34._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
-                    res.redirect("/allFireMarshall");
-                }).catch(function (err) {
-                    _this34._logger.error(err);
-                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
-                });
-            }];
-        }
-    }, {
-        key: "allFireMarshall",
-        value: function allFireMarshall() {
             var _this35 = this;
 
             return [function (req, res) {
-                _this35._visitorService.allFireMarshall().then(function (result) {
-                    var row = result.rows;
-                    //res.render("/allVisitorsPrintOut", {data: row});
-                    res.render('all_firemarshall', { data: row });
+                _this35._visitorService.updateFiremarshall(req.params.id, req.body).then(function (result) {
+                    res.redirect("/allFireMarshall");
                 }).catch(function (err) {
                     _this35._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
@@ -722,16 +714,32 @@ var Visitors = exports.Visitors = function () {
             }];
         }
     }, {
-        key: "deleteFireMarshall",
-        value: function deleteFireMarshall() {
+        key: "allFireMarshall",
+        value: function allFireMarshall() {
             var _this36 = this;
 
             return [function (req, res) {
-                _this36._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                _this36._visitorService.allFireMarshall().then(function (result) {
                     var row = result.rows;
+                    //res.render("/allVisitorsPrintOut", {data: row});
                     res.render('all_firemarshall', { data: row });
                 }).catch(function (err) {
                     _this36._logger.error(err);
+                    res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
+                });
+            }];
+        }
+    }, {
+        key: "deleteFireMarshall",
+        value: function deleteFireMarshall() {
+            var _this37 = this;
+
+            return [function (req, res) {
+                _this37._visitorService.deleteFireMarshall(req.params.id).then(function (result) {
+                    var row = result.rows;
+                    res.render('all_firemarshall', { data: row });
+                }).catch(function (err) {
+                    _this37._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -742,15 +750,15 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "nfcActivity",
         value: function nfcActivity() {
-            var _this37 = this;
+            var _this38 = this;
 
             return [function (req, res) {
 
-                _this37._visitorService.nfcActivity(req.params.id).then(function (result) {
+                _this38._visitorService.nfcActivity(req.params.id).then(function (result) {
                     var status = result.activity == "UPDATE" ? "sign_out" : "sign_in";
                     res.send({ message: "Success", activity: status, name: result.rows[0].first_name + " " + result.rows[0].surname });
                 }).catch(function (err) {
-                    _this37._logger.error(err);
+                    _this38._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
             }];
@@ -761,16 +769,16 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "addTablet",
         value: function addTablet() {
-            var _this38 = this;
+            var _this39 = this;
 
             return [function (req, res) {
-                _this38.getAllPrinters().then(function (printerResult) {
-                    _this38._visitorService.addTablet().then(function (result) {
+                _this39.getAllPrinters().then(function (printerResult) {
+                    _this39._visitorService.addTablet().then(function (result) {
                         result.allPrinters = printerResult.printersArray;
                         res.render('add_tablet', { data: result });
                     });
                 }).catch(function (err) {
-                    _this38._logger.error(err);
+                    _this39._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
             }];
@@ -778,17 +786,17 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "tabletPost",
         value: function tabletPost() {
-            var _this39 = this;
+            var _this40 = this;
 
             return [function (req, res) {
-                _this39._visitorService.tabletPost(req.body).then(function (result) {
+                _this40._visitorService.tabletPost(req.body).then(function (result) {
                     if (req.body.another != "undefined") {
                         res.redirect("/addTablet/?location=" + req.body.location);
                     } else {
                         res.redirect("/allTablet");
                     }
                 }).catch(function (err) {
-                    _this39._logger.error(err);
+                    _this40._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: err.toString() });
                 });
             }];
@@ -796,14 +804,14 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "allTablet",
         value: function allTablet() {
-            var _this40 = this;
+            var _this41 = this;
 
             return [function (req, res) {
-                _this40._visitorService.allTablet().then(function (result) {
+                _this41._visitorService.allTablet().then(function (result) {
                     var row = result.rows;
                     res.render('all_tablet', { data: row });
                 }).catch(function (err) {
-                    _this40._logger.error(err);
+                    _this41._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err), retry: 1 });
                 });
             }];
@@ -811,10 +819,10 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "fetchDataForTablet",
         value: function fetchDataForTablet() {
-            var _this41 = this;
+            var _this42 = this;
 
             return [function (req, res) {
-                _this41._visitorService.addTablet().then(function (result) {
+                _this42._visitorService.addTablet().then(function (result) {
 
                     var allOptions = '';
                     var allDept = '';
@@ -828,7 +836,7 @@ var Visitors = exports.Visitors = function () {
                     result.depts = allDept;
                     res.send({ message: "success", data: result });
                 }).catch(function (err) {
-                    _this41._logger.error(err);
+                    _this42._logger.error(err);
                     res.send({ message: "Error", data: JSON.stringify(err) });
                 });
             }];
@@ -836,13 +844,13 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "updateTablet",
         value: function updateTablet() {
-            var _this42 = this;
+            var _this43 = this;
 
             return [function (req, res) {
-                _this42._visitorService.updateTablet(req.params.id, req.body).then(function (result) {
+                _this43._visitorService.updateTablet(req.params.id, req.body).then(function (result) {
                     res.redirect("/allTablet");
                 }).catch(function (err) {
-                    _this42._logger.error(err);
+                    _this43._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
                 });
             }];
@@ -850,13 +858,13 @@ var Visitors = exports.Visitors = function () {
     }, {
         key: "deleteTabletDept",
         value: function deleteTabletDept() {
-            var _this43 = this;
+            var _this44 = this;
 
             return [function (req, res) {
-                _this43._visitorService.deleteTabletDept(req.params.id).then(function (result) {
+                _this44._visitorService.deleteTabletDept(req.params.id).then(function (result) {
                     res.send({ success: 1, message: "completed", data: { result: result } });
                 }).catch(function (err) {
-                    _this43._logger.error(err);
+                    _this44._logger.error(err);
                     res.send({ success: 0, message: "Error!", data: JSON.stringify(err) });
                 });
             }];

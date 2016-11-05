@@ -4,16 +4,20 @@
             <table id="datatable" class="table table-striped table-bordered display" cellspacing="0" width="100%">
                 <thead>
                 <tr>
+                    <th>TabletId</th>
                     <th>Location</th>
                     <th>Name</th>
+                    <th>Employee</th>
                     <th>Email</th>
                     <th>&nbsp;&nbsp;&nbsp;&nbsp;Actions</th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
+                    <th>TabletId</th>
                     <th>Location</th>
                     <th>Name</th>
+                    <th>Employee</th>
                     <th>Email</th>
                     <th>Blank</th>
                 </tr>
@@ -23,8 +27,10 @@
                 <tbody>
                 {{#each data}}
                     <tr>
+                        <td name="id">{{tablet_id}}</td>
                         <td name="location">{{tablet_name}}</td>
-                        <td name="type" id="type">{{name}}</td>
+                        <td name="type" id="type">{{employee_name}}</td>
+                        <td name="emp_number" type="hidden">{{employee_number}}</td>
                         <td name="suggestion">{{email_adds}}</td>
                         <td>
                             <input type="button" class="sbm-btn btn btn-sm btn-primary"   id="{{id}}" value="Update" onclick="">
@@ -49,28 +55,32 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Update FireMarshall</h4>
+                <h4 class="modal-title" id="myModalLabel">Update FirstAid</h4>
             </div>
             <div class="modal-body">
-                <form role="form" id="update-form" action="/fireMarshall" method="post">
+                <form role="form" id="update-form" action="/firstAid" method="post">
                     <input name="_method" type="hidden" value="PUT">
                     <div class="form-group">
                         <div class="form-group">
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company">Location</label>
                             <div class="col-sm-8 col-md-8">
-                                <select name="location" class="form-control" id="locationId">
-                                    <option value="BRC">BRC</option>
-                                    <!--<option value="WDC">WDC</option>-->
+                                <select name="tablet_id" class="form-control" id="tablet_id">
+                                    <option value="">Select</option>
+                                    {{#each data.locations}}
+                                        <option value="{{id}}">{{tablet_name}}-({{location_name}})</option>
+                                    {{/each}}
                                 </select>
                             </div>
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company" >Name</label>
                             <div class="col-sm-8 col-md-8">
-                                <input name="name" class="form-control" id="typeId"  />
+                                <select name="employee_number" class="form-control" id="employee_number">
+                                    <option value="">Select</option>
+                                </select>
                             </div>
 
                             <label class="control-label col-sm-offset-2 col-sm-2" for="company" >Email:</label>
                             <div class="col-sm-8 col-md-8">
-                                <input class="form-control" pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" title="test@gmail.com"  name="email_adds" id="suggestId"/>
+                                <input class="form-control" pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" title="test@gmail.com"  name="email_adds" id="email_adds"/>
                             </div>
                             <div class="col-sm-12 col-md-12">
                                 <label class="control-label col-sm-offset-2 col-sm-2" for="company"></label>
@@ -90,7 +100,18 @@
 <script src="/js/jquery-1.12.3.min.js" ></script>
 <script>
     $(document).ready(function() {
+
         $('#datatable').DataTable( {
+            "aoColumnDefs": [
+                {
+                    "aTargets": [ 0 ],
+                    "bVisible": false
+                },
+                {
+                    "aTargets": [ 3 ],
+                    "bVisible": false
+                }
+            ],
             initComplete: function () {
                 this.api().columns().every( function () {
                     var column = this;
@@ -111,17 +132,35 @@
                     } );
                 } );
             }
-        } );
+        });
     } );
 
     $(".btn-primary").on("click", function() {
         var table = $('#datatable').DataTable();
         var data = table.row( $(this).parents('tr') ).data();
         var contentPanelId = jQuery(this).attr("id");
-        $('#locationId').val(data[0]);
-        $('#typeId').val(data[1]);
-        $('#suggestId').val(data[2]);
-        $("#update-form").attr("action", "/fireMarshall/" + contentPanelId);
+        console.log('this is row data' + data);
+
+        $.ajax({
+            url: '/allStaff?tabId='+ data[0],
+            type: 'GET',
+            success: function(response) {
+                var allAiderOptions = "";
+                $.each(response.data, function(index, value) {
+                    allAiderOptions  += '<option value="' + value.employee_number +'">'+ value.first_name + " " + value.surname + '</option>';
+                });
+
+                $('#employee_number').append(allAiderOptions);
+                $('#employee_number').val(data[3]);
+            },
+            error: function () {
+                //your error code
+            }
+        });
+
+        $('#tablet_id').val(data[0]);
+        $('#email_adds').val(data[4]);
+        $("#update-form").attr("action", "/firstAid/" + contentPanelId);
         $('#myModal').modal('show');
     });
 

@@ -1,10 +1,10 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6">
-            <form role="form" class="form-horizontal" id="addMarshall"  action="/fireMarshall" method="post">
+            <form role="form" class="form-horizontal" id="addMarshall"  action="/firstAid" method="post">
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="location">Location: </label>
-                    <div class="col-sm-10">
+                    <label class="control-label col-sm-3" for="location">Location: </label>
+                    <div class="col-sm-9">
                         <select name="location" class="form-control" id="location">
                             <option value="">Select</option>
                             {{#each data}}
@@ -15,17 +15,17 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="marshall_name">Marshall Name: </label>
-                    <div class="col-sm-10">
-                        <select name="marshall_name" class="form-control" id="marshall_name">
+                    <label class="control-label col-sm-3" for="first_aider">First Aider Name: </label>
+                    <div class="col-sm-9">
+                        <select name="first_aider" class="form-control" id="first_aider">
                             <option value="">Select</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="marshall_email">Marshall Email: </label>
-                    <div class="col-sm-10">
-                        <input class="form-control"  pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" title="test@gmail.com" id="marshall_email" name="marshall_email"/>
+                    <label class="control-label col-sm-3" for="first_aider_email">First Aider Email: </label>
+                    <div class="col-sm-9">
+                        <input class="form-control"  pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" title="test@gmail.com" id="first_aider_email" name="first_aider_email"/>
                     </div>
                 </div>
 
@@ -54,12 +54,12 @@
                 contentType: 'application/json; charset=utf-8',
                 success: function(response) {
 
-                    var allMarshallOptions = "";
+                    var allAiderOptions = "";
                     $.each(response.data, function(index, value) {
-                        allMarshallOptions  += '<option value="' + value.employee_number +'">'+ value.first_name + " " + value.surname + '</option>';
+                        allAiderOptions  += '<option value="' + value.employee_number +'">'+ value.first_name + " " + value.surname + '</option>';
                     });
 
-                    $('#marshall_name').append(allMarshallOptions);
+                    $('#first_aider').append(allAiderOptions);
                 },
                 error: function () {
                     //your error code
