@@ -46,3 +46,6 @@ node_modules
 src/public/images/
 src/public/pdf_images/
 src/config.json
+public/.thumb/
+public/images/staff/
+public/images/visitors/

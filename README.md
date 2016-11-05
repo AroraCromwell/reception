@@ -1,8 +1,8 @@
-# Cromwell Reception Handler
+# Reception Handler
 
-Rest based node application for cromwell reception  android application.
+Rest based node application for Reception  android application.
 
-This service is running as Rest service for cromwell reception android OS based application and is storing data using
+This service is running as Rest service for Reception android OS based application and is storing data using
 postgressql.
 
 It is running cronjob at 19:00,20:00 pm everyday to signout all the users by default , clearing the pdf data and clearing
