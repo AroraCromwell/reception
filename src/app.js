@@ -46,6 +46,7 @@ import {TemplateManager} from "./services/templateManager";
 import {SendMail} from "./lib/sendMail";
 import {AutoCompleteRoutes} from "./routes/autoComplete";
 import {TabletRoutes} from "./routes/tablet";
+import {FireMarshallRoutes} from "./routes/fireMarshall";
 var middelWare = require('./middelware/middelware').authentication;
 
 let logger = new Logger();
@@ -90,6 +91,7 @@ db.createConnection()
         let visitors = new Visitors(visitorService, logger, localStorage, io, sendMail, tabletCache);
         let autoCompleteRoutes = new AutoCompleteRoutes(visitorStore, logger, io, tabletCache);
         let tabletRoutes = new TabletRoutes(visitorStore, logger, io, tabletCache);
+        let fireMarshallRoutes = new FireMarshallRoutes(visitorStore, logger, io, tabletCache);
         let search = new Search(visitorService, logger, localStorage, io);
 
 
@@ -173,7 +175,7 @@ db.createConnection()
         app.post("/autoComplete/:id", autoCompleteRoutes.updateAutoComplete());
         app.delete("/autoComplete/:id", autoCompleteRoutes.deleteAutoComplete());
 
-        app.get("/getPrinters", visitors.getPrinters());
+        //app.get("/getPrinters", visitors.getPrinters());
         //request for Tablets
 
         app.get("/addTablet", tabletRoutes.addTablet());
@@ -198,11 +200,11 @@ db.createConnection()
         app.get("/allPrintOut/:id", visitors.allPrintOut());
 
         //FireMarshall
-        app.post("/fireMarshall", visitors.addFireMarshall());
-        app.get("/fireMarshall", visitors.showFireMarshall());
-        app.post("/fireMarshall/:id", visitors.updateFireMarshall());
-        app.get("/allFireMarshall", visitors.allFireMarshall());
-        app.delete("/fireMarshall/:id", visitors.deleteFireMarshall());
+        app.post("/fireMarshall", fireMarshallRoutes.addFireMarshall());
+        app.get("/fireMarshall", fireMarshallRoutes.showFireMarshall());
+        app.post("/fireMarshall/:id", fireMarshallRoutes.updateFireMarshall());
+        app.get("/allFireMarshall", fireMarshallRoutes.allFireMarshall());
+        app.delete("/fireMarshall/:id", fireMarshallRoutes.deleteFireMarshall());
 
         //First Aid
         app.get("/firstAid", visitors.getFirstAid());
