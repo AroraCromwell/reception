@@ -11,7 +11,7 @@ export class TabletRoutes {
         this._visitorService = visitorService;
         this._logger = logger;
         this._io = io;
-        this._tabletCache = tabletCache;
+        allTablets = tabletCache.get( "allTabs" );
     }
 
     /**

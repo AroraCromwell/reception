@@ -11,27 +11,6 @@ import  bodyParser from "body-parser";
 import nodeSchedule from "node-schedule";
 import fs from "fs";
 
-var exec = require('child_process').exec;
-var localStorage = require('localStorage');
-var NodeCache = require( "node-cache" );
-var tabletCache = new NodeCache();
-var session = require('client-sessions');
-
-var connections = [];
-
-var app = express();
-var expressThumbnail = require('express-thumbnail');
-var exphbs  = require('express-handlebars');
-var qt = require('quickthumb');
-var request = require('request');
-import when from 'when';
-
-app.set('views', path.join(__dirname, 'templates'));
-app.engine('.hbs', exphbs({extname: '.hbs', defaultLayout: 'main_layout',layoutsDir: path.join(__dirname, 'templates/layouts')}));
-app.set('view engine', '.hbs');
-app.use(expressThumbnail.register(path.join(__dirname , 'public')));
-app.use(qt.static(path.join(__dirname, 'public')));
-
 
 /* Files */
 import {Logger} from "./lib/logger";
@@ -49,16 +28,38 @@ import {TabletRoutes} from "./routes/tablet";
 import {FireMarshallRoutes} from "./routes/fireMarshall";
 import {FirstAidRoutes} from "./routes/firstAid";
 import {StaffRoutes} from "./routes/staff";
-var middelWare = require('./middelware/middelware').authentication;
+import {LoginRoutes} from "./routes/login";
+import {StatusRoutes} from "./routes/status";
+import {PrintRoutes} from "./routes/printOut";
 
-let logger = new Logger();
-let sendMail = new SendMail();
+var exec = require('child_process').exec;
+var NodeCache = require( "node-cache" );
+var tabletCache = new NodeCache();
+var session = require('client-sessions');
+var expressThumbnail = require('express-thumbnail');
+var exphbs  = require('express-handlebars');
+var qt = require('quickthumb');
+var request = require('request');
+
+//declare allConnections
+var connections = [];
+
+// initiliaze the express
+var app = express();
+
+// Setting  the handlebars templates with express
+app.set('views', path.join(__dirname, 'templates'));
+app.engine('.hbs', exphbs({extname: '.hbs', defaultLayout: 'main_layout',layoutsDir: path.join(__dirname, 'templates/layouts')}));
+app.set('view engine', '.hbs');
+app.use(expressThumbnail.register(path.join(__dirname , 'public')));
+app.use(qt.static(path.join(__dirname, 'public')));
+
 let db = new DbConnect(config.db.postgres.string);
 
 db.createConnection()
     .then((connection) => {
 
-        //var server = require('http').createServer(app);
+        //If it is in Production Env., Look for the SSL
        if(config.env.status !== "Production"){
            var server = require('https').createServer({
                cert: fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cert\\ssl_certificate.crt"),
@@ -68,6 +69,7 @@ db.createConnection()
            var server = require('http').createServer(app);
        }
 
+       // Listen for socket watchers
         connection.query('LISTEN "watchers"');
 
         connection.on('notification', function(data) {
@@ -85,20 +87,22 @@ db.createConnection()
 
         let io = require('socket.io')(server);
         let templateManager = new TemplateManager();
-        //let emitter = new EventEmitter();
+        let logger = new Logger();
+        let sendMail = new SendMail();
         let postgres = new Postgres(connection);
         let eventListener = new EventListener(connection, logger);
         let visitorStore = new VisitorStore(postgres, logger, io, tabletCache);
         let visitorService = new VisitorService(visitorStore, templateManager, logger, tabletCache);
-        let visitors = new Visitors(visitorService, logger, localStorage, io, sendMail, tabletCache);
+        let visitors = new Visitors(visitorService, logger, io, tabletCache);
         let autoCompleteRoutes = new AutoCompleteRoutes(visitorStore, logger, io, tabletCache);
         let tabletRoutes = new TabletRoutes(visitorStore, logger, io, tabletCache);
         let fireMarshallRoutes = new FireMarshallRoutes(visitorStore, logger, io, tabletCache);
         let firstAidRoutes = new FirstAidRoutes(visitorStore, logger, io, tabletCache);
         let staffRoutes = new StaffRoutes(visitorStore, logger, io, tabletCache);
-        let search = new Search(visitorService, logger, localStorage, io);
-
-
+        let loginRoutes = new LoginRoutes(visitorStore, logger, io, tabletCache);
+        let statusRoutes = new StatusRoutes(visitorStore, logger, io, tabletCache);
+        let printRoutes = new PrintRoutes(visitorStore, logger, io, tabletCache, sendMail);
+        let search = new Search(visitorService, logger, io);
 
         /* Start Listening */
         eventListener.listen();
@@ -118,43 +122,21 @@ db.createConnection()
             duration: 30 * 60 * 1000,
             activeDuration: 5 * 60 * 1000,
         }));
+    // Every request will go through Middelware and if it is admin request, then set up the Redis Session.
+        var middelWare = require('./middelware/middelware')(loginRoutes);
+        app.use(middelWare);
 
-        app.use(function(req, res, next) {
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-            const regex = /^\/api\//g;
-            const  str = req.url;
-            let m;
-            if((m = regex.exec(str)) !== null){
-                console.log("This is  an API Request");
-            }else{
-                if(req.session.key) {
-                    console.log("This is Admin Session Data " + req.session.key);
-                }else{
-                    const adminRegex = /^\/adminLogin/g;
-                    let lMatch;
-                    if((lMatch = adminRegex.exec(str)) !== null){
-                        console.log("Admin login Post request");
-                    }else{
-                        req.session.destroy();
-                        console.log("Show Login Page");
-                        app.get("/", visitors.loginView());
-                    }
-                }
-                next();
-            }
-        });
-
+        // Specifiy all the Routes Now:
         //Visitors
-        app.post("/visitors", visitors.post());
-        app.get("/allSignOut", visitors.allSignOutToday());
-        app.get("/allVisitors", visitors.allSignIns());
-        app.get("/visitors/:id", visitors.get());
-        app.put("/visitors/:id", visitors.put());
+        app.post("/visitors", visitors.postVisitor());
+        app.get("/allSignOut", visitors.allVisitorsSignOut());
+        app.get("/allVisitors", visitors.allVisitorsSignIn());
+        app.get("/visitors/:id", visitors.getVisitors());
+        app.put("/visitors/:id", visitors.updateVisitor());
 
         //Admin
-        app.get("/", visitors.loginView());
-        app.post("/adminLogin", visitors.adminLogin());
+        app.get("/", loginRoutes.loginView());
+        app.post("/adminLogin", loginRoutes.adminLogin());
 
         //Terms and Conditions
         app.get("/templateTerms", visitors.templateTerms());
@@ -163,15 +145,13 @@ db.createConnection()
         app.post("/terms", visitors.postTerms());
         app.put("/terms/:id", visitors.updateTerms());
         app.get("/allTerms", visitors.allTerms());
-        app.get("/test", visitors.test());
 
         //App status and Graph
-        app.post("/appStatus", visitors.status());
-        app.get("/graph", visitors.graph());
-        app.get("/graph/getData", visitors.currentStatus());
+        app.post("/appStatus", statusRoutes.status());
+        app.get("/graph", statusRoutes.graph());
+        app.get("/graph/getData", statusRoutes.currentStatus());
 
         // request for suggestions
-
         app.get("/autoCompleteAdd", autoCompleteRoutes.autoCompleteAdd());
         app.post("/autoCompletePost", autoCompleteRoutes.autoCompletePost());
         app.get("/autoComplete", autoCompleteRoutes.autoComplete());
@@ -179,9 +159,7 @@ db.createConnection()
         app.post("/autoComplete/:id", autoCompleteRoutes.updateAutoComplete());
         app.delete("/autoComplete/:id", autoCompleteRoutes.deleteAutoComplete());
 
-        //app.get("/getPrinters", visitors.getPrinters());
         //request for Tablets
-
         app.get("/addTablet", tabletRoutes.addTablet());
         app.get("/allTabletLocations", tabletRoutes.allTabletLocations());
         app.post("/tabletPost", tabletRoutes.tabletPost());
@@ -200,8 +178,8 @@ db.createConnection()
         app.post("/captureStaffImage/", staffRoutes.captureStaffImage());
 
         //Print Outs
-        app.get("/allVisitorsPrintOut", visitors.allPrintOut());
-        app.get("/allPrintOut/:id", visitors.allPrintOut());
+        app.get("/allVisitorsPrintOut", printRoutes.allPrintOut());
+        app.get("/allPrintOut/:id", printRoutes.allPrintOut());
 
         //FireMarshall
         app.post("/fireMarshall", fireMarshallRoutes.addFireMarshall());
@@ -219,10 +197,9 @@ db.createConnection()
 
 
         //Staff Signin and Signout from the NFC card
-        app.get("/nfcActivity/:id", visitors.nfcActivity());
+        app.get("/nfcActivity/:id", staffRoutes.nfcActivity());
 
         //request for search
-
         app.get("/searchAllSignIn/:id", search.searchAllSignIn());
 
         nodeSchedule.scheduleJob(config.runTime, function () {
@@ -309,7 +286,7 @@ db.createConnection()
             console.log("inside status interval");
             setInterval(function () {
                 console.log("Status Is" + status);
-                visitors.deviceStatus(status);
+                statusRoutes.deviceStatus(status);
             }, 300000);
         }
 

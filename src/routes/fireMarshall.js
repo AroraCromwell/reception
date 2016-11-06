@@ -9,7 +9,7 @@ export class FireMarshallRoutes {
         this._visitorService = visitorService;
         this._logger = logger;
         this._io = io;
-        this._tabletCache = tabletCache;
+        allTablets = tabletCache.get( "allTabs" );
     }
 
     /**
@@ -21,7 +21,6 @@ export class FireMarshallRoutes {
         return [
             (req,res) => {
                 //We actually need all the tablets to be listed while adding suggestion.
-                allTablets = this._tabletCache.get( "allTabs" );
                 res.render('showFireMarshall', {"data": allTablets});
             }
         ]

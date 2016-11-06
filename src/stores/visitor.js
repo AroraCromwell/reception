@@ -21,7 +21,7 @@ export class VisitorStore {
         this._tabletCache = tabletCache;
     }
 
-    getCustomer(id) {
+    getVisitors(id) {
 
         let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE id = $1 LIMIT 1";
         let args = [
@@ -34,7 +34,7 @@ export class VisitorStore {
             });
     }
 
-    saveCustomer(tabId, customer) {
+    postVisitor(tabId, customer) {
         var dir = "./public/images/visitors/";
 
         if (!fs.existsSync(dir)){
@@ -122,7 +122,7 @@ export class VisitorStore {
             });
     }
 
-    updateCustomer(id, customer) {
+    updateVisitor(id, customer) {
         console.log(id);
         console.log(customer.signout);
 
@@ -157,7 +157,7 @@ export class VisitorStore {
             });
     }
 
-    allSignOutToday() {
+    allVisitorsSignOut() {
         let time = this.getTime();
         let selectQuery = " SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
         let args = [
@@ -170,7 +170,7 @@ export class VisitorStore {
             });
     }
 
-    getAllSignIns(tabId){
+    allVisitorsSignIn(tabId){
         console.log("All Visitors for tabId " + tabId );
         var data = new Date();
         var month = data.getMonth()+1;

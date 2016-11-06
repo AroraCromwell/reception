@@ -10,7 +10,7 @@ export class AutoCompleteRoutes {
         this._visitorService = visitorService;
         this._logger = logger;
         this._io = io;
-        this._tabletCache = tabletCache;
+        allTablets = tabletCache.get( "allTabs" );
     }
 
     /**
@@ -20,7 +20,6 @@ export class AutoCompleteRoutes {
     autoCompleteAdd(){
         return [
             (req, res) => {
-                allTablets = this._tabletCache.get( "allTabs" );
                 res.render('autoCompleteAdd', {"data": allTablets});
             }
         ]

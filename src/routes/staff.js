@@ -9,7 +9,7 @@ export class StaffRoutes {
         this._visitorService = visitorService;
         this._logger = logger;
         this._io = io;
-        this._tabletCache = tabletCache;
+        allTablets = tabletCache.get( "allTabs" );
     }
 
     /**
@@ -107,7 +107,6 @@ export class StaffRoutes {
 
                     this._visitorService.staffSignedOut(req.params.id)
                         .then(result => {
-                            allTablets = this._tabletCache.get( "allTabs" );
                             result.locations = allTablets;
                             res.render('allStaffSignedOut', {data: result});
                         })
@@ -169,5 +168,27 @@ export class StaffRoutes {
                 });
             }
         ]
+    }
+
+    //NFC SignIn And SignOut
+    /**
+     *
+     * @return {*[]}
+     */
+    nfcActivity(){
+        return [
+            (req, res) => {
+
+                this._visitorService.nfcActivity(req.params.id)
+                    .then(result => {
+                        var status = result.activity == "UPDATE" ? "sign_out" : "sign_in" ;
+                        res.send({message: "Success", activity: status, name: result.rows[0].first_name + " " + result.rows[0].surname});
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({ message: "Error", data: JSON.stringify(err)});
+                    });
+            }
+        ];
     }
 }

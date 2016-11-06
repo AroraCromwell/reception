@@ -8,7 +8,7 @@ export class FirstAidRoutes {
         this._visitorService = visitorService;
         this._logger = logger;
         this._io = io;
-        this._tabletCache = tabletCache;
+        allTablets = tabletCache.get( "allTabs" );
     }
 
     /**
@@ -19,7 +19,6 @@ export class FirstAidRoutes {
         return [
             (req,res) => {
                 //We actually need all the tablets to be listed while adding suggestion.
-                allTablets = this._tabletCache.get( "allTabs" );
                 res.render('showFirstAid', {"data": allTablets});
             }
         ]
@@ -78,7 +77,6 @@ export class FirstAidRoutes {
                 this._visitorService.allFirstAid()
                     .then(result => {
                         let row = result.rows;
-                        allTablets = this._tabletCache.get( "allTabs" );
                         row.locations = allTablets;
                         res.render('allFirstAid', {data: row});
                     })

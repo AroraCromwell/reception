@@ -16,13 +16,13 @@ export class VisitorService {
         this._tabletCache = tabletCache;
     }
 
-    processRequest (tabId, data) {
+    postVisitor(tabId, data) {
 
         this._logger.info("New Customer!");
         this._logger.info(JSON.stringify(data));
         this._logger.info("Saving Data");
 
-                return this._visitorStore.saveCustomer(tabId, data)
+                return this._visitorStore.postVisitor(tabId, data)
                     .then((res) => {
                         return res;
                     })
@@ -59,34 +59,28 @@ export class VisitorService {
 
     }
 
-    processGetRequest (id) {
-
-        this._logger.info("Existing Customer!");
-        this._logger.info("Getting Data");
-
-        return this._visitorStore.getCustomer(id)
+    getVisitors(id) {
+        return this._visitorStore.getVisitors(id)
             .then((data) => {
                 return data;
             })
-
     }
 
-    allSignIns (tabId) {
-
+    allVisitorsSignIn (tabId) {
         this._logger.info("Getting All Visitors!");
         this._logger.info("Getting Data");
-        return this._visitorStore.getAllSignIns(tabId)
+        return this._visitorStore.allVisitorsSignIn(tabId)
             .then((data) => {
                 return data;
             })
     }
 
-    processPutRequest (id, data) {
+    updateVisitor (id, data) {
 
         this._logger.info("Existing Customer!");
         this._logger.info("Signing out");
 
-        return this._visitorStore.updateCustomer(id, data)
+        return this._visitorStore.updateVisitor(id, data)
             .then((data) => {
                 return data;
             })
@@ -104,17 +98,15 @@ export class VisitorService {
 
     }
 
-    allSignOutToday(){
+    allVisitorsSignOut(){
 
         this._logger.info("All Signed Out Today!");
 
-        return this._visitorStore.allSignOutToday()
+        return this._visitorStore.allVisitorsSignOut()
             .then((result) => {
-
                 _.each(result.rows , function (value, key) {
                      value.signout = dateFormat(value.signout, "dd-mm-yyyy HH:MM:ss");
                 });
-
                 return result;
             })
 

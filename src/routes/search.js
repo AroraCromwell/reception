@@ -4,7 +4,6 @@ export class Search {
     constructor(visitorService, logger, localStorage, io) {
         this._visitorService = visitorService;
         this._logger = logger;
-        this._localStorage = localStorage;
         this._io = io;
     }
 
