@@ -1,6 +1,7 @@
 "use strict";
 
 import {_} from "lodash";
+var allTablets;
 
 export class FireMarshallRoutes {
 
@@ -20,14 +21,8 @@ export class FireMarshallRoutes {
         return [
             (req,res) => {
                 //We actually need all the tablets to be listed while adding suggestion.
-                this._visitorService.allTabletLocations()
-                    .then(result => {
-                        res.render('showFiremarshall', {"data": result.rows});
-                    })
-                    .catch(err => {
-                        this._logger.error(err);
-                        res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
-                    });
+                allTablets = this._tabletCache.get( "allTabs" );
+                res.render('showFireMarshall', {"data": allTablets});
             }
         ]
     }
@@ -88,7 +83,7 @@ export class FireMarshallRoutes {
                 this._visitorService.allFireMarshall()
                     .then(result => {
                         let row = result.rows;
-                        res.render('allFiremarshall', {data: row});
+                        res.render('allFireMarshall', {data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -108,7 +103,7 @@ export class FireMarshallRoutes {
                 this._visitorService.deleteFireMarshall(req.params.id)
                     .then(result => {
                         let row = result.rows;
-                        res.render('allFiremarshall', {data: row});
+                        res.render('allFireMarshall', {data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);
