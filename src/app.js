@@ -47,6 +47,8 @@ import {SendMail} from "./lib/sendMail";
 import {AutoCompleteRoutes} from "./routes/autoComplete";
 import {TabletRoutes} from "./routes/tablet";
 import {FireMarshallRoutes} from "./routes/fireMarshall";
+import {FirstAidRoutes} from "./routes/firstAid";
+import {StaffRoutes} from "./routes/staff";
 var middelWare = require('./middelware/middelware').authentication;
 
 let logger = new Logger();
@@ -92,6 +94,8 @@ db.createConnection()
         let autoCompleteRoutes = new AutoCompleteRoutes(visitorStore, logger, io, tabletCache);
         let tabletRoutes = new TabletRoutes(visitorStore, logger, io, tabletCache);
         let fireMarshallRoutes = new FireMarshallRoutes(visitorStore, logger, io, tabletCache);
+        let firstAidRoutes = new FirstAidRoutes(visitorStore, logger, io, tabletCache);
+        let staffRoutes = new StaffRoutes(visitorStore, logger, io, tabletCache);
         let search = new Search(visitorService, logger, localStorage, io);
 
 
@@ -187,13 +191,13 @@ db.createConnection()
         app.delete("/tablet/:id", tabletRoutes.deleteTabletDept());
 
         // request for staff
-        app.get("/allStaff", visitors.allStaff());
-        app.get("/staffData/:id", visitors.staffData());
-        app.get("/staffSignIn/:id", visitors.staffSignIn());
-        app.get("/staffSignOut/:id", visitors.staffSignOut());
-        app.get("/staffSignedIn/:id", visitors.staffSignedIn());
-        app.get("/staffSignedOut/:id", visitors.staffSignedOut());
-        app.post("/captureStaffImage/", visitors.captureStaffImage());
+        app.get("/allStaff", staffRoutes.allStaff());
+        app.get("/staffData/:id", staffRoutes.staffData());
+        app.get("/staffSignIn/:id", staffRoutes.staffSignIn());
+        app.get("/staffSignOut/:id", staffRoutes.staffSignOut());
+        app.get("/staffSignedIn/:id", staffRoutes.staffSignedIn());
+        app.get("/staffSignedOut/:id", staffRoutes.staffSignedOut());
+        app.post("/captureStaffImage/", staffRoutes.captureStaffImage());
 
         //Print Outs
         app.get("/allVisitorsPrintOut", visitors.allPrintOut());
@@ -207,11 +211,11 @@ db.createConnection()
         app.delete("/fireMarshall/:id", fireMarshallRoutes.deleteFireMarshall());
 
         //First Aid
-        app.get("/firstAid", visitors.getFirstAid());
-        app.post("/firstAid", visitors.postFirstAid());
-        app.post("/firstAid/:id", visitors.updateFirstAid());
-        app.get("/allFirstAid", visitors.allFirstAid());
-        app.delete("/firstAid/:id", visitors.deleteFirstAid());
+        app.get("/firstAid", firstAidRoutes.getFirstAid());
+        app.post("/firstAid", firstAidRoutes.postFirstAid());
+        app.post("/firstAid/:id", firstAidRoutes.updateFirstAid());
+        app.get("/allFirstAid", firstAidRoutes.allFirstAid());
+        app.delete("/firstAid/:id", firstAidRoutes.deleteFirstAid());
 
 
         //Staff Signin and Signout from the NFC card
@@ -313,12 +317,6 @@ db.createConnection()
         server.listen(config.server.port, () => {
             logger.info("System Listen on port " + config.server.port);
         });
-
-        // app.listen(config.server.port, () => {
-        //     logger.info("System Listen on port " + config.server.port);
-        // });
-
-
 
     }).catch((err) => {
         logger.fatal("Database Failure:  " +  err);
