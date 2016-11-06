@@ -114,23 +114,20 @@ export class AutoCompleteRoutes {
     autoComplete(){
         return [
             (req, res) => {
-                if(this._localStorage.getItem('email')) {
-                    this._visitorService.allTabletLocations()
-                        .then(locations => {
-                            this._visitorService.autoComplete()
-                                .then(result => {
-                                    result.locations = locations.rows;
-                                    res.render('autoComplete', {data: result});
-                                })
-                        })
-                        .catch(err => {
-                            this._logger.error(err);
-                            res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
+                this._visitorService.allTabletLocations()
+                    .then(locations => {
+                        this._visitorService.autoComplete()
+                            .then(result => {
+                                result.locations = locations.rows;
+                                res.render('autoComplete', {data: result});
+                            })
+                    })
+                    .catch(err => {
+                        this._logger.error(err);
+                        res.send({success: 0, message: "Error!", data: JSON.stringify(err), retry: 1});
 
-                        });
-                }else {
-                    res.redirect("/");
-                }
+                    });
+
             }
         ];
     }
