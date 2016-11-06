@@ -44,6 +44,8 @@ import {EventListener} from "./services/eventListener";
 import {VisitorService} from "./services/visitor";
 import {TemplateManager} from "./services/templateManager";
 import {SendMail} from "./lib/sendMail";
+import {AutoCompleteRoutes} from "./routes/autoComplete";
+import {TabletRoutes} from "./routes/tablet";
 var middelWare = require('./middelware/middelware').authentication;
 
 let logger = new Logger();
@@ -86,6 +88,8 @@ db.createConnection()
         let visitorStore = new VisitorStore(postgres, logger, io, tabletCache);
         let visitorService = new VisitorService(visitorStore, templateManager, logger, tabletCache);
         let visitors = new Visitors(visitorService, logger, localStorage, io, sendMail, tabletCache);
+        let autoCompleteRoutes = new AutoCompleteRoutes(visitorStore, logger, io, tabletCache);
+        let tabletRoutes = new TabletRoutes(visitorStore, logger, io, tabletCache);
         let search = new Search(visitorService, logger, localStorage, io);
 
 
@@ -162,24 +166,23 @@ db.createConnection()
 
         // request for suggestions
 
-        app.get("/autoCompleteAdd", visitors.autoCompleteAdd());
-        app.post("/autoCompletePost", visitors.autoCompletePost());
-        app.get("/autoComplete", visitors.autoComplete());
-        app.get("/autoComplete/:id", visitors.autoCompleteId());
-        app.post("/autoComplete/:id", visitors.updateAutoComplete());
-        app.delete("/autoComplete/:id", visitors.deleteAutoComplete());
+        app.get("/autoCompleteAdd", autoCompleteRoutes.autoCompleteAdd());
+        app.post("/autoCompletePost", autoCompleteRoutes.autoCompletePost());
+        app.get("/autoComplete", autoCompleteRoutes.autoComplete());
+        app.get("/autoComplete/:id", autoCompleteRoutes.autoCompleteId());
+        app.post("/autoComplete/:id", autoCompleteRoutes.updateAutoComplete());
+        app.delete("/autoComplete/:id", autoCompleteRoutes.deleteAutoComplete());
 
         app.get("/getPrinters", visitors.getPrinters());
         //request for Tablets
 
-        app.get("/addTablet", visitors.addTablet());
-        app.get("/allTabletLocations", visitors.allTabletLocations());
-
-        app.post("/tabletPost", visitors.tabletPost());
-        app.get("/getAllTablet", visitors.allTablet());
-        app.get("/fetchDataForTablet", visitors.fetchDataForTablet());
-        app.post("/tablet/:id", visitors.updateTablet());
-        app.delete("/tablet/:id", visitors.deleteTabletDept());
+        app.get("/addTablet", tabletRoutes.addTablet());
+        app.get("/allTabletLocations", tabletRoutes.allTabletLocations());
+        app.post("/tabletPost", tabletRoutes.tabletPost());
+        app.get("/getAllTablet", tabletRoutes.allTablet());
+        app.get("/fetchDataForTablet", tabletRoutes.fetchDataForTablet());
+        app.post("/tablet/:id", tabletRoutes.updateTablet());
+        app.delete("/tablet/:id", tabletRoutes.deleteTabletDept());
 
         // request for staff
         app.get("/allStaff", visitors.allStaff());
