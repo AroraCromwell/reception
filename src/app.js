@@ -4,42 +4,42 @@
 
 "use strict";
 
-import config from "./config.json";
-import express from "express";
-import path from "path";
-import  bodyParser from "body-parser";
+import config       from "./config.json";
+import express      from "express";
+import path         from "path";
+import  bodyParser  from "body-parser";
 import nodeSchedule from "node-schedule";
-import fs from "fs";
+import fs           from "fs";
 
 
 /* Files */
-import {Logger} from "./lib/logger";
-import {VisitorStore} from "./stores/visitor";
-import {Visitors} from "./routes/visitors";
-import {Search} from "./routes/search";
-import {Postgres} from "./resources/postgres";
-import {DbConnect} from "./resources/dbConnect";
-import {EventListener} from "./services/eventListener";
-import {VisitorService} from "./services/visitor";
-import {TemplateManager} from "./services/templateManager";
-import {SendMail} from "./lib/sendMail";
+import {Logger}             from "./lib/logger";
+import {VisitorStore}       from "./stores/visitor";
+import {Visitors}           from "./routes/visitors";
+import {Search}             from "./routes/search";
+import {Postgres}           from "./resources/postgres";
+import {DbConnect}          from "./resources/dbConnect";
+import {EventListener}      from "./services/eventListener";
+import {VisitorService}     from "./services/visitor";
+import {TemplateManager}    from "./services/templateManager";
+import {SendMail}           from "./lib/sendMail";
 import {AutoCompleteRoutes} from "./routes/autoComplete";
-import {TabletRoutes} from "./routes/tablet";
+import {TabletRoutes}       from "./routes/tablet";
 import {FireMarshallRoutes} from "./routes/fireMarshall";
-import {FirstAidRoutes} from "./routes/firstAid";
-import {StaffRoutes} from "./routes/staff";
-import {LoginRoutes} from "./routes/login";
-import {StatusRoutes} from "./routes/status";
-import {PrintRoutes} from "./routes/printOut";
+import {FirstAidRoutes}     from "./routes/firstAid";
+import {StaffRoutes}        from "./routes/staff";
+import {LoginRoutes}        from "./routes/login";
+import {StatusRoutes}       from "./routes/status";
+import {PrintRoutes}        from "./routes/printOut";
 
-var exec = require('child_process').exec;
-var NodeCache = require( "node-cache" );
-var tabletCache = new NodeCache();
-var session = require('client-sessions');
-var expressThumbnail = require('express-thumbnail');
-var exphbs  = require('express-handlebars');
-var qt = require('quickthumb');
-var request = require('request');
+var exec                = require('child_process').exec;
+var NodeCache           = require( "node-cache" );
+var tabletCache         = new NodeCache();
+var session             = require('client-sessions');
+var expressThumbnail    = require('express-thumbnail');
+var exphbs              = require('express-handlebars');
+var qt                  = require('quickthumb');
+var request             = require('request');
 
 //declare allConnections
 var connections = [];
@@ -69,46 +69,26 @@ db.createConnection()
            var server = require('http').createServer(app);
        }
 
-       // Listen for socket watchers
-        connection.query('LISTEN "watchers"');
-
-        connection.on('notification', function(data) {
-            // setup e-mail data with unicode symbols
-            var mailOptions = {
-                from: "shibi arora<shibbi.arora@gmail.com>", // sender address
-                to: "shibbi.arora@gmail.com", // list of receivers
-                subject: "Error: Cromwell Reception", // Subject line
-                text: data.payload, // plaintext body
-            };
-
-            console.log("sending mail");
-            sendMail.mail(mailOptions);
-        });
-
+       //Initiate the objects
         let io = require('socket.io')(server);
-        let templateManager = new TemplateManager();
-        let logger = new Logger();
-        let sendMail = new SendMail();
-        let postgres = new Postgres(connection);
-        let eventListener = new EventListener(connection, logger);
-        let visitorStore = new VisitorStore(postgres, logger, io, tabletCache);
-        let visitorService = new VisitorService(visitorStore, templateManager, logger, tabletCache);
-        let visitors = new Visitors(visitorService, logger, io, tabletCache);
-        let autoCompleteRoutes = new AutoCompleteRoutes(visitorStore, logger, io, tabletCache);
-        let tabletRoutes = new TabletRoutes(visitorStore, logger, io, tabletCache);
-        let fireMarshallRoutes = new FireMarshallRoutes(visitorStore, logger, io, tabletCache);
-        let firstAidRoutes = new FirstAidRoutes(visitorStore, logger, io, tabletCache);
-        let staffRoutes = new StaffRoutes(visitorStore, logger, io, tabletCache);
-        let loginRoutes = new LoginRoutes(visitorStore, logger, io, tabletCache);
-        let statusRoutes = new StatusRoutes(visitorStore, logger, io, tabletCache);
-        let printRoutes = new PrintRoutes(visitorStore, logger, io, tabletCache, sendMail);
-        let search = new Search(visitorService, logger, io);
+        let templateManager     = new TemplateManager();
+        let logger              = new Logger();
+        let sendMail            = new SendMail();
+        let postgres            = new Postgres(connection);
+        let eventListener       = new EventListener(connection, logger);
+        let visitorStore        = new VisitorStore(postgres, logger, io, tabletCache);
+        let visitorService      = new VisitorService(visitorStore, templateManager, logger, tabletCache);
+        let visitors            = new Visitors(visitorService, logger, io, tabletCache);
+        let autoCompleteRoutes  = new AutoCompleteRoutes(visitorStore, logger, io, tabletCache);
+        let tabletRoutes        = new TabletRoutes(visitorStore, logger, io, tabletCache);
+        let fireMarshallRoutes  = new FireMarshallRoutes(visitorStore, logger, io, tabletCache);
+        let firstAidRoutes      = new FirstAidRoutes(visitorStore, logger, io, tabletCache);
+        let staffRoutes         = new StaffRoutes(visitorStore, logger, io, tabletCache);
+        let loginRoutes         = new LoginRoutes(visitorStore, logger, io, tabletCache);
+        let statusRoutes        = new StatusRoutes(visitorStore, logger, io, tabletCache);
+        let printRoutes         = new PrintRoutes(visitorStore, logger, io, tabletCache, sendMail);
+        let search              = new Search(visitorService, logger, io);
 
-        /* Start Listening */
-        eventListener.listen();
-        eventListener.on("forcelogin", () => {
-            console.log("event has occured");
-        })
         app.use( bodyParser.json({limit: '50mb'}) );       // to support JSON-encoded bodies
         app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
             limit: '50mb',
@@ -202,93 +182,70 @@ db.createConnection()
         //request for search
         app.get("/searchAllSignIn/:id", search.searchAllSignIn());
 
-        nodeSchedule.scheduleJob(config.runTime, function () {
-            visitors.allSignOut()
-                .then(done => {
-                    logger.info("All Signed Out");
-                    return true;
-                })
-                .then(res => {
-                    logger.info("Removing images and Pdfs");
-                    /*
-                    *  Remove images for visitors
-                    * */
+        var nodeJob = require('./resources/nodeJobs')(visitors, statusRoutes, logger);
 
-                    var cmd = 'rm  public/images/visitors/*';
 
-                    exec(cmd, function (error, stdout, stderr) {
-                        console.log(stdout);
+        // Listen for socket watchers
+        connection.query('LISTEN "watchers"');
 
-                        if (error !== null) {
-                            console.log('exec error: ' + error);
-                        }
-                    });
-                })
-                .catch(err => {
-                    logger.error("Error occurred while running cron job: " + JSON.stringify(err));
-                });
+        connection.on('notification', function(data) {
+            // setup e-mail data with unicode symbols
+            var mailOptions = {
+                from: "shibi arora<shibbi.arora@gmail.com>", // sender address
+                to: "shibbi.arora@gmail.com", // list of receivers
+                subject: "Error: Cromwell Reception", // Subject line
+                text: data.payload, // plaintext body
+            };
 
-            visitors.cleanStatus()
-                .then(done => {
-                    logger.info("Status Clean");
-                })
-                .catch(err => {
-                    logger.error("Error occurred cleaning status data for last day: " + JSON.stringify(err));
-                });
-
-            var cmd = "rm -Rf   build/pdf/*";
-
-            exec(cmd, function(error, stdout, stderr) {
-                // command output is in stdout
-                console.log(stdout);
-
-                if (error !== null) {
-                    console.log('exec error: ' + error);
-                }
-                //process.exit();
-            });
+            console.log("sending mail");
+            sendMail.mail(mailOptions);
         });
 
+        /* Start Listening */
+        eventListener.listen();
+        eventListener.on("forcelogin", () => {
+            console.log("event has occured");
+        })
 
-        /* Start up the server */
+        var socketConnections = require('./resources/socketConnection')(io, statusRoutes);
 
-
-        var status = 1;
-
-        io.on("connection", function(socket){
-            console.log(" new device connected");
-            var alive;
-            var down;
-            socket.emit("connectMessage", { msg : "Connected" });
-            socket.on('event', function(data){});
-
-            socket.once('up', function(data){
-                console.log("Serivce connected");
-                socket.room = 'appStatus';
-                socket.join('appStatus');
-                socket.username = 'brc';
-                status = 1;
-
-                //clearInterval(down);
-
-            });
-
-            socket.once('disconnect', function(){
-                console.log("Service goes down");
-                socket.leave('appStatus');
-                status = 0;
-              //  clearInterval(alive);
-            });
-        });
-
-
-        if(status != 'undefined') {
-            console.log("inside status interval");
-            setInterval(function () {
-                console.log("Status Is" + status);
-                statusRoutes.deviceStatus(status);
-            }, 300000);
-        }
+        // /* Start up the server */
+        // var status = 1;
+        //
+        // io.on("connection", function(socket){
+        //     console.log(" new device connected");
+        //     var alive;
+        //     var down;
+        //     socket.emit("connectMessage", { msg : "Connected" });
+        //     socket.on('event', function(data){});
+        //
+        //     socket.once('up', function(data){
+        //         console.log("Serivce connected");
+        //         socket.room = 'appStatus';
+        //         socket.join('appStatus');
+        //         socket.username = 'brc';
+        //         status = 1;
+        //
+        //         //clearInterval(down);
+        //
+        //     });
+        //
+        //     socket.once('disconnect', function(){
+        //         console.log("Service goes down");
+        //         socket.leave('appStatus');
+        //         status = 0;
+        //       //  clearInterval(alive);
+        //     });
+        // });
+        //
+        //
+        // if(status != 'undefined') {
+        //     console.log("inside status interval");
+        //     setInterval(function () {
+        //         console.log("Status Is" + status);
+        //         statusRoutes.deviceStatus(status);
+        //     }, 300000);
+        // }
 
 
         server.listen(config.server.port, () => {
