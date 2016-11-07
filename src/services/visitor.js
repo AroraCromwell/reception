@@ -494,6 +494,7 @@ export class VisitorService {
             })
     }
 
+
     //NFC Activity
     nfcActivity (id) {
         return this._visitorStore.nfcActivity(id)
