@@ -15,7 +15,7 @@ export class SendMail {
         //     }
         // });
 
-        this._smtpTransport = nodemailer.createTransport('smtps://aroras%40cromwell.co.uk:ar0ra@mail.cromwell.co.uk');
+        this._smtpTransport = nodemailer.createTransport("smtps://aroras%40cromwell.co.uk:ar0ra@mail.cromwell.co.uk");
     }
 
     mail(mailOptions) {
@@ -25,7 +25,7 @@ export class SendMail {
             if(error){
                 console.log(error);
             }
-            console.log('Message sent: ' + info);
+            console.log("Message sent: " + info);
         });
     }
 

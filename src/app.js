@@ -32,47 +32,50 @@ import {LoginRoutes}        from "./routes/login";
 import {StatusRoutes}       from "./routes/status";
 import {PrintRoutes}        from "./routes/printOut";
 
-var exec                = require('child_process').exec;
+var exec                = require("child_process").exec;
 var NodeCache           = require( "node-cache" );
 var tabletCache         = new NodeCache();
-var session             = require('client-sessions');
-var expressThumbnail    = require('express-thumbnail');
-var exphbs              = require('express-handlebars');
-var qt                  = require('quickthumb');
-var request             = require('request');
+var session             = require("client-sessions");
+var expressThumbnail    = require("express-thumbnail");
+var exphbs              = require("express-handlebars");
+var qt                  = require("quickthumb");
+var request             = require("request");
 
 //declare allConnections
 var connections = [];
 
 // initiliaze the express
 var app = express();
+var logger = new Logger();
 
 // Setting  the handlebars templates with express
-app.set('views', path.join(__dirname, 'templates'));
-app.engine('.hbs', exphbs({extname: '.hbs', defaultLayout: 'main_layout',layoutsDir: path.join(__dirname, 'templates/layouts')}));
-app.set('view engine', '.hbs');
-app.use(expressThumbnail.register(path.join(__dirname , 'public')));
-app.use(qt.static(path.join(__dirname, 'public')));
+app.set("views", path.join(__dirname, "templates"));
+app.engine(".hbs", exphbs({
+    extname: ".hbs",
+    defaultLayout: "main_layout",layoutsDir: path.join(__dirname, "templates/layouts")}
+    ));
+app.set("view engine", ".hbs");
+app.use(expressThumbnail.register(path.join(__dirname , "public")));
+app.use(qt.static(path.join(__dirname, "public")));
 
 let db = new DbConnect(config.db.postgres.string);
 
 db.createConnection()
     .then((connection) => {
-
+        var server;
         //If it is in Production Env., Look for the SSL
        if(config.env.status !== "Production"){
-           var server = require('https').createServer({
+           server = require("https").createServer({
                cert: fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cert\\ssl_certificate.crt"),
                key:  fs.readFileSync("C:\\Users\\administrator.CROMDOMAIN\\cromwell-cert\\cromtoolssrv.key")
            },app);
        }else {
-           var server = require('http').createServer(app);
+           server = require("http").createServer(app);
        }
 
        //Initiate the objects
-        let io = require('socket.io')(server);
+        let io = require("socket.io")(server);
         let templateManager     = new TemplateManager();
-        let logger              = new Logger();
         let sendMail            = new SendMail();
         let postgres            = new Postgres(connection);
         let eventListener       = new EventListener(connection, logger);
@@ -89,21 +92,21 @@ db.createConnection()
         let printRoutes         = new PrintRoutes(visitorStore, logger, io, tabletCache, sendMail);
         let search              = new Search(visitorService, logger, io);
 
-        app.use( bodyParser.json({limit: '50mb'}) );       // to support JSON-encoded bodies
+        app.use( bodyParser.json({limit: "50mb"}) );       // to support JSON-encoded bodies
         app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-            limit: '50mb',
+            limit: "50mb",
             extended: true
         }));
 
         //MiddelWare
         app.use(session({
-            cookieName: 'session',
-            secret: 'random_string_goes_here',
+            cookieName: "session",
+            secret: "random_string_goes_here",
             duration: 30 * 60 * 1000,
             activeDuration: 5 * 60 * 1000,
         }));
     // Every request will go through Middelware and if it is admin request, then set up the Redis Session.
-        var middelWare = require('./middelware/middelware')(loginRoutes);
+        var middelWare = require("./middelware/middelware")(loginRoutes);
         app.use(middelWare);
 
         // Specifiy all the Routes Now:
@@ -182,13 +185,13 @@ db.createConnection()
         //request for search
         app.get("/searchAllSignIn/:id", search.searchAllSignIn());
 
-        var nodeJob = require('./resources/nodeJobs')(visitors, statusRoutes, logger);
+        var nodeJob = require("./resources/nodeJobs")(visitors, statusRoutes, logger);
 
 
         // Listen for socket watchers
         connection.query('LISTEN "watchers"');
 
-        connection.on('notification', function(data) {
+        connection.on("notification", function(data) {
             // setup e-mail data with unicode symbols
             var mailOptions = {
                 from: "shibi arora<shibbi.arora@gmail.com>", // sender address
@@ -205,9 +208,9 @@ db.createConnection()
         eventListener.listen();
         eventListener.on("forcelogin", () => {
             console.log("event has occured");
-        })
+        });
 
-        var socketConnections = require('./resources/socketConnection')(io, statusRoutes);
+        var socketConnections = require("./resources/socketConnection")(io, statusRoutes);
 
         // /* Start up the server */
         // var status = 1;
@@ -217,29 +220,29 @@ db.createConnection()
         //     var alive;
         //     var down;
         //     socket.emit("connectMessage", { msg : "Connected" });
-        //     socket.on('event', function(data){});
+        //     socket.on("event", function(data){});
         //
-        //     socket.once('up', function(data){
+        //     socket.once("up", function(data){
         //         console.log("Serivce connected");
-        //         socket.room = 'appStatus';
-        //         socket.join('appStatus');
-        //         socket.username = 'brc';
+        //         socket.room = "appStatus";
+        //         socket.join("appStatus");
+        //         socket.username = "brc";
         //         status = 1;
         //
         //         //clearInterval(down);
         //
         //     });
         //
-        //     socket.once('disconnect', function(){
+        //     socket.once("disconnect", function(){
         //         console.log("Service goes down");
-        //         socket.leave('appStatus');
+        //         socket.leave("appStatus");
         //         status = 0;
         //       //  clearInterval(alive);
         //     });
         // });
         //
         //
-        // if(status != 'undefined') {
+        // if(status != "undefined") {
         //     console.log("inside status interval");
         //     setInterval(function () {
         //         console.log("Status Is" + status);

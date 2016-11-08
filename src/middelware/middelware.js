@@ -2,7 +2,7 @@
  * Created by aroras on 12/10/2016.
  */
 
-var request = require('request');
+var request = require("request");
 
 module.exports = function(loginRoutes){
     return function (req, res, next) {
@@ -29,5 +29,5 @@ module.exports = function(loginRoutes){
                 }
                 next();
             }
-        }
+        };
 };
