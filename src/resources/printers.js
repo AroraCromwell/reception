@@ -1,4 +1,4 @@
-var Print = require('pliigo-cups-agent');
+var Print = require("pliigo-cups-agent");
 var PrintManager = new Print();
 
 export default function  getPrinters () {
@@ -9,5 +9,5 @@ export default function  getPrinters () {
         }catch (e){
             reject(e);
         }
-    })
-};
+    });
+}

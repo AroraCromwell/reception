@@ -11,7 +11,6 @@ import  bodyParser  from "body-parser";
 import nodeSchedule from "node-schedule";
 import fs           from "fs";
 
-
 /* Files */
 import {Logger}             from "./lib/logger";
 import {VisitorStore}       from "./stores/visitor";
@@ -55,8 +54,8 @@ app.engine(".hbs", exphbs({
     defaultLayout: "main_layout",layoutsDir: path.join(__dirname, "templates/layouts")}
     ));
 app.set("view engine", ".hbs");
-app.use(expressThumbnail.register(path.join(__dirname , "public")));
-app.use(qt.static(path.join(__dirname, "public")));
+app.use(expressThumbnail.register(path.join(__dirname , "../public")));
+app.use(qt.static(path.join(__dirname, "../public")));
 
 let db = new DbConnect(config.db.postgres.string);
 

@@ -1,7 +1,12 @@
 "use strict";
 
 import {_} from "lodash";
-var base64 = require('node-base64-image');
+var base64 = require("node-base64-image");
+var thumb = require("node-thumbnail").thumb;
+import config from "../config.json";
+var Cryptr = require("cryptr"),
+    cryptr = new Cryptr("Cr0mwellTools");
+
 var allTablets = "";
 
 export class Visitors {
@@ -41,7 +46,7 @@ export class Visitors {
     allVisitorsSignIn() {
         return [
             (req, res) => {
-                if(typeof(req.query.tabId) == 'undefined' || req.query.tabId ==0){
+                if(typeof(req.query.tabId) === "undefined" || req.query.tabId === 0){
                     let err = "Tablet Id cannot be null or 0";
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : (err)});
@@ -50,7 +55,7 @@ export class Visitors {
                 this._visitorService.allVisitorsSignIn(req.query.tabId)
                     .then(result => {
                         result.locations = allTablets;
-                        res.render('all_visitors', {data: result});
+                        res.render("all_visitors", {data: result});
                     })
                 .catch(err => {
                     this._logger.error(err);
@@ -69,7 +74,7 @@ export class Visitors {
             (req, res) => {
                 this._logger.info("Visitor for Tab Id" + req.query.tabId);
 
-                if(typeof(req.query.tabId) == 'undefined' || req.query.tabId ==0){
+                if(typeof(req.query.tabId) === "undefined" || req.query.tabId === 0){
                     let err = "Tablet Id cannot be null or 0";
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : (err)});
@@ -111,7 +116,7 @@ export class Visitors {
     allVisitorsSignOut() {
         return [
             (req, res) => {
-                if(typeof(req.query.tabId) == 'undefined' || req.query.tabId ==0){
+                if(typeof(req.query.tabId) === "undefined" || req.query.tabId === 0){
                     let err = "Tablet Id cannot be null or 0";
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : (err)});
@@ -121,7 +126,7 @@ export class Visitors {
                 this._visitorService.allVisitorsSignOut()
                     .then(result => {
                         result.locations = allTablets;
-                        res.render('all_signed_out', {data: result});
+                        res.render("all_signed_out", {data: result});
                     })
                 .catch(err => {
                     this._logger.error(err);
@@ -140,7 +145,7 @@ export class Visitors {
         return [
             (req, res) => {
 
-                if(req.params.id == 0){
+                if(req.params.id === 0){
                     console.log("No value given");
                     res.send({success : 0, message : "Error", data : "", retry: 1});
                 }
@@ -168,15 +173,15 @@ export class Visitors {
                         this._visitorService.getTermsRequest(id)
                             .then(result => {
                                 result.locations = locations.rows;
-                                res.render(result, {title: 'my other page', layout: ''});
-                            })
+                                res.render(result, {title: "my other page", layout:""});
+                            });
                     })
                     .catch(err => {
                         this._logger.error(err);
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
                     });
             }
-        ]
+        ];
     }
 
 
@@ -185,14 +190,14 @@ export class Visitors {
             (req,res) => {
                 this._visitorService.postTermsRequest(req.body)
                 .then(result => {
-                    res.redirect('allTerms');
+                    res.redirect("allTerms");
                 })
                 .catch(err => {
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
                 });
             }
-        ]
+        ];
     }
 
     updateTerms() {
@@ -207,7 +212,7 @@ export class Visitors {
                     res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
                 });
             }
-        ]
+        ];
     }
 
     allTerms(){
@@ -221,20 +226,20 @@ export class Visitors {
                                 res.render("allTerms", {
                                     "data": result, helpers: {
                                         checkStatus: function (status) {
-                                            if (status == 1) {
-                                                return 'checked';
+                                            if (status === 1) {
+                                                return "checked";
                                             }
                                         }
                                     }
                                 });
-                            })
+                            });
                     })
                 .catch(err => {
                     this._logger.error(err);
                     res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
                 });
             }
-        ]
+        ];
     }
 
     templateTerms(){
@@ -242,10 +247,20 @@ export class Visitors {
             (req,res) => {
                 this._visitorService.allTabletLocations()
                     .then(locations => {
-                        res.render('addTerms', {data: locations.rows});
-                    })
+                        res.render("addTerms", {data: locations.rows});
+                    });
             }
-        ]
+        ];
     }
 
+
+    nfcWrite() {
+        return [
+            (req, res) => {
+                var textToWrite = cryptr.encrypt(req.params.id);
+                console.log(">>>This is the text to write " + textToWrite);
+                res.send({message: "Success", data: textToWrite});
+            }
+        ];
+    }
 }

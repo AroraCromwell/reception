@@ -1,7 +1,7 @@
 "use strict";
 
 import {_} from "lodash";
-var base64 = require('node-base64-image');
+var base64 = require("node-base64-image");
 var allTablets;
 export class LoginRoutes {
 
@@ -32,7 +32,7 @@ export class LoginRoutes {
                     });
                 res.render("admin_login",{data:""});
             }
-        ]
+        ];
     }
 
     /**
@@ -43,7 +43,7 @@ export class LoginRoutes {
         return [
             (req, res) => {
                 //noinspection JSValidateTypes
-                if( req.body.inputEmail == "admin@admin.com" && req.body.inputPassword == "Lewis@3524"){
+                if( req.body.inputEmail === "admin@admin.com" && req.body.inputPassword === "Lewis@3524"){
                     //noinspection JSUnresolvedVariable
                     req.session.key = true;
                     res.redirect("/allVisitors?tabId=1");
@@ -51,6 +51,6 @@ export class LoginRoutes {
                     res.redirect("/");
                 }
             }
-        ]
+        ];
     }
 }

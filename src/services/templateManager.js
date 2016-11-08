@@ -1,16 +1,16 @@
 /**
  * Created by aroras on 22/05/2016.
  */
-'use strict';
+"use strict";
 
-import { readdirSync, readFileSync } from 'fs';
-import { join, basename }            from 'path';
-import fm                            from 'front-matter';
-import hbs                           from 'handlebars';
-import { minify }                    from 'html-minifier';
+import { readdirSync, readFileSync } from "fs";
+import { join, basename }            from "path";
+import fm                            from "front-matter";
+import hbs                           from "handlebars";
+import { minify }                    from "html-minifier";
 
-const path         = join(__dirname, '..', 'templates');
-const symTemplates = Symbol('templates');
+const path         = join(__dirname, "..", "templates");
+const symTemplates = Symbol("templates");
 
 export  class TemplateManager {
     /**
@@ -24,13 +24,13 @@ export  class TemplateManager {
                 return file.match(/\.hbs$/);
             })
             .forEach((file) => {
-                let data = readFileSync(join(path, file), 'utf8');
+                let data = readFileSync(join(path, file), "utf8");
                 let template = fm(data);
 
                 template.render = hbs.compile(template.body);
 
                 if (!template.attributes.name) {
-                    template.attributes.name = basename(file, '.hbs');
+                    template.attributes.name = basename(file, ".hbs");
                 }
 
                 templates.push(template);
@@ -49,7 +49,7 @@ export  class TemplateManager {
         });
 
         if (!template) {
-            throw new Error(`missing '${name}' template definition`);
+            throw new Error(`missing "${name}" template definition`);
         }
 
         let attributes = template.attributes;

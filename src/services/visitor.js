@@ -2,10 +2,10 @@
 "use strict";
 var fs = require("fs");
 var pdf = require("html-pdf");
-var exec = require('child_process').exec;
+var exec = require("child_process").exec;
 import config from "../config.json";
 import {_} from "lodash";
-var dateFormat = require('dateformat');
+var dateFormat = require("dateformat");
 
 export class VisitorService {
 
@@ -17,9 +17,6 @@ export class VisitorService {
     }
 
     postVisitor(tabId, data) {
-
-        this._logger.info("New Customer!");
-        this._logger.info(JSON.stringify(data));
         this._logger.info("Saving Data");
 
                 return this._visitorStore.postVisitor(tabId, data)
@@ -29,41 +26,37 @@ export class VisitorService {
                     .then(result => {
                         //render the template
                         let visitorId = result.id;
-                        var html = this._templateManager.render('crom_visitor', result);
+                        var html = this._templateManager.render("crom_visitor", result);
 
                         var options = {
-                            format: 'A5',
-                            orientation: 'landscape'
+                            format: "A5",
+                            orientation: "landscape"
                         };
 
-                        pdf.create(html, options).toFile('./pdf/' + visitorId + '.pdf', function(err, pdfRes) {
-                            if (err) return console.log(err);
+                        pdf.create(html, options).toFile( config.pdfPath + visitorId + ".pdf", function(err, pdfRes) {
+                            if (err){
+                                return console.log(err);
+                            }
 
-                            //var cmd ="lp -o landscape -o scaling=97  -d" + config.printer.set + " "+ pdfRes.filename;
-
-                            var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\'+ visitorId +'.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
-
+                            var cmd = '"lp -d brc-reception ' + config.pdfPath +  visitorId + '.pdf"';
                             exec(cmd, function(error, stdout, stderr) {
                                 // command output is in stdout
                                 console.log(stdout);
 
                                 if (error !== null) {
-                                    console.log('exec error: ' + error);
+                                    console.log("exec error: " + error);
                                 }
-                                //process.exit();
                             });
-                        })
-
+                        });
                         return visitorId;
-                    })
-
+                    });
     }
 
     getVisitors(id) {
         return this._visitorStore.getVisitors(id)
             .then((data) => {
                 return data;
-            })
+            });
     }
 
     allVisitorsSignIn (tabId) {
@@ -72,7 +65,7 @@ export class VisitorService {
         return this._visitorStore.allVisitorsSignIn(tabId)
             .then((data) => {
                 return data;
-            })
+            });
     }
 
     updateVisitor (id, data) {
@@ -83,8 +76,7 @@ export class VisitorService {
         return this._visitorStore.updateVisitor(id, data)
             .then((data) => {
                 return data;
-            })
-
+            });
     }
 
     allSignOut(){
@@ -94,8 +86,7 @@ export class VisitorService {
         return this._visitorStore.allSignOut()
             .then(() => {
                 return true;
-            })
-
+            });
     }
 
     allVisitorsSignOut(){
@@ -108,8 +99,7 @@ export class VisitorService {
                      value.signout = dateFormat(value.signout, "dd-mm-yyyy HH:MM:ss");
                 });
                 return result;
-            })
-
+            });
     }
 
     getTermsRequest(id) {
@@ -117,17 +107,17 @@ export class VisitorService {
             .then((result) => {
                 let row = result.rows;
 
-                if(row[0].id != config.terms.version) {
-                    fs = require('fs');
-                    fs.writeFile('./src/templates/terms_' + row[0].id + '.hbs', row[0].terms_file, function (err) {
-                        if (err)
+                if(row[0].id !== config.terms.version) {
+                    fs = require("fs");
+                    fs.writeFile("./src/templates/terms_" + row[0].id + ".hbs", row[0].terms_file, function (err) {
+                        if (err) {
                             return console.log(err);
-                        console.log('Terms file created');
+                        }
+                        console.log("Terms file created");
                     });
                 }
-
-                return 'terms_' + row[0].id ;
-            })
+                return "terms_" + row[0].id ;
+            });
     }
 
 
@@ -135,17 +125,17 @@ export class VisitorService {
         return this._visitorStore.postTermsRequest(data)
             .then((result) => {
                 let row = result.rows;
-                if(row[0].id != config.terms.version) {
-                    fs = require('fs');
-                    fs.writeFile('./src/templates/terms_' + row[0].id + '.hbs', row[0].terms_file, function (err) {
-                        if (err)
+                if(row[0].id !== config.terms.version) {
+                    fs = require("fs");
+                    fs.writeFile("./src/templates/terms_" + row[0].id + ".hbs", row[0].terms_file, function (err) {
+                        if (err){
                             return console.log(err);
-                        console.log('Terms file created');
+                        }
+                        console.log("Terms file created");
                     });
                 }
-
-                return 'terms_' + row[0].id ;
-            })
+                return "terms_" + row[0].id ;
+            });
     }
 
     allTermsRequest(){
@@ -154,7 +144,7 @@ export class VisitorService {
         return this._visitorStore.allTermsRequest()
             .then((result) => {
                 return result;
-            })
+            });
     }
 
     updateTermsRequest(id){
@@ -163,7 +153,7 @@ export class VisitorService {
         return this._visitorStore.updateTermsRequest(id)
             .then((result) => {
                 return result;
-            })
+            });
     }
 
     processStatus (data) {
@@ -171,7 +161,7 @@ export class VisitorService {
         return this._visitorStore.saveStatus(data)
             .then((res) => {
                 return res;
-            })
+            });
     }
 
     cleanStatus () {
@@ -179,7 +169,7 @@ export class VisitorService {
         return this._visitorStore.cleanStatus()
             .then((res) => {
                 return res;
-            })
+            });
     }
 
     processGraphData() {
@@ -198,7 +188,7 @@ export class VisitorService {
                 });
 
                 return setData;
-            })
+            });
     }
 
     currentStatus() {
@@ -215,7 +205,7 @@ export class VisitorService {
                     setData.push(JSON.stringify({setkey, setVal}));
                 });
                 return setData;
-            })
+            });
     }
 
 
@@ -231,12 +221,12 @@ export class VisitorService {
         return this._visitorStore.autoComplete()
             .then((res) => {
                 _.forEach(res.rows, (value, key) => {
-                    if(value.type == 'visitor_name'){
+                    if(value.type === "visitor_name"){
                         value.type = "Visitor Name";
                     }
                 });
                 return res;
-            })
+            });
     }
 
     autoCompletePost(data) {
@@ -247,7 +237,7 @@ export class VisitorService {
             })
             .then((result) => {
                 return this._visitorStore.autoCompleteId(result.rows[0].id);
-            })
+            });
     }
 
     updateAutoComplete(id, data){
@@ -257,14 +247,14 @@ export class VisitorService {
             })
             .then((result) => {
                 return this._visitorStore.autoCompleteId(id);
-            })
+            });
     }
 
     deleteAutoComplete(id){
         return this._visitorStore.deleteAutoComplete(id)
             .then((res) => {
                 return res;
-            })
+            });
     }
 
 
@@ -274,28 +264,28 @@ export class VisitorService {
         return this._visitorStore.allStaff(tabId)
             .then((res) => {
                 return res;
-            })
+            });
     }
 
     staffData(id){
         return this._visitorStore.staffData(id)
             .then((res) => {
                 return res;
-            })
+            });
     }
 
     staffSignIn(id){
         return this._visitorStore.staffSignIn(id)
             .then((res) => {
                 return res;
-            })
+            });
     }
 
     staffSignOut(id){
         return this._visitorStore.staffSignOut(id)
             .then((res) => {
                 return res;
-            })
+            });
     }
 
     // All staff signed In
@@ -306,7 +296,7 @@ export class VisitorService {
                     value.signin_time = dateFormat(value.signin_time, "dd-mm-yyyy HH:MM:ss");
                 });
                 return res;
-            })
+            });
     }
 
     // All staff signed Out
@@ -320,7 +310,7 @@ export class VisitorService {
                 });
 
                 return res;
-            })
+            });
     }
 
     // All Visitors print out
@@ -328,7 +318,7 @@ export class VisitorService {
         return this._visitorStore.allPrintOut()
             .then((res) => {
                 _.each(res.rows , function (value, key) {
-                    if(value.signin_time != "undefined"){
+                    if(value.signin_time !== "undefined"){
                         value.signin_time = dateFormat(value.signin_time, "HH:MM:ss");
                     }
                 });
@@ -336,15 +326,15 @@ export class VisitorService {
             })
             .then(result => {
 
-                if(id == 1) {
+                if(id === 1) {
                     result.rows.todayDate = dateFormat(result.rows.todayDate, "dd-mm-yyyy");
 
                     //render the Staff
-                    var html = this._templateManager.render('allStaffPrintOut', {data: result.rows});
+                    var html = this._templateManager.render("allStaffPrintOut", {data: result.rows});
 
                     var options = {
-                        format: 'A5',
-                        orientation: 'landscape',
+                        format: "A5",
+                        orientation: "landscape",
                         header: {
                             "height": "24mm",
                             "contents": '<div style="text-align: center;font-size: 20px;"><b>BRC Staff</b></div>' +
@@ -360,27 +350,26 @@ export class VisitorService {
                         }
                     };
 
-                    pdf.create(html, options).toFile('./pdf/allStaff.pdf', function (err, pdfRes) {
+                    pdf.create(html, options).toFile( config.pdfPath + 'allStaff.pdf', function (err, pdfRes) {
 
-                        var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allStaff.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
+                        var cmd = '"lp -d brc-reception' +  config.pdfPath + 'allStaff.pdf"';
 
                         exec(cmd, function (error, stdout, stderr) {
                             console.log(stdout);
 
                             if (error !== null) {
-                                console.log('exec error: ' + error);
+                                console.log("exec error: " + error);
                             }
                         });
-                    })
-
+                    });
 
                     if(result.visitors != null) {
 
                         _.each(result.visitors , function (value, key) {
-                            if(value.settime != "undefined"){
-                                var s = value.settime.substr(0,value.settime.indexOf(' '));
+                            if(value.settime !== "undefined"){
+                                var s = value.settime.substr(0,value.settime.indexOf(" "));
                                 var b = s.split(/\D/);
-                                value.settime = b.reverse().join('-') + " " + value.settime.substr(value.settime.indexOf(' ')+1);
+                                value.settime = b.reverse().join("-") + " " + value.settime.substr(value.settime.indexOf(" ")+1);
                             }
                         });
 
@@ -388,7 +377,7 @@ export class VisitorService {
 
 
                         _.each(result.visitors , function (value, key) {
-                            if(value.settime != "undefined"){
+                            if(value.settime !== "undefined"){
                                 value.settime = dateFormat(value.settime, "HH:MM:ss");
                             }
                         });
@@ -396,18 +385,18 @@ export class VisitorService {
 
 
                         //render the Visitors
-                        var html = this._templateManager.render('allVisitorsPrintOut', {data: result.visitors});
+                        var html = this._templateManager.render("allVisitorsPrintOut", {data: result.visitors});
 
                         var options = {
-                            format: 'A5',
-                            orientation: 'landscape',
+                            format: "A5",
+                            orientation: "landscape",
                             header: {
                                 "height": "24mm",
                                 "contents": '<div style="text-align: center;font-size:20px;"><b>BRC Site Visitors</b></div>' +
                                             '<div><b>Date :</b>'+ result.visitors.todayDate +'</div>'+
                                             '<div style="float: left"><div style="border: 1px solid #dddddd;text-align: left;padding: 8px; width: 82px;float: left;">Id</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 255px;float: left;">Name</div>'+
-                                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 272px;float: left;">Company</div>'+
+                                            '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 272px;float: left;">Visiting</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 133px;float: left;">Signed In</div>'+
                                             '<div style="border: 1px solid #dddddd;text-align: left;padding: 8px;width: 139px;float: left;">Status</div>'+
                                             '</div>'
@@ -419,15 +408,14 @@ export class VisitorService {
 
                         };
 
-                        pdf.create(html, options).toFile('./pdf/allVisitors.pdf', function (err, pdfRes) {
+                        pdf.create(html, options).toFile( config.pdfPath + "allVisitors.pdf", function (err, pdfRes) {
 
-                            var cmd = '"C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\FoxitReader.exe" /t "C:\\reception-handler\\build\\pdf\\allVisitors.pdf" "BrotherHL-3150CDWseries" “IP_10.100.16.193"';
-
+                            var cmd = '"lp -d brc-reception' +  config.pdfPath +'allVisitors.pdf"';
                             exec(cmd, function (error, stdout, stderr) {
                                 console.log(stdout);
 
                                 if (error !== null) {
-                                    console.log('exec error: ' + error);
+                                    console.log("exec error: " + error);
                                 }
                             });
                         })

@@ -7,10 +7,10 @@
 /* Third-party modules */
 import {_} from "lodash";
 var fs = require("fs");
-var fileName = '../config.json';
+var fileName = "../config.json";
 var file = require(fileName);
-var dateFormat = require('dateformat');
-var base64 = require('node-base64-image');
+var dateFormat = require("dateformat");
+var base64 = require("node-base64-image");
 
 export class VisitorStore {
 
@@ -34,17 +34,12 @@ export class VisitorStore {
             });
     }
 
-    postVisitor(tabId, customer) {
-        var dir = "./public/images/visitors/";
-
-        if (!fs.existsSync(dir)){
-            fs.mkdirSync(dir);
-        }
+    saveCustomer(customer) {
 
         var unix = Math.round(+new Date()/1000);
-        var imageName = customer.paramContactName +'_'+ unix;
-        var options = {filename: dir  + imageName};
-        var imageData = new Buffer(customer.paramImagePath, 'base64');
+        var imageName = customer.paramAccountName +"_"+ unix;
+        var options = {filename: config.visitorImagePath + imageName};
+        var imageData = new Buffer(customer.paramImagePath, "base64");
 
         base64.base64decoder(imageData, options, function (err, saved) {
             if (err) { console.log(err); }
@@ -101,7 +96,7 @@ export class VisitorStore {
             customer.paramRecLogId,
             customer.paramLogId,
             customer.paramPendingId,
-            imageName +'.jpg',
+            imageName +".jpg",
             tabId
         ];
         return this._resource.query(insertQuery, args)
@@ -118,7 +113,7 @@ export class VisitorStore {
                 return this._resource.query(selectQuery, args)
                     .then(data => {
                         return data.rows[0];
-                    })
+                    });
             });
     }
 
@@ -146,7 +141,7 @@ export class VisitorStore {
     allSignOut() {
 
         let time = this.getTime();
-        let updateQuery = " UPDATE reception_handler.cromwell_recp SET signout= $1 WHERE signout IS NULL";
+        let updateQuery = "UPDATE reception_handler.cromwell_recp SET signout= $1 WHERE signout IS NULL";
         let args = [
             time
         ];
@@ -159,7 +154,7 @@ export class VisitorStore {
 
     allVisitorsSignOut() {
         let time = this.getTime();
-        let selectQuery = " SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
+        let selectQuery = "SELECT * FROM  reception_handler.cromwell_recp  WHERE signout > $1 ORDER BY id DESC";
         let args = [
             time
         ];
@@ -174,9 +169,18 @@ export class VisitorStore {
         console.log("All Visitors for tabId " + tabId );
         var data = new Date();
         var month = data.getMonth()+1;
-        var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
+        var myDate = [data.getDate() < 10 ? "0" + data.getDate() : data.getDate(), month <10 ? "0" + month : month ,data.getFullYear()].join("-");
 
-        let selectQuery = "SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL and tablet_id = $2";
+        let selectQuery = `
+                SELECT
+                    * 
+                FROM 
+                    reception_handler.cromwell_recp
+                 WHERE   
+                    settime > $1 and signout IS NULL 
+                AND 
+                    tablet_id = $2`;
+
         let args = [
             myDate + " 00:00:00",
             tabId
@@ -213,7 +217,7 @@ export class VisitorStore {
 
     postTermsRequest(data) {
 
-        let insertQuery = 'INSERT INTO reception_handler.terms (terms_file) VALUES ( $1 ) RETURNING id';
+        let insertQuery = "INSERT INTO reception_handler.terms (terms_file) VALUES ( $1 ) RETURNING id";
         let args = [
             data.terms_data
         ];
@@ -225,7 +229,7 @@ export class VisitorStore {
     }
 
     allTermsRequest() {
-        let selectQuery = 'SELECT * FROM reception_handler.terms';
+        let selectQuery = "SELECT * FROM reception_handler.terms";
         let args = [
         ];
 
@@ -237,7 +241,7 @@ export class VisitorStore {
 
     updateTermsRequest(id) {
 
-        let updateQuery = 'UPDATE reception_handler.terms SET status = CASE WHEN (id = $1) THEN $2 ELSE $3 END';
+        let updateQuery = "UPDATE reception_handler.terms SET status = CASE WHEN (id = $1) THEN $2 ELSE $3 END";
 
         let args = [
             id,
@@ -250,14 +254,14 @@ export class VisitorStore {
 
                 //file.terms.version = id;
 
-                // fs.writeFile('./src/config.json', JSON.stringify(file, null, 2), function (err) {
+                // fs.writeFile("./src/config.json", JSON.stringify(file, null, 2), function (err) {
                 //     if (err) return console.log(err);
                 //     console.log(JSON.stringify(file));
-                //     console.log('writing to ' + fileName);
+                //     console.log('"writing to '" + fileName);
                 // });
 
                 return response;
-            })
+            });
     }
 
     saveStatus(status) {
@@ -275,18 +279,18 @@ export class VisitorStore {
                 `;
 
         let args = [
-            'brc',
+            "brc",
             status
         ];
         return this._resource.query(insertQuery, args)
             .then(response => {
                 return response;
-            })
+            });
     }
 
     cleanStatus(){
 
-        let deleteQuery = 'DELETE from reception_handler.app_status where settime < now()::date';
+        let deleteQuery = "DELETE from reception_handler.app_status where settime < now()::date";
         let args = [
         ];
 
@@ -298,7 +302,14 @@ export class VisitorStore {
 
 
     processGraphData() {
-        let selectQuery = "SELECT EXTRACT(EPOCH FROM settime),status FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC ;";
+        let selectQuery = `
+            SELECT 
+                EXTRACT(EPOCH FROM settime),status
+             FROM 
+                reception_handler.app_status 
+            WHERE 
+                settime > now()::date
+             ORDER BY id DESC ;`;
         let args = [
         ];
 
@@ -309,7 +320,16 @@ export class VisitorStore {
     }
 
     currentStatus() {
-        let selectQuery = 'SELECT EXTRACT(EPOCH FROM settime),status FROM reception_handler.app_status  where settime > now()::date ORDER BY id DESC;';
+        let selectQuery = `
+            SELECT 
+                EXTRACT(EPOCH FROM settime),
+                status 
+            FROM 
+                reception_handler.app_status
+            WHERE 
+                settime > now()::date
+             ORDER BY id DESC`;
+
         let args = [
         ];
 
@@ -322,9 +342,13 @@ export class VisitorStore {
     getTime(from="midnight"){
         var data = new Date();
         var month = data.getMonth()+1;
-        var myDate = [data.getFullYear(), month <10 ? '0' + month : month ,data.getDate() < 10 ? '0' + data.getDate() : data.getDate()].join('-');
+
+        var myDate = [data.getFullYear(), month <10 ? "0" + month :
+                    month ,data.getDate() < 10 ? "0" + data.getDate() : data.getDate()]
+            .join("-");
+
         var myTime = "";
-        if(from == "midnight"){
+        if(from === "midnight"){
             myTime = "00:00:00";
         }else{
             myTime = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
@@ -337,9 +361,13 @@ export class VisitorStore {
     getTimeforsettime(from="midnight"){
         var data = new Date();
         var month = data.getMonth()+1;
-        var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
+
+        var myDate = [data.getDate() < 10 ? "0" + data.getDate() :
+            data.getDate(), month <10 ? "0" + month : month ,data.getFullYear()]
+            .join("-");
+
         var myTime = "";
-        if(from == "midnight"){
+        if(from === "midnight"){
             myTime = "00:00:00";
         }else{
             myTime = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
@@ -357,7 +385,13 @@ export class VisitorStore {
 
     autoCompletePost(data) {
 
-        let insertQuery = 'INSERT INTO reception_handler.autoComplete (tablet_id, type, suggestion) VALUES ( $1, $2, $3 ) RETURNING id';
+        let insertQuery = `
+            INSERT INTO 
+                reception_handler.autoComplete (tablet_id, type, suggestion)
+             VALUES 
+                ( $1, $2, $3 )
+             RETURNING 
+                id`;
         let args = [
             data.location,
             data.type,
@@ -367,11 +401,11 @@ export class VisitorStore {
         return this._resource.query(insertQuery, args)
             .then(response => {
                 return response;
-            })
+            });
     }
 
     autoCompleteId(id) {
-        let selectQuery = 'SELECT * FROM reception_handler.autoComplete WHERE id = $1 ';
+        let selectQuery = "SELECT * FROM reception_handler.autoComplete WHERE id = $1 ";
         let args = [
             id
         ];
@@ -398,7 +432,14 @@ export class VisitorStore {
     }
 
     updateAutoComplete(id, data) {
-        let selectQuery = 'UPDATE reception_handler.autoComplete SET  type = $1, location= $2, suggestion = $3  WHERE id = $4 ';
+        let selectQuery = `
+                UPDATE 
+                    reception_handler.autoComplete
+                SET  
+                    type = $1, location= $2, suggestion = $3  
+                WHERE 
+                    id = $4 `;
+
         let args = [
             data.type,
             data.location,
@@ -414,7 +455,7 @@ export class VisitorStore {
 
     deleteAutoComplete(id) {
 
-        let selectQuery = 'SELECT *  from reception_handler.autoComplete WHERE id = $1 ';
+        let selectQuery = "SELECT *  from reception_handler.autoComplete WHERE id = $1 ";
         let args = [
             id
         ];
@@ -422,14 +463,15 @@ export class VisitorStore {
         return this._resource.query(selectQuery, args)
             .then(response => {
                 //return response;
-                let delQuery = 'DELETE from reception_handler.autoComplete WHERE id = $1 ';
+                let delQuery = "DELETE from reception_handler.autoComplete WHERE id = $1";
                 let args = [
                     id
                 ];
 
                 return this._resource.query(delQuery, args)
                     .then(() => {
-                        //Wonder why we are returning select response, because, we need tablet_id to fire an event. Which we cannot get after deleting the row.
+                        //Wonder why we are returning select response,
+                        // because, we need tablet_id to fire an event. Which we cannot get after deleting the row.
                         return response;
                     });
             });
@@ -484,7 +526,7 @@ export class VisitorStore {
         // Pass Location and Departments
         let args = [
             tabLocation,
-            ['IT', 'Programme Mgt Office']
+            ["IT", "Programme Mgt Office"]
         ];
 
         return this._resource.query(selectQuery, args)
@@ -494,9 +536,15 @@ export class VisitorStore {
             .then(result => {
 
                 var result = result;
-                let staffSelectQuery = `select EXTRACT(EPOCH FROM signin_time) as signin_time, EXTRACT(EPOCH FROM signout_time) as signout_time, staff_id, id 
-                        from reception_handler.building_signin 
-                        where id in
+                let staffSelectQuery = `
+                    SELECT 
+                        EXTRACT(EPOCH FROM signin_time) as signin_time,
+                        EXTRACT(EPOCH FROM signout_time) as signout_time,
+                        staff_id, id 
+                    FROM
+                        reception_handler.building_signin 
+                    WHERE
+                        id in
                                 (
                                     SELECT max(id)
                                       FROM reception_handler.building_signin
@@ -512,36 +560,37 @@ export class VisitorStore {
                     .then(staffResponse => {
                         _.forEach(result.rows, (value, key) => {
 
-                            result.rows[key]['signinTime'] = '';
-                            result.rows[key]['signoutTime'] = '';
-                            result.rows[key]['lastActivity'] = 'No Activity Today';
-                            result.rows[key]['status'] = 'Outside of Building';
-                            result.rows[key]['primaryId'] = 0;
+                            result.rows[key]["signinTime"] ="";
+                            result.rows[key]["signoutTime"] ="";
+                            result.rows[key]["lastActivity"] = "No Activity Today";
+                            result.rows[key]["status"] = "Outside of Building";
+                            result.rows[key]["primaryId"] = 0;
 
                             _.forEach(staffResponse.rows, (staffValue, staffKey) => {
-                                if (staffValue.staff_id == value.employee_number) {
+                                if (staffValue.staff_id === value.employee_number) {
 
-                                    this._logger.info("User ID matched who are inside building for TabId >>>" + tabId + " with ID >>> "+ staffValue.staff_id);
+                                    this._logger.info("User ID matched who are inside building for TabId " +
+                                        ">>>" + tabId + " with ID >>> "+ staffValue.staff_id);
 
                                     if (staffValue.signout_time != null) {
-                                        result.rows[key]['status'] = 'Outside of Building';
-                                        result.rows[key]['lastActivity'] = 'Signed Out';
-                                        result.rows[key]['signoutTime'] = this.timeConverter(staffValue.signout_time);
+                                        result.rows[key]["status"] = "Outside of Building";
+                                        result.rows[key]["lastActivity"] = "Signed Out";
+                                        result.rows[key]["signoutTime"] = this.timeConverter(staffValue.signout_time);
                                     }else if (staffValue.signin_time != null) {
-                                        result.rows[key]['status'] = 'Inside Building';
-                                        result.rows[key]['lastActivity'] = 'Signed In';
-                                        result.rows[key]['signinTime'] = this.timeConverter(staffValue.signin_time);
+                                        result.rows[key]["status"] = "Inside Building";
+                                        result.rows[key]["lastActivity"] = "Signed In";
+                                        result.rows[key]["signinTime"] = this.timeConverter(staffValue.signin_time);
                                     }
-                                    result.rows[key]['primaryId'] = staffValue.id;
+                                    result.rows[key]["primaryId"] = staffValue.id;
                                 }
-                            })
+                            });
                         });
                         return result;
                     })
                     .then(result => {
 
                         var allResult = result;
-                        let marshallSelectQuery = 'SELECT * from reception_handler.fire_marshall WHERE tablet_id=$1';
+                        let marshallSelectQuery = "SELECT * from reception_handler.fire_marshall WHERE tablet_id=$1";
                         let args = [
                             tabId
                         ];
@@ -549,19 +598,21 @@ export class VisitorStore {
                         return this._resource.query(marshallSelectQuery, args)
                             .then(marshallResponse => {
                                 _.forEach(allResult.rows, (value, key) => {
-                                    allResult.rows[key]['fireMarshall'] = "no";
+                                    allResult.rows[key]["fireMarshall"] = "no";
                                     _.forEach(marshallResponse.rows, ( marshallValue, marshallKey) => {
-                                        if ( marshallValue.employee_number == value.employee_number) {
-                                            this._logger.info("User ID matched who are Fire Marshall for TabId >>>" + tabId + " with ID >>> "+  marshallValue.employee_number);
-                                                allResult.rows[key]['fireMarshall'] = "yes";
+                                        if ( marshallValue.employee_number === value.employee_number) {
+                                            this._logger.info("User ID matched who are Fire Marshall for TabId >>>" + tabId + " with ID " +
+                                                ">>> "+  marshallValue.employee_number);
+
+                                                allResult.rows[key]["fireMarshall"] = "yes";
                                         }
-                                    })
+                                    });
                                 });
                                 return allResult;
                             });
-                    })
-            })
-        })
+                    });
+            });
+        });
     }
 
     customizer(objValue, srcValue) {
@@ -569,7 +620,15 @@ export class VisitorStore {
     }
 
     staffData(id) {
-        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date ORDER BY signin_time DESC LIMIT 1';
+        let selectQuery = `
+            SELECT
+                * 
+            FROM 
+                reception_handler.building_signin 
+            WHERE 
+                staff_id=$1 and signin_time > now()::date
+             ORDER BY 
+                signin_time DESC LIMIT 1`;
 
         let args = [
             id
@@ -585,7 +644,16 @@ export class VisitorStore {
     staffSignIn(id) {
 
         console.log("User ID going to sign in" + id);
-        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
+        let selectQuery = `
+                SELECT
+                    * 
+                FROM 
+                    reception_handler.building_signin 
+                WHERE 
+                    staff_id=$1 and signin_time > now()::date and signout_time IS NULL 
+                ORDER BY 
+                    signin_time DESC LIMIT 1`;
+
 
         let args = [
             id
@@ -609,10 +677,15 @@ export class VisitorStore {
                             return response;
                         })
                         .then( updateResult => {
-                            let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                            let insertQuery = `
+                                INSERT INTO 
+                                    reception_handler.building_signin (staff_id, department_code)
+                                 VALUES 
+                                    ( $1, $2 )`;
+
                             let args = [
                                 id,
-                                'P103'
+                                "P103"
                             ];
 
                             return this._resource.query(insertQuery, args)
@@ -621,12 +694,16 @@ export class VisitorStore {
                                    this._io.emit("forceLogin");
                                     return response;
                                 });
-                        })
+                        });
                 }else {
-                    let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 )';
+                    let insertQuery = `
+                        INSERT INTO 
+                            reception_handler.building_signin (staff_id, department_code) 
+                        VALUES ( $1, $2 )`;
+
                     let args = [
                         id,
-                        'P103'
+                        "P103"
                     ];
 
                     return this._resource.query(insertQuery, args)
@@ -634,19 +711,25 @@ export class VisitorStore {
                             return response;
                     });
                 }
-            })
+            });
     }
 
 //FireMarshall Functionality
     addFireMarshall (data){
-        let selectQuery = 'SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1';
+        let selectQuery = "SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1";
         let args = [
             data.marshall_name
         ];
 
         return this._resource.query(selectQuery, args)
             .then(response => {
-                let insertQuery = 'INSERT INTO reception_handler.fire_marshall (name, email_adds, tablet_id, employee_number) VALUES ( $1, $2, $3, $4 ) RETURNING id';
+                let insertQuery = `
+                        INSERT INTO 
+                            reception_handler.fire_marshall (name, email_adds, tablet_id, employee_number)
+                         VALUES 
+                            ( $1, $2, $3, $4 )
+                         RETURNING id`;
+
                 let args = [
                     response.rows[0].first_name + " " + response.rows[0].surname,
                     data.marshall_email,
@@ -663,7 +746,14 @@ export class VisitorStore {
 
     updateFireMarshall (id, data){
 
-        let insertQuery = 'UPDATE reception_handler.fire_marshall SET name = $1, email_adds = $2, location = $3 WHERE id= $4';
+        let insertQuery = `
+                UPDATE 
+                    reception_handler.fire_marshall
+                SET 
+                    name = $1, email_adds = $2, location = $3 
+                WHERE 
+                    id= $4`;
+
         let args = [
             data.name,
             data.email_adds,
@@ -679,7 +769,7 @@ export class VisitorStore {
 
     deleteFireMarshall (id){
 
-        let insertQuery = 'DELETE FROM reception_handler.fire_marshall  WHERE id= $1';
+        let insertQuery = "DELETE FROM reception_handler.fire_marshall  WHERE id= $1";
         let args = [
             id
         ];
@@ -715,20 +805,26 @@ export class VisitorStore {
         return this._resource.query(selectQuery, args)
             .then(response => {
                 return response;
-            })
+            });
 
     }
 
     //FirstAid Functionality
     postFirstAid (data){
-        let selectQuery = 'SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1';
+        let selectQuery = "SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1";
         let args = [
             data.first_aider
         ];
 
         return this._resource.query(selectQuery, args)
             .then(response => {
-                let insertQuery = 'INSERT INTO reception_handler.first_aid (tablet_id, employee_name, employee_number, email_adds) VALUES ( $1, $2, $3, $4 ) RETURNING id';
+                let insertQuery = `
+                        INSERT INTO 
+                            reception_handler.first_aid (tablet_id, employee_name, employee_number, email_adds)
+                         VALUES 
+                            ( $1, $2, $3, $4 ) 
+                         RETURNING id`;
+
                 let args = [
                     data.location,
                     response.rows[0].first_name + " " + response.rows[0].surname,
@@ -745,14 +841,21 @@ export class VisitorStore {
 
     updateFirstAid (id, data){
 
-        let selectQuery = 'SELECT first_name, surname FROM human_resource.employees WHERE employee_number = $1';
+        let selectQuery = `
+                SELECT 
+                    first_name, surname 
+                FROM 
+                    human_resource.employees 
+                WHERE 
+                    employee_number = $1`;
+
         let args = [
             data.employee_number
         ];
 
         return this._resource.query(selectQuery, args)
             .then(response => {
-                let insertQuery = 'UPDATE reception_handler.first_aid SET tablet_id = $1, employee_name = $2, employee_number = $3, email_adds = $4 WHERE id= $5';
+                let insertQuery = "UPDATE reception_handler.first_aid SET tablet_id = $1, employee_name = $2, employee_number = $3, email_adds = $4 WHERE id= $5";
                 let args = [
                     data.tablet_id,
                     response.rows[0].first_name + " " + response.rows[0].surname,
@@ -765,12 +868,12 @@ export class VisitorStore {
                     .then(response => {
                         return response;
                     });
-            })
+            });
     }
 
     deleteFirstAid (id){
 
-        let insertQuery = 'DELETE FROM reception_handler.fire_marshall  WHERE id= $1';
+        let insertQuery = "DELETE FROM reception_handler.fire_marshall  WHERE id= $1";
         let args = [
             id
         ];
@@ -806,13 +909,20 @@ export class VisitorStore {
         return this._resource.query(selectQuery, args)
             .then(response => {
                 return response;
-            })
-
+            });
     }
 
 
     staffSignOut(id) {
-        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date  and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
+        let selectQuery = `
+                SELECT 
+                    * 
+                FROM 
+                    reception_handler.building_signin
+                WHERE 
+                    staff_id=$1 and signin_time > now()::date  and signout_time IS NULL 
+                ORDER BY 
+                    signin_time DESC LIMIT 1`;
 
         let args = [
             id
@@ -823,7 +933,7 @@ export class VisitorStore {
                 return response;
             })
             .then( result => {
-                if(result.rowCount == 1){
+                if(result.rowCount === 1){
                     let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2";
 
                     let args = [
@@ -834,13 +944,18 @@ export class VisitorStore {
                     return this._resource.query(updateQuery, args)
                         .then(response => {
                             return response;
-                        })
+                        });
                 }else{
-                    let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, signin_time, department_code, signout_time ) VALUES ( $1, $2 , $3, $4)';
+                    let insertQuery = `
+                        INSERT INTO 
+                            reception_handler.building_signin (staff_id, signin_time, department_code, signout_time ) 
+                    VALUES 
+                            ( $1, $2 , $3, $4)`;
+
                     let args = [
                         id,
                         null,
-                        'P103',
+                        "P103",
                         this.getTime("")
                     ];
 
@@ -851,16 +966,23 @@ export class VisitorStore {
                 }
 
                 //throw new Error("Sorry! I am unable to find you was Signed In today, Can you please Sign In first");
-            })
-
+            });
         }
 
     staffSignedIn(id) {
 
-        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname
-                           FROM reception_handler.building_signin a
-                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying
-                           where signin_time > now()::date and signout_time IS NULL`;
+        let selectQuery = `
+                SELECT  
+                    EXTRACT(EPOCH FROM a.signin_time) as signin_time ,
+                    EXTRACT(EPOCH FROM a.signout_time) as signout_time,
+                    a.staff_id, b.employee_number, b.first_name, b.surname
+                FROM 
+                    reception_handler.building_signin a
+                LEFT JOIN 
+                    human_resource.employees b ON b.employee_number = a.staff_id::character varying
+               WHERE 
+                    signin_time > now()::date and signout_time IS NULL`;
+
         let args = [
         ];
 
@@ -868,12 +990,12 @@ export class VisitorStore {
             .then(response => {
                 _.each(response.rows , (val, key) => {
                     if(val.signin_time != null) {
-                        response.rows[key]['signin_time'] = this.timeConverter(val.signin_time);
+                        response.rows[key]["signin_time"] = this.timeConverter(val.signin_time);
                     }
                     if(val.signout_time != null){
-                        response.rows[key]['signout_time'] = this.timeConverter(val.signout_time);
+                        response.rows[key]["signout_time"] = this.timeConverter(val.signout_time);
                     }
-                })
+                });
                 return response;
             });
     }
@@ -881,10 +1003,18 @@ export class VisitorStore {
     //All Staff Signed out
     staffSignedOut(id) {
 
-        let selectQuery = `SELECT  EXTRACT(EPOCH FROM a.signin_time) as signin_time , EXTRACT(EPOCH FROM a.signout_time) as signout_time, a.staff_id, b.employee_number, b.first_name, b.surname
-                           FROM reception_handler.building_signin a
-                           LEFT JOIN human_resource.employees b ON b.employee_number = a.staff_id::character varying
-                           where  signout_time > now()::date`;
+        let selectQuery = `
+                SELECT  
+                    EXTRACT(EPOCH FROM a.signin_time) as signin_time ,
+                    EXTRACT(EPOCH FROM a.signout_time) as signout_time,
+                    a.staff_id, b.employee_number, b.first_name, b.surname
+                FROM 
+                    reception_handler.building_signin a
+                LEFT JOIN 
+                    human_resource.employees b ON b.employee_number = a.staff_id::character varying
+                WHERE  
+                    signout_time > now()::date`;
+
         let args = [
         ];
 
@@ -892,12 +1022,12 @@ export class VisitorStore {
             .then(response => {
                 _.each(response.rows , (val, key) => {
                     if(val.signin_time != null) {
-                        response.rows[key]['signin_time'] = this.timeConverter(val.signin_time);
+                        response.rows[key]["signin_time"] = this.timeConverter(val.signin_time);
                     }
                     if(val.signout_time != null){
-                        response.rows[key]['signout_time'] = this.timeConverter(val.signout_time);
+                        response.rows[key]["signout_time"] = this.timeConverter(val.signout_time);
                     }
-                })
+                });
                 return response;
             });
     }
@@ -905,11 +1035,21 @@ export class VisitorStore {
     allPrintOut(){
         var data = new Date();
         var month = data.getMonth()+1;
-        var myDate = [data.getDate() < 10 ? '0' + data.getDate() : data.getDate(), month <10 ? '0' + month : month ,data.getFullYear()].join('-');
+        var myDate = [data.getDate() < 10 ? "0" + data.getDate() :
+                      data.getDate(), month <10 ? "0" + month : month ,data.getFullYear()]
+                      .join("-");
 
-        let selectQuery = `SELECT * FROM reception_handler.cromwell_recp WHERE   settime > $1 and signout IS NULL  and id >392 ORDER BY contactname asc`;
+        let selectQuery = `
+                SELECT 
+                    * 
+                FROM 
+                    reception_handler.cromwell_recp 
+                WHERE  
+                    settime > $1 and signout IS NULL  
+                AND 
+                    id >392 ORDER BY contactname asc`;
         let args = [
-            myDate + ' 00:0:00'
+            myDate + " 00:0:00"
         ];
 
         return this._resource.query(selectQuery, args)
@@ -920,9 +1060,15 @@ export class VisitorStore {
             .then( visitorResponse => {
 
                 //Adding all staff data
-                let selectQuery = `SELECT staff.*, u.employee_number,u.first_name,u.surname FROM reception_handler.building_signin staff
-                                    LEFT JOIN human_resource.employees u ON staff.staff_id::character varying = u.employee_number
-                                    WHERE   staff.signin_time > now()::date and signout_time IS NULL ORDER BY u.first_name asc`;
+                let selectQuery = `
+                        SELECT 
+                            staff.*, u.employee_number,u.first_name,u.surname 
+                        FROM 
+                            reception_handler.building_signin staff
+                        LEFT JOIN 
+                            human_resource.employees u ON staff.staff_id::character varying = u.employee_number
+                        WHERE   
+                            staff.signin_time > now()::date and signout_time IS NULL ORDER BY u.first_name asc`;
                 let args = [
                 ];
 
@@ -933,9 +1079,7 @@ export class VisitorStore {
                         staffResponse.rows.todayDate = Date.now();
                         return staffResponse;
                     });
-            })
-
-
+            });
     }
 
     //search queries
@@ -956,7 +1100,14 @@ export class VisitorStore {
     nfcActivity (id){
 
         console.log("User ID going to sign in" + id);
-        let selectQuery = 'SELECT * from reception_handler.building_signin WHERE staff_id=$1 and signin_time > now()::date and signout_time IS NULL ORDER BY signin_time DESC LIMIT 1';
+        let selectQuery = `
+                SELECT 
+                    * 
+                FROM 
+                    reception_handler.building_signin 
+                WHERE 
+                    staff_id=$1 and signin_time > now()::date and signout_time
+                 IS NULL ORDER BY signin_time DESC LIMIT 1`;
 
         let args = [
             id
@@ -968,8 +1119,14 @@ export class VisitorStore {
         })
         .then( result => {
 
-            if(result.rowCount == 1){
-                let updateQuery = "UPDATE reception_handler.building_signin SET signout_time = $1 WHERE id = $2 RETURNING id";
+            if(result.rowCount === 1){
+                let updateQuery = `
+                        UPDATE 
+                            reception_handler.building_signin 
+                        SET 
+                            signout_time = $1 
+                        WHERE 
+                            id = $2 RETURNING id`;
 
                 let args = [
                     this.getTime(""),
@@ -979,13 +1136,17 @@ export class VisitorStore {
                 return this._resource.query(updateQuery, args)
                 .then(response => {
                     return response;
-                })
-
+                });
             }else {
-                let insertQuery = 'INSERT INTO reception_handler.building_signin (staff_id, department_code) VALUES ( $1, $2 ) RETURNING id';
+                let insertQuery = `
+                    INSERT INTO 
+                        reception_handler.building_signin (staff_id, department_code) 
+                    VALUES 
+                        ( $1, $2 ) RETURNING id`;
+
                 let args = [
                     id,
-                    'P103'
+                    "P103"
                 ];
 
                 return this._resource.query(insertQuery, args)
@@ -996,7 +1157,7 @@ export class VisitorStore {
         })
         .then(result => {
             var activity = result.command;
-            let selectQuery = 'SELECT * from human_resource.employees where employee_number = $1';
+            let selectQuery = "SELECT * from human_resource.employees where employee_number = $1";
 
             let args = [
                 id
@@ -1007,8 +1168,8 @@ export class VisitorStore {
                    // console.log("NFC activity result" + JSON.stringify(response));
                     response.activity = activity;
                     return response;
-                })
-        })
+                });
+        });
     }
 
     //Functionality for Tablets
@@ -1031,7 +1192,7 @@ export class VisitorStore {
                         finalData.departments = finalData.rows;
                         return finalData;
                     });
-            })
+            });
     }
 
     tabletPost(data) {
@@ -1039,11 +1200,11 @@ export class VisitorStore {
         let location_id;
         let location_name;
 
-        location = _.split(data.location, '_');
+        location = _.split(data.location, "_");
         location_id = location[0];
         location_name = location[1];
 
-        let selectQuery = 'SELECT id FROM reception_handler.tablets WHERE location_id = $1 and tablet_name = $2';
+        let selectQuery = "SELECT id FROM reception_handler.tablets WHERE location_id = $1 and tablet_name = $2";
         let args = [
             location_id,
             data.tablet_name
@@ -1051,8 +1212,13 @@ export class VisitorStore {
 
         return this._resource.query(selectQuery, args)
             .then(response => {
-                if(response.rowCount == 0){
-                    let insertQuery = 'INSERT INTO reception_handler.tablets (location_id, location_name, tablet_name, printer_name) VALUES ( $1, $2, $3, $4) RETURNING id';
+                if(response.rowCount === 0){
+                    let insertQuery = `
+                                INSERT INTO 
+                                    reception_handler.tablets 
+                                    (location_id, location_name, tablet_name, printer_name)
+                                 VALUES 
+                                     ( $1, $2, $3, $4) RETURNING id`;
                     let insertArgs = [
                         location_id,
                         location_name,
@@ -1063,10 +1229,11 @@ export class VisitorStore {
                     return this._resource.query(insertQuery, insertArgs)
                         .then(response => {
                             return response;
-                        })
+                        });
                 }
                 else{
-                   throw  new Error("It seems like another tablet is already located at this location with name " + data.tablet_name);
+                   throw  new Error(`It seems like another tablet is already located at 
+                                        this location with name " + data.tablet_name`);
                 }
             })
             .then(result => {
@@ -1075,11 +1242,17 @@ export class VisitorStore {
                 let department_name;
                 let tablet_id = result.rows[0].id;
                 let deptToProcess = _.map(data.department, deptData => {
-                    department = _.split(deptData, '_');
+                    department = _.split(deptData, "_");
                     department_id = department[0];
                     department_name = department[1];
 
-                    let deptInsertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
+                    let deptInsertQuery = `
+                        INSERT INTO 
+                            reception_handler.tablets_dept 
+                            (tablet_id, department_id, department_name)
+                         VALUES 
+                            ( $1, $2, $3) RETURNING id`;
+
                     let deptInsertArgs = [
                         tablet_id,
                         department_id,
@@ -1111,12 +1284,13 @@ export class VisitorStore {
             .then(response => {
                 return response;
             });
-    };
+    }
 
     allTablet(){
 
         let selectQuery = `SELECT
-                                td.*, t.location_id, t.location_name, t.tablet_name, t.printer_name, t.id as primary_tabid
+                                td.*, t.location_id, t.location_name, t.tablet_name, 
+                                t.printer_name, t.id as primary_tabid
                             FROM 
                                 reception_handler.tablets t
                             LEFT JOIN 
@@ -1135,11 +1309,11 @@ export class VisitorStore {
         let location_id;
         let location_name;
 
-        location = _.split(data.location, '_');
+        location = _.split(data.location, "_");
         location_id = parseInt(location[0]);
         location_name = location[1];
 
-        let updateQuery = 'UPDATE reception_handler.tablets SET  location_id = $1, location_name= $2 WHERE id = $3 ';
+        let updateQuery = "UPDATE reception_handler.tablets SET  location_id = $1, location_name= $2 WHERE id = $3 ";
         let args = [
             location_id,
             location_name,
@@ -1152,17 +1326,20 @@ export class VisitorStore {
             })
             .then(result => {
 
-                if(typeof data.department != "undefined") {
+                if(typeof data.department !== "undefined") {
                     let department;
                     let department_id;
                     let department_name;
                     let deptToProcess = _.map(data.department, deptData => {
 
-                        department = _.split(deptData, '_');
+                        department = _.split(deptData, "_");
                         department_id = department[0];
                         department_name = department[1];
 
-                        let selectQuery = 'SELECT id FROM reception_handler.tablets_dept WHERE tablet_id = $1 and department_id =$2';
+                        let selectQuery = `
+                                SELECT id 
+                                FROM reception_handler.tablets_dept
+                                 WHERE tablet_id = $1 and department_id =$2`;
                         let args = [
                             tabId,
                             department_id
@@ -1174,7 +1351,7 @@ export class VisitorStore {
                             .then(rowResult => {
 
                                 if (rowResult.rowCount == 0) {
-                                    let insertQuery = 'INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id';
+                                    let insertQuery = "INSERT INTO reception_handler.tablets_dept (tablet_id, department_id, department_name) VALUES ( $1, $2, $3) RETURNING id";
                                     let insertArgs = [
                                         tabId,
                                         department_id,
@@ -1187,7 +1364,7 @@ export class VisitorStore {
                                         })
                                 }
                                 else {
-                                    let updateDeptQuery = 'UPDATE reception_handler.tablets_dept SET  department_id = $1, department_name= $2 WHERE tablet_id = $3 and department_id= $4';
+                                    let updateDeptQuery = "UPDATE reception_handler.tablets_dept SET  department_id = $1, department_name= $2 WHERE tablet_id = $3 and department_id= $4";
                                     let args = [
                                         department_id,
                                         department_name,
@@ -1213,7 +1390,7 @@ export class VisitorStore {
     }
 
     deleteTabletDept(id) {
-        let selectQuery = 'DELETE from reception_handler.tablets_dept WHERE id = $1 ';
+        let selectQuery = "DELETE from reception_handler.tablets_dept WHERE id = $1 ";
         let args = [
             id
         ];

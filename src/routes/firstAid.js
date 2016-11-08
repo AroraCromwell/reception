@@ -19,9 +19,9 @@ export class FirstAidRoutes {
         return [
             (req,res) => {
                 //We actually need all the tablets to be listed while adding suggestion.
-                res.render('showFirstAid', {"data": allTablets});
+                res.render("showFirstAid", {"data": allTablets});
             }
-        ]
+        ];
     }
 
     /**
@@ -33,7 +33,7 @@ export class FirstAidRoutes {
             (req, res) => {
                 this._visitorService.postFirstAid(req.body)
                     .then(() => {
-                        if(req.body.another != undefined){
+                        if(req.body.another !== undefined){
                             res.redirect("/firstAid");
                         }else {
                             res.redirect("/allFirstAid");
@@ -78,7 +78,7 @@ export class FirstAidRoutes {
                     .then(result => {
                         let row = result.rows;
                         row.locations = allTablets;
-                        res.render('allFirstAid', {data: row});
+                        res.render("allFirstAid", {data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -98,7 +98,7 @@ export class FirstAidRoutes {
                 this._visitorService.deleteFirstAid(req.params.id)
                     .then(result => {
                         let row = result.rows;
-                        res.render('allFirstAid', {data: row});
+                        res.render("allFirstAid", {data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);

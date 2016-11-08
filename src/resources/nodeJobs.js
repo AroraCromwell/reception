@@ -1,7 +1,7 @@
 
 import nodeSchedule from "node-schedule";
 import config from "../config.json";
-var exec = require('child_process').exec;
+var exec = require("child_process").exec;
 
 module.exports = function (visitors, statusRoutes, logger) {
     nodeSchedule.scheduleJob(config.runTime, function () {
@@ -19,7 +19,7 @@ module.exports = function (visitors, statusRoutes, logger) {
                         console.log(stdout);
 
                         if (error !== null) {
-                            console.log('exec error: ' + error);
+                            console.log("exec error: " + error);
                         }
                     });
                 })
@@ -29,7 +29,7 @@ module.exports = function (visitors, statusRoutes, logger) {
                 statusRoutes.cleanStatus()
                     .then(() => {
                         logger.info("Status Clean");
-                    })
-            })
+                    });
+            });
     });
 };

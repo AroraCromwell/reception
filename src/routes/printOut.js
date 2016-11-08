@@ -1,7 +1,7 @@
 "use strict";
 
 import {_} from "lodash";
-var base64 = require('node-base64-image');
+var base64 = require("node-base64-image");
 var allTablets = "";
 
 export class PrintRoutes {
@@ -39,7 +39,8 @@ export class PrintRoutes {
                                     from: "IT Services<aroras@cromwell.co.uk>", // sender address
                                     to: emailR, // list of receivers
                                     subject: "Fire: Cromwell Reception", // Subject line
-                                    text: "There is fire in the building. Please find attached list of all Staff and Visitors in the building.",
+                                    text: "There is fire in the building. " +
+                                    "Please find attached list of all Staff and Visitors in the building.",
                                     attachments: [
                                         {   // utf-8 string as an attachment
                                             filename: "staff.pdf",
@@ -54,12 +55,12 @@ export class PrintRoutes {
 
                                 console.log("Sending Email ");
                                 //this._sendMail.mail(mailOptions);
-                            })
+                            });
 
                         if(id == 1 ){
-                            res.render('allPrintOut', {data: combineData});
+                            res.render("allPrintOut", {data: combineData});
                         }else {
-                            res.render('allVisitorsPrintOutWithPrint', {data: combineData});
+                            res.render("allVisitorsPrintOutWithPrint", {data: combineData});
                         }
                     })
                     .catch(err => {

@@ -2,7 +2,7 @@
 
 import {_} from "lodash";
 import getPrinters from "../resources/printers";
-var base64 = require('node-base64-image');
+var base64 = require("node-base64-image");
 var allTablets = "";
 
 export class TabletRoutes {
@@ -26,15 +26,15 @@ export class TabletRoutes {
                         this._visitorService.addTablet()
                             .then(result => {
                                 result.allPrinters = printerResult.printersArray;
-                                res.render('add_tablet', {data: result});
-                            })
+                                res.render("add_tablet", {data: result});
+                            });
                     })
                     .catch(err => {
                         this._logger.error(err);
                         res.send({ message: "Error", data: JSON.stringify(err)});
                     });
             }
-        ]
+        ];
     }
 
     /**
@@ -45,8 +45,8 @@ export class TabletRoutes {
         return [
             (req, res) => {
                 this._visitorService.tabletPost(req.body)
-                    .then(result => {
-                        if(req.body.another != undefined){
+                    .then(() => {
+                        if(req.body.another !== undefined){
                             res.redirect("/addTablet/?location=" + req.body.location);
                         }else {
                             res.redirect("/allTablet");
@@ -58,7 +58,7 @@ export class TabletRoutes {
                         res.send({success : 0, message : "Error!", data : err.toString() });
                     });
             }
-        ]
+        ];
     }
 
     /**
@@ -71,7 +71,7 @@ export class TabletRoutes {
                 this._visitorService.allTablet()
                     .then(result => {
                         let row = result.rows;
-                        res.render('all_tablet', {data: row});
+                        res.render("all_tablet", {data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -91,8 +91,8 @@ export class TabletRoutes {
                 this._visitorService.addTablet()
                     .then(result => {
 
-                        var allOptions = '';
-                        var allDept = '';
+                        var allOptions ="";
+                        var allDept ="";
                         _.each(result.locations, function(value) {
                             allOptions  += '<option value="' + value.location_id +'_'+ value.location_name +'">'+ value.location_name + '</option>';
                         });
@@ -109,7 +109,7 @@ export class TabletRoutes {
                         res.send({ message: "Error", data: JSON.stringify(err)});
                     });
             }
-        ]
+        ];
     }
 
     /**
@@ -128,7 +128,7 @@ export class TabletRoutes {
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
                     });
             }
-        ]
+        ];
     }
 
     /**
@@ -147,7 +147,7 @@ export class TabletRoutes {
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
                     });
             }
-        ]
+        ];
     }
 
     /**
@@ -172,6 +172,6 @@ export class TabletRoutes {
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
                     });
             }
-        ]
+        ];
     }
 }

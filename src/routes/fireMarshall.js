@@ -21,9 +21,9 @@ export class FireMarshallRoutes {
         return [
             (req,res) => {
                 //We actually need all the tablets to be listed while adding suggestion.
-                res.render('showFireMarshall', {"data": allTablets});
+                res.render("showFireMarshall", {"data": allTablets});
             }
-        ]
+        ];
     }
 
     /**
@@ -36,7 +36,7 @@ export class FireMarshallRoutes {
             (req, res) => {
                 this._visitorService.addFireMarshall(req.body)
                     .then(result => {
-                        if(req.body.another != undefined){
+                        if(req.body.another !== undefined){
                             res.redirect("/fireMarshall");
                         }else {
                             res.redirect("/allFireMarshall");
@@ -82,7 +82,7 @@ export class FireMarshallRoutes {
                 this._visitorService.allFireMarshall()
                     .then(result => {
                         let row = result.rows;
-                        res.render('allFireMarshall', {data: row});
+                        res.render("allFireMarshall", {data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);
@@ -102,7 +102,7 @@ export class FireMarshallRoutes {
                 this._visitorService.deleteFireMarshall(req.params.id)
                     .then(result => {
                         let row = result.rows;
-                        res.render('allFireMarshall', {data: row});
+                        res.render("allFireMarshall", {data: row});
                     })
                     .catch(err => {
                         this._logger.error(err);

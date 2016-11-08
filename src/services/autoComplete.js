@@ -16,13 +16,13 @@ export  class AutoComplete{
                 //We actually need all the tablets to be listed while adding suggestion.
                 this._visitorService.allTabletLocations()
                     .then(result => {
-                        res.render('autoComplete_add', {"data": result.rows});
+                        res.render("autoComplete_add", {"data": result.rows});
                     })
                     .catch(err => {
                         this._logger.error(err);
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
                     });
             }
-        ]
+        ];
     }
 }

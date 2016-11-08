@@ -21,14 +21,14 @@ export class StatusRoutes {
                     this._visitorService.processGraphData()
                         .then(result => {
                             result.locations = allTablets;
-                            res.render('graph_data', {"data": result});
+                            res.render("graph_data", {"data": result});
                         })
                     .catch(err => {
                         this._logger.error(err);
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err), retry: 1});
                     });
             }
-        ]
+        ];
     }
 
     /**
@@ -95,6 +95,6 @@ export class StatusRoutes {
                         res.send({success : 0, message : "Error!", data : JSON.stringify(err) });
                     });
             }
-        ]
+        ];
     }
 }
